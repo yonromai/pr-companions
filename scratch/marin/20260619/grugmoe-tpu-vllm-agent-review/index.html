@@ -10,6 +10,38 @@
       html { scroll-behavior: smooth; }
       body { background: #090b10; }
       .code { font-variant-ligatures: none; }
+      .evidence-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+      .evidence {
+        display: block;
+        border: 1px solid #334155;
+        border-left: 3px solid #38bdf8;
+        border-radius: 6px;
+        background: #020617;
+        padding: 0.75rem;
+        text-decoration: none;
+      }
+      .evidence:hover { border-color: #38bdf8; background: #07111f; }
+      .evidence span {
+        display: block;
+        color: #7dd3fc;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .evidence q, .evidence code {
+        display: block;
+        margin-top: 0.35rem;
+        color: #cbd5e1;
+        font-size: 0.8rem;
+        line-height: 1.45;
+      }
+      .evidence code { white-space: pre-wrap; }
     </style>
   </head>
   <body class="min-h-screen bg-[#090b10] text-slate-100 antialiased">
@@ -28,6 +60,9 @@
             This page assumes only high-level familiarity with Levanter, Grug, and vLLM. It first builds the
             context needed to understand why GrugMoE needs custom TPU serving code, then gives a linear path
             through the agent's fork-stack changes.
+          </p>
+          <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+            Blue evidence chips quote the support page directly. Click any chip to inspect the source link, validation record, or caveat behind the claim.
           </p>
         </div>
         <nav class="flex flex-wrap gap-3 text-sm">
@@ -48,6 +83,16 @@
           <p class="mt-3 text-sm leading-6 text-slate-300">
             Adds GrugMoE as an in-tree JAX model with a config switch between simple dense attention and production shared RPA/KV-cache attention.
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-registration-rationale" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <q>GrugMoE needs runner-owned JAX KV-cache and routed-expert plumbing.</q>
+            </a>
+            <a class="evidence" href="support.html#q-shared-attention" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>new_kv_cache, attn_out = shared_attention(...)</code>
+            </a>
+          </div>
           <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/4c38590e29d33451f2b4375a78ad8f70cacd7b98...871f9ba84a6682348a306b5acd903fb723cd2675">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
@@ -55,6 +100,16 @@
           <p class="mt-3 text-sm leading-6 text-slate-300">
             Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and runs dense-vs-production plus Levanter-vs-vLLM canaries.
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>"grugmoe_attention_mode": "production"</code>
+            </a>
+            <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <q>Full canary succeeded; max logprob delta 0.001596.</q>
+            </a>
+          </div>
           <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/aa6a44e77d2f51672077bdf0ca2d5f81e1608de2...bcaa1cee11a3df2270da237a97574caae2b92903">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
@@ -62,6 +117,16 @@
           <p class="mt-3 text-sm leading-6 text-slate-300">
             Keeps runner-supplied routed expert data from crashing the scheduler when the user has not requested routed expert outputs.
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-runner-output" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>return RoutedExpertsLists(... slot_mapping=slot_mapping)</code>
+            </a>
+            <a class="evidence" href="support.html#q-vllm-route-guard" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>self.enable_return_routed_experts and model_runner_output.routed_experts</code>
+            </a>
+          </div>
           <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/04321f0f01b8e60d577a85a1b1af688e4433e7e0...43e648985619749e7d1b232fbe408c7f5995d2d6">Open compare</a>
         </article>
       </section>
@@ -81,6 +146,16 @@
             transformer/MoE implementations do not already encode, so the TPU path needs custom model code, custom
             artifact loading, and custom diagnostics.
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-architecture" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <q>QB-routed MoE with GatedNorm, XSA, sigmoid combine weights.</q>
+            </a>
+            <a class="evidence" href="support.html#q-registration-rationale" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <q>GrugMoE needs runner-owned JAX KV-cache and routed-expert plumbing.</q>
+            </a>
+          </div>
         </div>
 
         <div class="mt-6 rounded border border-slate-800 bg-[#0d1117] p-5">
@@ -90,6 +165,16 @@
             unusual enough that vLLM cannot reuse an existing dense or MoE model class. For one token, one layer does
             this:
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-architecture" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <q>All layers are MoE.</q>
+            </a>
+            <a class="evidence" href="support.html#q-shared-expert" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>mlp_out = mlp_out + self.shared(...)</code>
+            </a>
+          </div>
           <div class="mt-5 overflow-x-auto">
             <svg role="img" aria-label="One token through a GrugMoE block" viewBox="0 0 1080 260" class="min-w-[980px]">
               <defs>
@@ -170,6 +255,24 @@
                 attention head. Dense and production attention must both apply this same post-processing.
               </p>
             </div>
+            <div class="evidence-row">
+              <a class="evidence" href="support.html#q-rmsnorm" title="Open quoted support and source">
+                <span>Quoted support</span>
+                <code>normed = x * jax.lax.rsqrt(variance + self.eps)</code>
+              </a>
+              <a class="evidence" href="support.html#q-gatednorm" title="Open quoted support and source">
+                <span>Quoted support</span>
+                <code>gate = jax.nn.sigmoid(gate_hidden @ w_up)</code>
+              </a>
+              <a class="evidence" href="support.html#q-attention-setup" title="Open quoted support and source">
+                <span>Quoted support</span>
+                <code>q = rms_norm(q); k = rms_norm(k); q, k = apply_rotary_embedding(...)</code>
+              </a>
+              <a class="evidence" href="support.html#q-xsa" title="Open quoted support and source">
+                <span>Quoted support</span>
+                <code>attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code>
+              </a>
+            </div>
           </article>
 
           <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
@@ -209,6 +312,24 @@
                 is routed-expert output plus this shared MLP output.
               </p>
             </div>
+            <div class="evidence-row">
+              <a class="evidence" href="support.html#q-qb-bias" title="Open quoted support and source">
+                <span>Quoted support</span>
+                <code>new_bias = -qb_betas[moe_idx]</code>
+              </a>
+              <a class="evidence" href="support.html#q-topk-boundary" title="Open quoted support and source">
+                <span>Quoted support</span>
+                <code>jax.lax.top_k(..., K + 1); selected_experts = selected_experts[:, :-1]</code>
+              </a>
+              <a class="evidence" href="support.html#q-combine-sigmoid" title="Open quoted support and source">
+                <span>Quoted support</span>
+                <code>combine_weights = jax.nn.sigmoid(unbiased_topk)</code>
+              </a>
+              <a class="evidence" href="support.html#q-shared-expert" title="Open quoted support and source">
+                <span>Quoted support</span>
+                <code>mlp_out = mlp_out + self.shared(..., activation=...silu)</code>
+              </a>
+            </div>
           </article>
         </div>
 
@@ -220,6 +341,16 @@
             <code class="code text-slate-100">[-0.3, +0.2, 0.0, +0.1]</code>, so top-k is chosen from biased logits
             <code class="code text-slate-100">[0.9, -0.2, 0.7, 0.2]</code>.
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-topk-boundary" title="Open quoted support and source">
+              <span>Mechanics quote</span>
+              <code>_topk_logits, selected_experts = jax.lax.top_k(..., K + 1)</code>
+            </a>
+            <a class="evidence" href="support.html#q-combine-sigmoid" title="Open quoted support and source">
+              <span>Mechanics quote</span>
+              <code>combine_weights = jax.nn.sigmoid(unbiased_topk)</code>
+            </a>
+          </div>
           <div class="mt-4 grid gap-3 lg:grid-cols-4">
             <div class="rounded border border-slate-700 bg-slate-950 p-4">
               <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">1. Choose candidates</p>
@@ -255,6 +386,24 @@
             scheduler guard because the TPU runner can return routed expert IDs for diagnostics even when the user did
             not request routed-expert output.
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-artifact-schema" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>"model.embed_gated_norm.down_proj.weight"; f"{prefix}.mlp.router.bias"</code>
+            </a>
+            <a class="evidence" href="support.html#q-registration-rationale" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <q>GrugMoE needs runner-owned JAX KV-cache and routed-expert plumbing.</q>
+            </a>
+            <a class="evidence" href="support.html#q-runner-output" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>return RoutedExpertsLists(...)</code>
+            </a>
+            <a class="evidence" href="support.html#q-vllm-route-guard" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>self.enable_return_routed_experts and model_runner_output.routed_experts</code>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -267,6 +416,24 @@
             TPU and calls shared TPU attention kernels. Marin's tests compare the resulting logits, logprobs, generated
             tokens, and expert routes against the Levanter/reference path.
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
+              <span>Marin export quote</span>
+              <code>"grugmoe_attention_mode": "production"</code>
+            </a>
+            <a class="evidence" href="support.html#q-shared-attention" title="Open quoted support and source">
+              <span>tpu-inference quote</span>
+              <code>new_kv_cache, attn_out = shared_attention(...)</code>
+            </a>
+            <a class="evidence" href="support.html#q-parity-smoke" title="Open quoted support and source">
+              <span>Test quote</span>
+              <code>_copy_transformer(dense_model, lev_model); _copy_transformer(production_model, lev_model)</code>
+            </a>
+            <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
+              <span>Validation quote</span>
+              <q>Generated IDs [57524, 45040, 67859]. Max logprob delta 0.001596.</q>
+            </a>
+          </div>
         </div>
         <div class="mt-5 overflow-x-auto rounded border border-slate-800 bg-[#0d1117] p-5">
           <svg role="img" aria-label="End-to-end Marin GrugMoE vLLM TPU request flow" viewBox="0 0 1060 250" class="min-w-[960px]">
@@ -306,18 +473,30 @@
             <p class="mt-2 text-sm leading-6 text-slate-300">
               Defines the GrugMoE model, emits a canonical inference artifact, pins the fork-stack SHAs, and owns the smoke/parity harness.
             </p>
+            <a class="evidence" href="support.html#q-artifact-schema" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>"model.embed_gated_norm.down_proj.weight"</code>
+            </a>
           </article>
           <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
             <h3 class="font-semibold text-white">tpu-inference fork</h3>
             <p class="mt-2 text-sm leading-6 text-slate-300">
               Adds the native JAX <code class="code">GrugMoeForCausalLM</code>, loads the Marin artifact, executes the forward pass, updates KV cache, and returns routed expert IDs for diagnostics.
             </p>
+            <a class="evidence" href="support.html#q-runner-output" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>routing_data=np.transpose(expert_indices_cpu, (1, 0, 2))</code>
+            </a>
           </article>
           <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
             <h3 class="font-semibold text-white">vLLM fork</h3>
             <p class="mt-2 text-sm leading-6 text-slate-300">
               Provides the serving front door and scheduler. The branch only needs a small guard so unsolicited routed expert data does not crash normal requests.
             </p>
+            <a class="evidence" href="support.html#q-vllm-route-guard" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>self.enable_return_routed_experts and model_runner_output.routed_experts</code>
+            </a>
           </article>
         </div>
       </section>
@@ -331,6 +510,16 @@
             reason about and compare to Levanter. The production path uses the shared tpu-inference attention kernel,
             vLLM's request metadata, and the paged KV cache used during serving.
           </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-dense-mode" title="Open quoted support and source">
+              <span>Dense quote</span>
+              <code>return kv_cache, self._dense_reference_attention(...)</code>
+            </a>
+            <a class="evidence" href="support.html#q-shared-attention" title="Open quoted support and source">
+              <span>Production quote</span>
+              <code>new_kv_cache, attn_out = shared_attention(...)</code>
+            </a>
+          </div>
         </div>
         <div class="mt-5 overflow-x-auto rounded border border-slate-800 bg-[#0d1117] p-5">
           <table class="w-full min-w-[760px] border-collapse text-left text-sm">
@@ -368,6 +557,16 @@
           The default exported artifact now says <code class="code text-slate-100">grugmoe_attention_mode = production</code>,
           so an installed vLLM smoke exercises the real serving path. Dense mode remains available as the clean reference path.
         </p>
+        <div class="evidence-row">
+          <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
+            <span>Export quote</span>
+            <code>"grugmoe_attention_mode": "production"</code>
+          </a>
+          <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
+            <span>Installed canary quote</span>
+            <q>Installed path returned works:full_canary_logprobs_and_routing.</q>
+          </a>
+        </div>
       </section>
 
       <section id="order" class="mt-10">
@@ -390,6 +589,16 @@
                   <span class="text-slate-500">/</span>
                   <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L835-L995">attention implementation</a>
                 </p>
+                <div class="evidence-row">
+                  <a class="evidence" href="support.html#q-dense-mode" title="Open quoted support and source">
+                    <span>Dense quote</span>
+                    <code>self.cfg.attention_mode == GrugMoeAttentionMode.DENSE</code>
+                  </a>
+                  <a class="evidence" href="support.html#q-shared-attention" title="Open quoted support and source">
+                    <span>Production quote</span>
+                    <code>shared_attention(kv_cache, q, k, v, attention_metadata, ...)</code>
+                  </a>
+                </div>
               </div>
             </div>
           </li>
@@ -406,6 +615,16 @@
                   <span class="text-slate-500">/</span>
                   <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/43e648985619749e7d1b232fbe408c7f5995d2d6/vllm/v1/core/sched/scheduler.py#L1325-L1339">scheduler guard</a>
                 </p>
+                <div class="evidence-row">
+                  <a class="evidence" href="support.html#q-runner-output" title="Open quoted support and source">
+                    <span>Runner quote</span>
+                    <code>return RoutedExpertsLists(...)</code>
+                  </a>
+                  <a class="evidence" href="support.html#q-vllm-route-guard" title="Open quoted support and source">
+                    <span>vLLM quote</span>
+                    <code>self.enable_return_routed_experts and model_runner_output.routed_experts</code>
+                  </a>
+                </div>
               </div>
             </div>
           </li>
@@ -422,6 +641,16 @@
                   <span class="text-slate-500">/</span>
                   <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/installed_vllm_full_canary_smoke.py#L217-L228">installed canary hook</a>
                 </p>
+                <div class="evidence-row">
+                  <a class="evidence" href="support.html#q-parity-smoke" title="Open quoted support and source">
+                    <span>Parity quote</span>
+                    <code>_copy_transformer(dense_model, lev_model); _copy_transformer(production_model, lev_model)</code>
+                  </a>
+                  <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
+                    <span>Validation quote</span>
+                    <q>Dense-vs-production hidden max delta 4.768e-07.</q>
+                  </a>
+                </div>
               </div>
             </div>
           </li>
@@ -438,6 +667,16 @@
                   <span class="text-slate-500">/</span>
                   <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/pyproject.toml#L163-L167">fork pins</a>
                 </p>
+                <div class="evidence-row">
+                  <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
+                    <span>Export quote</span>
+                    <code>"grugmoe_attention_mode": "production"</code>
+                  </a>
+                  <a class="evidence" href="support.html#q-caveat-serving-evidence" title="Open quoted support and source">
+                    <span>Caveat quote</span>
+                    <q>The installed vLLM TPU canaries are the evidence for the real serving path.</q>
+                  </a>
+                </div>
               </div>
             </div>
           </li>
@@ -450,6 +689,12 @@
                   The logbook evidence is useful, but its Marin "Current" field still points at <code class="code text-amber-100">dcc5f985a</code>
                   while the branch head is <code class="code text-amber-100">bcaa1cee1</code>.
                 </p>
+                <div class="evidence-row">
+                  <a class="evidence" href="support.html#q-caveat-stale-sha" title="Open quoted support and source">
+                    <span>Caveat quote</span>
+                    <q>The Marin logbook lists dcc5f985a as current, but the branch head inspected here is bcaa1cee1.</q>
+                  </a>
+                </div>
               </div>
             </div>
           </li>
@@ -463,6 +708,16 @@
           For a small prompt, both paths receive the same parameters and token IDs. If the production path is correct,
           it should choose the same experts and produce nearly the same logits.
         </p>
+        <div class="evidence-row max-w-4xl">
+          <a class="evidence" href="support.html#q-parity-smoke" title="Open quoted support and source">
+            <span>Same-weights quote</span>
+            <code>_copy_transformer(dense_model, lev_model); _copy_transformer(production_model, lev_model)</code>
+          </a>
+          <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
+            <span>Comparison quote</span>
+            <q>logits max delta 2.384e-07, logprob max delta 0.0.</q>
+          </a>
+        </div>
         <div class="mt-5 overflow-x-auto rounded border border-slate-800 bg-[#0d1117] p-5">
           <svg role="img" aria-label="Dense and production attention comparison flow" viewBox="0 0 880 210" class="min-w-[760px]">
             <defs>
@@ -504,18 +759,48 @@
               <p class="mt-3 text-sm leading-6 text-slate-300">
                 Check that shared RPA gets full attention metadata, updates KV cache, applies the same exclusive self-attention post-processing as dense mode, and casts K/V to the cache dtype intentionally.
               </p>
+              <div class="evidence-row">
+                <a class="evidence" href="support.html#q-shared-attention" title="Open quoted support and source">
+                  <span>Attention quote</span>
+                  <code>shared_attention(kv_cache, q, k, v, attention_metadata, ...)</code>
+                </a>
+                <a class="evidence" href="support.html#q-xsa" title="Open quoted support and source">
+                  <span>XSA quote</span>
+                  <code>attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code>
+                </a>
+              </div>
             </details>
             <details class="rounded border border-slate-800 bg-[#0d1117] p-4">
               <summary class="cursor-pointer font-semibold text-white">Debug mode remains simple</summary>
               <p class="mt-3 text-sm leading-6 text-slate-300">
                 Dense attention should stay easy to read. It is a diagnostic/reference path, not the serving path to optimize.
               </p>
+              <div class="evidence-row">
+                <a class="evidence" href="support.html#q-dense-mode" title="Open quoted support and source">
+                  <span>Dense quote</span>
+                  <code>return kv_cache, self._dense_reference_attention(...)</code>
+                </a>
+                <a class="evidence" href="support.html#q-caveat-serving-evidence" title="Open quoted support and source">
+                  <span>Caveat quote</span>
+                  <q>The direct dense-vs-production smoke uses a controlled synthetic setup.</q>
+                </a>
+              </div>
             </details>
             <details class="rounded border border-slate-800 bg-[#0d1117] p-4">
               <summary class="cursor-pointer font-semibold text-white">Future TP/PP cost</summary>
               <p class="mt-3 text-sm leading-6 text-slate-300">
                 The branch has explicit single-rank assumptions in the smoke harness and bespoke loading in the model implementation. That is acceptable for this diagnostic goal, but note the debt if pipeline or tensor parallel serving becomes urgent.
               </p>
+              <div class="evidence-row">
+                <a class="evidence" href="support.html#q-caveat-loading" title="Open quoted support and source">
+                  <span>Caveat quote</span>
+                  <q>Weight loading remains bespoke and easy to audit for this model.</q>
+                </a>
+                <a class="evidence" href="support.html#q-caveat-pytest" title="Open quoted support and source">
+                  <span>Caveat quote</span>
+                  <q>Pytest did not run in the bare tpu-inference checkout.</q>
+                </a>
+              </div>
             </details>
           </div>
         </div>
@@ -526,23 +811,49 @@
               <div>
                 <dt class="text-xs uppercase tracking-wide text-slate-500">Hardware</dt>
                 <dd class="mt-1 text-sm text-slate-200">TPU v6e-4, europe-west4</dd>
+                <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
+                  <span>Validation quote</span>
+                  <q>TPU v6e-4 in europe-west4.</q>
+                </a>
               </div>
               <div>
                 <dt class="text-xs uppercase tracking-wide text-slate-500">Fork stack</dt>
                 <dd class="mt-1 text-sm text-slate-200">Marin bcaa1cee1, tpu-inference 871f9ba8, vLLM 43e648985</dd>
+                <a class="evidence" href="support.html#links" title="Open quoted support and source">
+                  <span>Branch heads</span>
+                  <q>Marin bcaa1cee..., tpu-inference 871f9ba..., vLLM 43e648...</q>
+                </a>
               </div>
               <div>
                 <dt class="text-xs uppercase tracking-wide text-slate-500">Small diagnostic</dt>
                 <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.0006318, route mismatch 0</dd>
+                <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
+                  <span>Validation quote</span>
+                  <q>Installed path returned works:full_canary_logprobs_and_routing.</q>
+                </a>
               </div>
               <div>
                 <dt class="text-xs uppercase tracking-wide text-slate-500">Full canary</dt>
                 <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.001596, suspicious mismatch 0</dd>
+                <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
+                  <span>Validation quote</span>
+                  <q>Max logprob delta 0.001596. Routing top1 match 1.0.</q>
+                </a>
               </div>
             </dl>
             <p class="mt-5 text-sm text-slate-300">
               Treat this as strong smoke evidence, not exhaustive production qualification. The remaining gaps are broader model-size coverage, CI in a full vLLM environment, and a final Marin rebase.
             </p>
+            <div class="evidence-row">
+              <a class="evidence" href="support.html#q-caveat-rebase" title="Open quoted support and source">
+                <span>Caveat quote</span>
+                <q>Expect a final rebase before PR publication.</q>
+              </a>
+              <a class="evidence" href="support.html#q-caveat-serving-evidence" title="Open quoted support and source">
+                <span>Caveat quote</span>
+                <q>The installed vLLM TPU canaries are the evidence for the real serving path.</q>
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -555,6 +866,24 @@
           <li>Confirm the pinned vLLM and tpu-inference branches are exactly the intended long-lived fork heads.</li>
           <li>Rerun at least the lightweight local checks after any rebase conflict; rerun TPU smoke if code paths move.</li>
         </ul>
+        <div class="evidence-row">
+          <a class="evidence" href="support.html#q-caveat-stale-sha" title="Open quoted support and source">
+            <span>Caveat quote</span>
+            <q>The Marin logbook lists dcc5f985a as current, but the branch head inspected here is bcaa1cee1.</q>
+          </a>
+          <a class="evidence" href="support.html#q-caveat-rebase" title="Open quoted support and source">
+            <span>Caveat quote</span>
+            <q>Expect a final rebase before PR publication.</q>
+          </a>
+          <a class="evidence" href="support.html#links" title="Open quoted support and source">
+            <span>Branch heads quote</span>
+            <q>tpu-inference 871f9ba..., vLLM 43e648...</q>
+          </a>
+          <a class="evidence" href="support.html#q-caveat-rerun" title="Open quoted support and source">
+            <span>Caveat quote</span>
+            <q>Rerun TPU smoke if code paths move.</q>
+          </a>
+        </div>
       </section>
     </main>
 

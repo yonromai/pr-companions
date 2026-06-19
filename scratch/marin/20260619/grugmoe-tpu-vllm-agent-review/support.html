@@ -111,15 +111,15 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800 text-slate-300">
-              <tr>
+              <tr id="q-validation-small">
                 <td class="py-3 pr-4"><code class="code">/romain/grugmoe-production-attn-small-diagnostic-20260619-2053</code></td>
                 <td class="py-3 pr-4 text-emerald-300">succeeded</td>
                 <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Dense-vs-production hidden max delta 4.768e-07, logits max delta 2.384e-07, logprob max delta 0.0. Installed path returned <code class="code">works:full_canary_logprobs_and_routing</code>.</td>
               </tr>
-              <tr>
+              <tr id="q-validation-full">
                 <td class="py-3 pr-4"><code class="code">/romain/grugmoe-production-attn-full-canary-20260619-2058</code></td>
                 <td class="py-3 pr-4 text-emerald-300">succeeded</td>
-                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Generated IDs [57524, 45040, 67859]. Max logprob delta 0.001596. Routing top1 match 1.0, suspicious mismatch count 0.</td>
+                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Generated IDs [57524, 45040, 67859]. Max logprob delta 0.001596. Routing top1 match 1.0, suspicious mismatch count 0. Installed path returned <code class="code">works:full_canary_logprobs_and_routing</code>.</td>
               </tr>
             </tbody>
           </table>
@@ -129,56 +129,102 @@
       <section class="mt-8 rounded border border-slate-800 bg-[#0d1117] p-5">
         <h2 class="text-2xl font-semibold text-white">Short Source Quotes</h2>
         <div class="mt-4 grid gap-4 lg:grid-cols-2">
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-architecture" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">The Marin model declares the architecture.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>Architecture: QB-routed MoE with GatedNorm, XSA, sigmoid combine weights.
 No load-balancing loss; router z-loss only. All layers are MoE.</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-topk-boundary" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">The router selects top-(K+1), then keeps top-K.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_topk_logits, selected_experts = jax.lax.top_k(..., K + 1)
 selected_experts = selected_experts[:, :-1]</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-qb-bias" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">QB betas become next-step router bias.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>new_bias = -qb_betas[moe_idx]
 new_bias = new_bias - jnp.mean(new_bias)</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-combine-sigmoid" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">Combine weights use sigmoid, not selected-expert softmax.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>combine_weights = jax.nn.sigmoid(unbiased_topk).astype(x.dtype)</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-rmsnorm" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">RMSNorm rescales by root-mean-square magnitude and learned weight.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>variance = jnp.mean(jnp.square(x), axis=-1, keepdims=True)
+normed = x * jax.lax.rsqrt(variance + self.eps)
+return (normed * weight).astype(dtype)</code></pre>
+          </div>
+          <div id="q-gatednorm" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">GatedNorm multiplies by a learned sigmoid gate.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>gate_hidden = jax.nn.silu(x @ w_down)
 gate = jax.nn.sigmoid(gate_hidden @ w_up)
 return x * gate.astype(x.dtype)</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-long-window" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">Every fourth layer gets the long attention window.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>layer_mask = long_mask if i % 4 == 3 else short_mask</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-attention-setup" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Attention normalizes Q/K, applies RoPE, and scales Q.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>q = rms_norm(q)
+k = rms_norm(k)
+q, k = apply_rotary_embedding(...)
+q = q * self.cfg.qk_mult</code></pre>
+          </div>
+          <div id="q-xsa" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">Exclusive self-attention removes the own-value direction.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>dot = jnp.sum(attn_out * aligned_v, axis=-1, keepdims=True)
 attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-shared-expert" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The shared expert runs beside routed experts when present.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if self.shared is not None:
+    mlp_out = mlp_out + self.shared(..., activation=ActivationFunctionEnum.silu)</code></pre>
+          </div>
+          <div id="q-artifact-schema" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The artifact schema includes Grug-specific tensors.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"model.embed_gated_norm.down_proj.weight"
+f"{prefix}.mlp.router.bias"
+f"{prefix}.shared_expert.gate_proj.weight"</code></pre>
+          </div>
+          <div id="q-registration-rationale" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The fork explains why GrugMoE is registered in-tree.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code># GrugMoE needs runner-owned JAX KV-cache and routed-expert plumbing,
+# so the Marin fork carries it in-tree.</code></pre>
+          </div>
+          <div id="q-runner-output" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">tpu-inference can return routed expert IDs to vLLM.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>return RoutedExpertsLists(
+    routing_data=np.transpose(expert_indices_cpu, (1, 0, 2)),
+    slot_mapping=slot_mapping,
+)</code></pre>
+          </div>
+          <div id="q-parity-smoke" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The parity smoke compares dense and production models copied from one Levanter model.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_copy_transformer(dense_model, lev_model, mesh=tpu_mesh)
+_copy_transformer(production_model, lev_model, mesh=tpu_mesh)
+np.testing.assert_array_equal(... production_expert_ids ..., ... dense_expert_ids ...)</code></pre>
+          </div>
+          <div id="q-hf-config-default" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Marin exports production attention in the HF config.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"grugmoe_attention_mode": "production"</code></pre>
+          </div>
+          <div id="q-prod-default" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">Production mode is default if unset.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if value is None:
     return GrugMoeAttentionMode.PRODUCTION</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-dense-mode" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">Dense mode is explicit.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if self.cfg.attention_mode == GrugMoeAttentionMode.DENSE:
     return kv_cache, self._dense_reference_attention(...)</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-shared-attention" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">Production path uses shared attention.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>new_kv_cache, attn_out = shared_attention(
     kv_cache, q, k, v, attention_metadata, self.mesh, ...)</code></pre>
           </div>
-          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+          <div id="q-vllm-route-guard" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">vLLM only stores routes when enabled.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if (
     self.enable_return_routed_experts
@@ -191,11 +237,12 @@ attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code></pre>
       <section class="mt-8 rounded border border-amber-700/60 bg-amber-950/20 p-5">
         <h2 class="text-2xl font-semibold text-white">Known Caveats To Carry Into Review</h2>
         <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
-          <li>The Marin logbook lists <code class="code">dcc5f985a</code> as current, but the branch head inspected here is <code class="code">bcaa1cee1</code>.</li>
-          <li>The Marin branch was observed ahead of its old base and behind current <code class="code">origin/main</code>; expect a final rebase before PR publication.</li>
-          <li>The direct dense-vs-production smoke uses a controlled synthetic setup. The installed vLLM TPU canaries are the evidence for the real serving path.</li>
-          <li>Pytest did not run in the bare tpu-inference checkout because dependencies were unavailable. Marin pre-commit was reported clean except for unrelated Pyrefly failures.</li>
-          <li>Weight loading remains bespoke and easy to audit for this model, but it is less general than the reusable tpu-inference loader path.</li>
+          <li id="q-caveat-stale-sha">The Marin logbook lists <code class="code">dcc5f985a</code> as current, but the branch head inspected here is <code class="code">bcaa1cee1</code>.</li>
+          <li id="q-caveat-rebase">The Marin branch was observed ahead of its old base and behind current <code class="code">origin/main</code>; expect a final rebase before PR publication.</li>
+          <li id="q-caveat-serving-evidence">The direct dense-vs-production smoke uses a controlled synthetic setup. The installed vLLM TPU canaries are the evidence for the real serving path.</li>
+          <li id="q-caveat-pytest">Pytest did not run in the bare tpu-inference checkout because dependencies were unavailable. Marin pre-commit was reported clean except for unrelated Pyrefly failures.</li>
+          <li id="q-caveat-loading">Weight loading remains bespoke and easy to audit for this model, but it is less general than the reusable tpu-inference loader path.</li>
+          <li id="q-caveat-rerun">Rerun at least the lightweight checks after any final rebase conflict; rerun TPU smoke if GrugMoE serving code paths move.</li>
         </ul>
       </section>
     </main>
