@@ -107,9 +107,6 @@
             context needed to understand why GrugMoE needs custom TPU serving code, then gives a linear path
             through the agent's fork-stack changes.
           </p>
-          <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
-            Footnote-style source links such as <span class="text-sky-300">[xsa]</span> quote the support page on hover/focus. Click any one to inspect the source link, validation record, or caveat behind the claim.
-          </p>
         </div>
         <nav class="flex flex-wrap gap-3 text-sm">
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#context">Context</a>
@@ -276,48 +273,27 @@
         <div class="mt-5 rounded border border-slate-800 bg-[#0d1117] p-5">
           <h3 class="text-lg font-semibold text-white">One Token Journey Through A Tiny GrugMoE Block</h3>
           <p class="mt-3 max-w-4xl text-sm leading-7 text-slate-300">
-            This single walkthrough inlines the normalization, attention, QB routing, and expert-mixing terms. The
-            numbers are intentionally tiny: hidden width 4, four experts, and <code class="code text-slate-100">K = 2</code>.
+            This single walkthrough follows one toy token through RMSNorm
+            <a class="evidence" href="support.html#q-rmsnorm" title="Open quoted support and source"><span>RMSNorm</span><code>normed = x * jax.lax.rsqrt(variance + self.eps)</code></a>,
+            Grug GatedNorm
+            <a class="evidence" href="support.html#q-gatednorm" title="Open quoted support and source"><span>GatedNorm</span><code>gate = jax.nn.sigmoid(gate_hidden @ w_up)</code></a>,
+            Q/K-normalized attention with RoPE
+            <a class="evidence" href="support.html#q-attention-setup" title="Open quoted support and source"><span>attention setup</span><code>q = rms_norm(q); k = rms_norm(k); q, k = apply_rotary_embedding(...)</code></a>,
+            exclusive self-attention
+            <a class="evidence" href="support.html#q-xsa" title="Open quoted support and source"><span>XSA</span><code>attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code></a>,
+            the headwise attention gate
+            <a class="evidence" href="support.html#q-attn-head-gate" title="Open quoted support and source"><span>head gate</span><code>gate = 2 * jax.nn.sigmoid(...); attn_out = gate * attn_out</code></a>,
+            QB routing
+            <a class="evidence" href="support.html#q-qb-provenance" title="Open quoted support and source"><span>QB source</span><q>Quantile Balancing (QB), a load balancing method for Mixture of Experts.</q></a>,
+            top-(K+1) expert selection
+            <a class="evidence" href="support.html#q-topk-boundary" title="Open quoted support and source"><span>top-k boundary</span><code>_topk_logits, selected_experts = jax.lax.top_k(..., K + 1)</code></a>,
+            sigmoid mixing from unbiased logits
+            <a class="evidence" href="support.html#q-combine-sigmoid" title="Open quoted support and source"><span>combine sigmoid</span><code>combine_weights = jax.nn.sigmoid(unbiased_topk)</code></a>,
+            and the always-on shared SiLU MLP
+            <a class="evidence" href="support.html#q-shared-expert" title="Open quoted support and source"><span>shared expert</span><code>mlp_out = mlp_out + self.shared(...)</code></a>.
+            The numbers are intentionally tiny: hidden width 4, four experts, and <code class="code text-slate-100">K = 2</code>.
             They are toy values, but each Grug-specific operation is shown numerically.
           </p>
-          <div class="evidence-row">
-            <a class="evidence" href="support.html#q-rmsnorm" title="Open quoted support and source">
-              <span>Quoted support</span>
-              <code>normed = x * jax.lax.rsqrt(variance + self.eps)</code>
-            </a>
-            <a class="evidence" href="support.html#q-gatednorm" title="Open quoted support and source">
-              <span>Quoted support</span>
-              <code>gate = jax.nn.sigmoid(gate_hidden @ w_up)</code>
-            </a>
-            <a class="evidence" href="support.html#q-attention-setup" title="Open quoted support and source">
-              <span>Quoted support</span>
-              <code>q = rms_norm(q); k = rms_norm(k); q, k = apply_rotary_embedding(...)</code>
-            </a>
-            <a class="evidence" href="support.html#q-xsa" title="Open quoted support and source">
-              <span>Quoted support</span>
-              <code>attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code>
-            </a>
-            <a class="evidence" href="support.html#q-attn-head-gate" title="Open quoted support and source">
-              <span>Quoted support</span>
-              <code>gate = 2 * jax.nn.sigmoid(...); attn_out = gate * attn_out</code>
-            </a>
-            <a class="evidence" href="support.html#q-qb-provenance" title="Open quoted support and source">
-              <span>QB source</span>
-              <q>Quantile Balancing (QB), a load balancing method for Mixture of Experts.</q>
-            </a>
-            <a class="evidence" href="support.html#q-topk-boundary" title="Open quoted support and source">
-              <span>Top-k quote</span>
-              <code>_topk_logits, selected_experts = jax.lax.top_k(..., K + 1)</code>
-            </a>
-            <a class="evidence" href="support.html#q-combine-sigmoid" title="Open quoted support and source">
-              <span>Weight quote</span>
-              <code>combine_weights = jax.nn.sigmoid(unbiased_topk)</code>
-            </a>
-            <a class="evidence" href="support.html#q-shared-expert" title="Open quoted support and source">
-              <span>Shared path quote</span>
-              <code>mlp_out = mlp_out + self.shared(...)</code>
-            </a>
-          </div>
 
           <div class="mt-5 flex flex-wrap gap-2" role="group" aria-label="Token journey steps">
             <button type="button" class="journey-step rounded border border-slate-700 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200" data-journey-step="0" aria-pressed="true">1 Token</button>
@@ -428,7 +404,7 @@
                 Start with one token's hidden vector. The rest of the diagram tracks how this same point is transformed
                 and then added back through residual connections.
               </p>
-              <pre id="journey-math" class="mt-4 overflow-x-auto rounded border border-slate-800 bg-[#060913] p-3 text-xs leading-5 text-slate-300"><code>x = [2.00, -1.00, 0.50, 1.50]</code></pre>
+              <pre id="journey-math" class="mt-4 overflow-x-auto rounded border border-slate-800 bg-[#060913] p-3 text-xs leading-5 text-slate-300"><code>x = jnp.array([2.00, -1.00, 0.50, 1.50])  // toy hidden vector</code></pre>
               <ul id="journey-ledger" class="mt-3 space-y-2 text-xs leading-5 text-slate-400">
                 <li>Width 4 makes the arithmetic visible; the production code runs the same operations over full tensors.</li>
               </ul>
@@ -1065,7 +1041,7 @@
           {
             title: "1. Token hidden state",
             copy: "Start with one token's hidden vector. The rest of the diagram tracks how this same point is transformed and then added back through residual connections.",
-            math: "x = [2.00, -1.00, 0.50, 1.50]",
+            math: "x = jnp.array([2.00, -1.00, 0.50, 1.50])  // toy hidden vector",
             ledger: [
               "Toy hidden width is 4 so the arithmetic fits on the page.",
               "The real Grug block applies the same sequence over full hidden tensors.",
@@ -1077,11 +1053,11 @@
             title: "2. RMSNorm plus GatedNorm",
             copy: "The token is magnitude-normalized, then passed through Grug's learned gate. This keeps the simple RMSNorm idea but adds Grug-specific gating weights.",
             math: [
-              "mean(x^2) = (4.00 + 1.00 + 0.25 + 2.25) / 4 = 1.875",
-              "rsqrt(1.875) = 0.730",
-              "RMSNorm(x) = [1.46, -0.73, 0.36, 1.10]",
-              "toy gate = [0.90, 0.50, 0.70, 0.80]",
-              "GatedNorm(x) = [1.31, -0.36, 0.26, 0.88]",
+              "x_f32 = x.astype(jnp.float32)                         // [2.00, -1.00, 0.50, 1.50]",
+              "variance = jnp.mean(jnp.square(x_f32), axis=-1, keepdims=True)  // 1.875",
+              "normed = x * jax.lax.rsqrt(variance + eps)             // [1.46, -0.73, 0.36, 1.10]",
+              "gate = jax.nn.sigmoid(gate_hidden @ w_up)              // [0.90, 0.50, 0.70, 0.80]",
+              "gated = normed * gate                                  // [1.31, -0.36, 0.26, 0.88]",
             ].join("\n"),
             ledger: [
               "RMSNorm removes scale without changing the direction much.",
@@ -1094,13 +1070,16 @@
             title: "3. Attention with Grug post-processing",
             copy: "Attention uses Q/K normalization, RoPE, grouped-query attention, and the short or long layer window. After attention, XSA subtracts the own-value projection before the head gate.",
             math: [
-              "toy head output y = [0.80, 0.30]",
-              "this token's own value v = [0.60, 0.80]",
-              "dot(y, v) = 0.72 and ||v||^2 = 1.00",
-              "XSA(y) = y - 0.72 * v = [0.37, -0.28]",
-              "head gate 0.75 -> [0.28, -0.21]",
-              "toy attention delta = [0.28, -0.21, 0.05, -0.02]",
-              "h = x + delta = [2.28, -1.21, 0.55, 1.48]",
+              "q = rms_norm(q); k = rms_norm(k)                       // Q/K vectors are normalized",
+              "q, k = apply_rotary_embedding(q, k, positions)         // RoPE before attention",
+              "attn_out = attention(q, k, v, ...)                     // toy head y = [0.80, 0.30]",
+              "aligned_v = current_token_value                        // toy own value [0.60, 0.80]",
+              "dot = jnp.sum(attn_out * aligned_v, axis=-1)           // 0.72",
+              "v_norm_sq = jnp.sum(aligned_v * aligned_v, axis=-1)    // 1.00",
+              "attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v  // [0.37, -0.28]",
+              "head_gate = 2 * jax.nn.sigmoid(x @ attn_gate)          // toy scalar 0.75",
+              "attn_delta = project(head_gate * attn_out)             // [0.28, -0.21, 0.05, -0.02]",
+              "h = x + attn_delta                                    // [2.28, -1.21, 0.55, 1.48]",
             ].join("\n"),
             ledger: [
               "Exclusive self-attention removes the component of the attention output that points along the token's own value vector.",
@@ -1113,11 +1092,12 @@
             title: "4. QB router chooses candidates",
             copy: "The router adds the exported Quantile Balancing bias only for expert choice. Here the biased scores choose top K+1 candidates: E0 and E2 run; E3 is kept only as the boundary.",
             math: [
-              "raw logits        = [ 1.2, -0.4, 0.7, 0.1]",
-              "exported QB bias  = [-0.3,  0.2, 0.0, 0.1]",
-              "biased for top-k  = [ 0.9, -0.2, 0.7, 0.2]",
-              "top K+1 with K=2 = E0, E2, E3",
-              "run E0 and E2; keep E3 only as the boundary record",
+              "router_logits = router(h)                              // [ 1.2, -0.4, 0.7, 0.1]",
+              "qb_bias = exported_qb_bias                             // [-0.3,  0.2, 0.0, 0.1]",
+              "choice_logits = router_logits + qb_bias                // [ 0.9, -0.2, 0.7, 0.2]",
+              "_topk_logits, selected = jax.lax.top_k(choice_logits, K + 1)  // [E0, E2, E3]",
+              "experts_to_run = selected[:K]                          // [E0, E2]",
+              "boundary_expert = selected[K]                          // E3, recorded but not run",
             ].join("\n"),
             ledger: [
               "The bias affects expert choice, but it is not the value later used for combine weights.",
@@ -1130,12 +1110,12 @@
             title: "5. Routed experts and shared path",
             copy: "Only E0 and E2 execute. Their outputs are weighted by sigmoid of the original unbiased logits, then the always-on shared SiLU MLP is added.",
             math: [
-              "w0 = sigmoid(raw E0) = sigmoid(1.2) = 0.77",
-              "w2 = sigmoid(raw E2) = sigmoid(0.7) = 0.67",
-              "E0(h) = [ 0.20, -0.10, 0.40, 0.00]",
-              "E2(h) = [-0.30,  0.50, 0.10, 0.20]",
-              "shared SiLU MLP = [0.05, 0.02, -0.04, 0.01]",
-              "mlp_delta = 0.77*E0 + 0.67*E2 + shared = [0.00, 0.28, 0.33, 0.14]",
+              "unbiased_topk = jnp.take(router_logits, experts_to_run)  // [1.2, 0.7]",
+              "combine_weights = jax.nn.sigmoid(unbiased_topk)          // [0.77, 0.67]",
+              "expert0 = expert_mlp[0](h)                               // [ 0.20, -0.10, 0.40, 0.00]",
+              "expert2 = expert_mlp[2](h)                               // [-0.30,  0.50, 0.10, 0.20]",
+              "shared = shared_silu_mlp(h)                              // [0.05, 0.02, -0.04, 0.01]",
+              "mlp_delta = 0.77 * expert0 + 0.67 * expert2 + shared      // [0.00, 0.28, 0.33, 0.14]",
             ].join("\n"),
             ledger: [
               "Unlike selected-expert softmax, sigmoid weights do not have to sum to one.",
@@ -1148,9 +1128,9 @@
             title: "6. Block output",
             copy: "The routed-plus-shared MLP contribution is added back through the residual path. The result is the next hidden vector x' for this token.",
             math: [
-              "h = [2.28, -1.21, 0.55, 1.48]",
-              "mlp_delta = [0.00, 0.28, 0.33, 0.14]",
-              "x' = h + mlp_delta = [2.28, -0.93, 0.88, 1.62]",
+              "h = x + attn_delta                                      // [2.28, -1.21, 0.55, 1.48]",
+              "mlp_delta = routed_experts + shared                     // [0.00, 0.28, 0.33, 0.14]",
+              "next_hidden = h + mlp_delta                             // [2.28, -0.93, 0.88, 1.62]",
             ].join("\n"),
             ledger: [
               "The dense/reference attention path and production attention path should agree on this residual result under controlled inputs.",
