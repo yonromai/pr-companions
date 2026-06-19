@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GrugMoE TPU/vLLM Agent Work Review Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root { color-scheme: dark; }
+      html { scroll-behavior: smooth; }
+      body { background: #090b10; }
+      .code { font-variant-ligatures: none; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#090b10] text-slate-100 antialiased">
+    <header class="border-b border-slate-800 bg-[#0d1117]">
+      <div class="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-8 sm:px-8">
+        <div class="flex flex-wrap gap-2 text-xs font-medium uppercase tracking-wide text-slate-300">
+          <span class="rounded bg-emerald-500/15 px-2.5 py-1 text-emerald-200">Scratch companion</span>
+          <span class="rounded bg-sky-500/15 px-2.5 py-1 text-sky-200">Marin</span>
+          <span class="rounded bg-amber-500/15 px-2.5 py-1 text-amber-200">2026-06-19</span>
+        </div>
+        <div class="max-w-4xl">
+          <h1 class="text-3xl font-semibold tracking-normal text-white sm:text-5xl">
+            GrugMoE TPU/vLLM agent work review
+          </h1>
+          <p class="mt-4 max-w-3xl text-base leading-7 text-slate-300">
+            This page gives a low-friction path through the agent's latest fork-stack work:
+            production GrugMoE attention in <code class="code text-slate-100">tpu-inference</code>,
+            Marin smoke/parity coverage, and the small vLLM scheduler guard needed for routed experts.
+          </p>
+        </div>
+        <nav class="flex flex-wrap gap-3 text-sm">
+          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#order">Review order</a>
+          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#mental-model">Mental model</a>
+          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#hotspots">Hotspots</a>
+          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="support.html">Support references</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+      <section class="grid gap-4 md:grid-cols-3">
+        <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-sky-200">tpu-inference</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-300">
+            Adds GrugMoE as an in-tree JAX model with a config switch between simple dense attention and production shared RPA/KV-cache attention.
+          </p>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/4c38590e29d33451f2b4375a78ad8f70cacd7b98...871f9ba84a6682348a306b5acd903fb723cd2675">Open compare</a>
+        </article>
+        <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-200">Marin</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-300">
+            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and runs dense-vs-production plus Levanter-vs-vLLM canaries.
+          </p>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/aa6a44e77d2f51672077bdf0ca2d5f81e1608de2...bcaa1cee11a3df2270da237a97574caae2b92903">Open compare</a>
+        </article>
+        <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-violet-200">vLLM</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-300">
+            Keeps runner-supplied routed expert data from crashing the scheduler when the user has not requested routed expert outputs.
+          </p>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/04321f0f01b8e60d577a85a1b1af688e4433e7e0...43e648985619749e7d1b232fbe408c7f5995d2d6">Open compare</a>
+        </article>
+      </section>
+
+      <section id="order" class="mt-10">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <h2 class="text-2xl font-semibold text-white">Linear Review Order</h2>
+          <a class="text-sm text-sky-300 hover:text-sky-200" href="support.html#links">All source links</a>
+        </div>
+        <ol class="space-y-3">
+          <li class="rounded border border-slate-800 bg-[#0d1117] p-4">
+            <div class="flex gap-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-sky-500 text-sm font-bold text-slate-950">1</span>
+              <div>
+                <h3 class="font-semibold text-white">Read the GrugMoE attention mode in tpu-inference.</h3>
+                <p class="mt-1 text-sm leading-6 text-slate-300">
+                  Start with config parsing, the dense path, the production shared-attention path, and the KV-cache dtype cast.
+                  This is the core behavior change.
+                </p>
+                <p class="mt-2 text-sm">
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L59-L76">mode parser</a>
+                  <span class="text-slate-500">/</span>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L835-L995">attention implementation</a>
+                </p>
+              </div>
+            </div>
+          </li>
+          <li class="rounded border border-slate-800 bg-[#0d1117] p-4">
+            <div class="flex gap-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-sky-500 text-sm font-bold text-slate-950">2</span>
+              <div>
+                <h3 class="font-semibold text-white">Check the routed-experts plumbing.</h3>
+                <p class="mt-1 text-sm leading-6 text-slate-300">
+                  Verify tpu-inference emits routed expert IDs with slot mappings, then verify vLLM ignores them unless routed expert output is enabled.
+                </p>
+                <p class="mt-2 text-sm">
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/runner/tpu_runner.py#L186-L195">runner output</a>
+                  <span class="text-slate-500">/</span>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/43e648985619749e7d1b232fbe408c7f5995d2d6/vllm/v1/core/sched/scheduler.py#L1325-L1339">scheduler guard</a>
+                </p>
+              </div>
+            </div>
+          </li>
+          <li class="rounded border border-slate-800 bg-[#0d1117] p-4">
+            <div class="flex gap-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-sky-500 text-sm font-bold text-slate-950">3</span>
+              <div>
+                <h3 class="font-semibold text-white">Read the Marin parity harness only after the model path is clear.</h3>
+                <p class="mt-1 text-sm leading-6 text-slate-300">
+                  The important test is simple: copy the same Levanter model into dense and production tpu-inference models, feed the same prompt, then compare hidden states, logits, selected logprobs, and routed expert IDs.
+                </p>
+                <p class="mt-2 text-sm">
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/vllm_tpu_parity.py#L1347-L1417">dense-vs-production smoke</a>
+                  <span class="text-slate-500">/</span>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/installed_vllm_full_canary_smoke.py#L217-L228">installed canary hook</a>
+                </p>
+              </div>
+            </div>
+          </li>
+          <li class="rounded border border-slate-800 bg-[#0d1117] p-4">
+            <div class="flex gap-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-sky-500 text-sm font-bold text-slate-950">4</span>
+              <div>
+                <h3 class="font-semibold text-white">Confirm the exported artifact defaults to production mode.</h3>
+                <p class="mt-1 text-sm leading-6 text-slate-300">
+                  This is the difference between a debug-only smoke and a user-facing installed vLLM path.
+                </p>
+                <p class="mt-2 text-sm">
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L220-L246">HF config export</a>
+                  <span class="text-slate-500">/</span>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/pyproject.toml#L163-L167">fork pins</a>
+                </p>
+              </div>
+            </div>
+          </li>
+          <li class="rounded border border-amber-700/60 bg-amber-950/20 p-4">
+            <div class="flex gap-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-amber-400 text-sm font-bold text-slate-950">5</span>
+              <div>
+                <h3 class="font-semibold text-white">Finish with the logbook and fix the stale SHA before publishing a PR.</h3>
+                <p class="mt-1 text-sm leading-6 text-slate-300">
+                  The logbook evidence is useful, but its Marin "Current" field still points at <code class="code text-amber-100">dcc5f985a</code>
+                  while the branch head is <code class="code text-amber-100">bcaa1cee1</code>.
+                </p>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section id="mental-model" class="mt-12">
+        <h2 class="text-2xl font-semibold text-white">Mental Model</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+          Think of the dense path as the reference microscope and the production path as the real vLLM TPU serving route.
+          For a small prompt, both paths receive the same parameters and token IDs. If the production path is correct,
+          it should choose the same experts and produce nearly the same logits.
+        </p>
+        <div class="mt-5 overflow-x-auto rounded border border-slate-800 bg-[#0d1117] p-5">
+          <svg role="img" aria-label="Dense and production attention comparison flow" viewBox="0 0 880 210" class="min-w-[760px]">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"></path>
+              </marker>
+            </defs>
+            <rect x="20" y="70" width="130" height="70" rx="6" fill="#111827" stroke="#334155"></rect>
+            <text x="85" y="99" fill="#e2e8f0" font-size="15" text-anchor="middle">Same model</text>
+            <text x="85" y="121" fill="#94a3b8" font-size="13" text-anchor="middle">same prompt</text>
+            <line x1="150" y1="105" x2="245" y2="60" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"></line>
+            <line x1="150" y1="105" x2="245" y2="150" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"></line>
+            <rect x="250" y="25" width="170" height="70" rx="6" fill="#0f172a" stroke="#475569"></rect>
+            <text x="335" y="55" fill="#e2e8f0" font-size="15" text-anchor="middle">Dense attention</text>
+            <text x="335" y="77" fill="#94a3b8" font-size="13" text-anchor="middle">debug reference</text>
+            <rect x="250" y="115" width="170" height="70" rx="6" fill="#0f172a" stroke="#475569"></rect>
+            <text x="335" y="145" fill="#e2e8f0" font-size="15" text-anchor="middle">Production RPA</text>
+            <text x="335" y="167" fill="#94a3b8" font-size="13" text-anchor="middle">KV cache path</text>
+            <line x1="420" y1="60" x2="540" y2="105" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"></line>
+            <line x1="420" y1="150" x2="540" y2="105" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"></line>
+            <rect x="545" y="55" width="150" height="100" rx="6" fill="#111827" stroke="#334155"></rect>
+            <text x="620" y="89" fill="#e2e8f0" font-size="15" text-anchor="middle">Compare</text>
+            <text x="620" y="112" fill="#94a3b8" font-size="13" text-anchor="middle">hidden, logits,</text>
+            <text x="620" y="132" fill="#94a3b8" font-size="13" text-anchor="middle">logprobs, routes</text>
+            <line x1="695" y1="105" x2="760" y2="105" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"></line>
+            <rect x="765" y="70" width="95" height="70" rx="6" fill="#064e3b" stroke="#34d399"></rect>
+            <text x="812" y="99" fill="#d1fae5" font-size="15" text-anchor="middle">Gate</text>
+            <text x="812" y="121" fill="#a7f3d0" font-size="13" text-anchor="middle">PR review</text>
+          </svg>
+        </div>
+      </section>
+
+      <section id="hotspots" class="mt-12 grid gap-5 lg:grid-cols-[1fr_1fr]">
+        <div>
+          <h2 class="text-2xl font-semibold text-white">What To Scrutinize</h2>
+          <div class="mt-4 space-y-3">
+            <details class="rounded border border-slate-800 bg-[#0d1117] p-4" open>
+              <summary class="cursor-pointer font-semibold text-white">Production attention correctness</summary>
+              <p class="mt-3 text-sm leading-6 text-slate-300">
+                Check that shared RPA gets full attention metadata, updates KV cache, applies the same exclusive self-attention post-processing as dense mode, and casts K/V to the cache dtype intentionally.
+              </p>
+            </details>
+            <details class="rounded border border-slate-800 bg-[#0d1117] p-4">
+              <summary class="cursor-pointer font-semibold text-white">Debug mode remains simple</summary>
+              <p class="mt-3 text-sm leading-6 text-slate-300">
+                Dense attention should stay easy to read. It is a diagnostic/reference path, not the serving path to optimize.
+              </p>
+            </details>
+            <details class="rounded border border-slate-800 bg-[#0d1117] p-4">
+              <summary class="cursor-pointer font-semibold text-white">Future TP/PP cost</summary>
+              <p class="mt-3 text-sm leading-6 text-slate-300">
+                The branch has explicit single-rank assumptions in the smoke harness and bespoke loading in the model implementation. That is acceptable for this diagnostic goal, but note the debt if pipeline or tensor parallel serving becomes urgent.
+              </p>
+            </details>
+          </div>
+        </div>
+        <div>
+          <h2 class="text-2xl font-semibold text-white">Validation Snapshot</h2>
+          <div class="mt-4 rounded border border-slate-800 bg-[#0d1117] p-5">
+            <dl class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-slate-500">Hardware</dt>
+                <dd class="mt-1 text-sm text-slate-200">TPU v6e-4, europe-west4</dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-slate-500">Fork stack</dt>
+                <dd class="mt-1 text-sm text-slate-200">Marin bcaa1cee1, tpu-inference 871f9ba8, vLLM 43e648985</dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-slate-500">Small diagnostic</dt>
+                <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.0006318, route mismatch 0</dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-slate-500">Full canary</dt>
+                <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.001596, suspicious mismatch 0</dd>
+              </div>
+            </dl>
+            <p class="mt-5 text-sm text-slate-300">
+              Treat this as strong smoke evidence, not exhaustive production qualification. The remaining gaps are broader model-size coverage, CI in a full vLLM environment, and a final Marin rebase.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-12 rounded border border-amber-700/60 bg-amber-950/20 p-5">
+        <h2 class="text-xl font-semibold text-white">Before This Becomes A PR</h2>
+        <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
+          <li>Fix the stale Marin SHA in the logbook.</li>
+          <li>Rebase the Marin branch onto current <code class="code text-slate-100">origin/main</code>.</li>
+          <li>Confirm the pinned vLLM and tpu-inference branches are exactly the intended long-lived fork heads.</li>
+          <li>Rerun at least the lightweight local checks after any rebase conflict; rerun TPU smoke if code paths move.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="border-t border-slate-800 bg-[#0d1117]">
+      <div class="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-6 text-sm text-slate-400 sm:px-8">
+        <p>Companion authored for reviewing agent-generated GrugMoE TPU/vLLM work.</p>
+        <p><a class="text-sky-300 hover:text-sky-200" href="support.html">Open support references</a></p>
+      </div>
+    </footer>
+  </body>
+</html>

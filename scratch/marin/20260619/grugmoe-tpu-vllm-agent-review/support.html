@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Support References - GrugMoE TPU/vLLM Agent Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root { color-scheme: dark; }
+      body { background: #090b10; }
+      pre { overflow-x: auto; }
+      .code { font-variant-ligatures: none; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#090b10] text-slate-100 antialiased">
+    <header class="border-b border-slate-800 bg-[#0d1117]">
+      <div class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+        <a class="text-sm text-sky-300 hover:text-sky-200" href="index.html">Back to review companion</a>
+        <h1 class="mt-4 text-3xl font-semibold tracking-normal text-white sm:text-4xl">Support References</h1>
+        <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+          Audit trail for the review companion: exact branch heads, source links, local validation claims, TPU job facts, and short source quotes.
+        </p>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+      <section id="links" class="rounded border border-slate-800 bg-[#0d1117] p-5">
+        <h2 class="text-2xl font-semibold text-white">Branch Heads And Compares</h2>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full min-w-[780px] border-collapse text-left text-sm">
+            <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+              <tr>
+                <th class="py-3 pr-4">Repo</th>
+                <th class="py-3 pr-4">Branch</th>
+                <th class="py-3 pr-4">Head</th>
+                <th class="py-3 pr-4">Compare</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300">
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">Marin</td>
+                <td class="py-3 pr-4"><code class="code">codex/grugmoe-forkstack-forward-port-20260618</code></td>
+                <td class="py-3 pr-4"><code class="code">bcaa1cee11a3df2270da237a97574caae2b92903</code></td>
+                <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/aa6a44e77d2f51672077bdf0ca2d5f81e1608de2...bcaa1cee11a3df2270da237a97574caae2b92903">compare</a></td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">tpu-inference</td>
+                <td class="py-3 pr-4"><code class="code">codex/grugmoe-forkstack-tpu-20260618</code></td>
+                <td class="py-3 pr-4"><code class="code">871f9ba84a6682348a306b5acd903fb723cd2675</code></td>
+                <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/4c38590e29d33451f2b4375a78ad8f70cacd7b98...871f9ba84a6682348a306b5acd903fb723cd2675">compare</a></td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">vLLM</td>
+                <td class="py-3 pr-4"><code class="code">codex/grugmoe-forkstack-vllm-20260618</code></td>
+                <td class="py-3 pr-4"><code class="code">43e648985619749e7d1b232fbe408c7f5995d2d6</code></td>
+                <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/04321f0f01b8e60d577a85a1b1af688e4433e7e0...43e648985619749e7d1b232fbe408c7f5995d2d6">compare</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="mt-8 grid gap-5 lg:grid-cols-2">
+        <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+          <h2 class="text-xl font-semibold text-white">Primary Source Links</h2>
+          <ul class="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L59-L76">GrugMoE attention mode parsing</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L835-L995">Dense and production attention paths</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/runner/tpu_runner.py#L186-L195">Routed expert output object construction</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/layers/vllm/__init__.py#L42-L45">In-tree GrugMoE registration rationale</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/43e648985619749e7d1b232fbe408c7f5995d2d6/vllm/v1/core/sched/scheduler.py#L1325-L1339">vLLM routed-experts scheduler guard</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/vllm_tpu_parity.py#L1347-L1417">Dense-vs-production parity smoke</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L220-L246">HF config export default</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/vllm_tpu_forkstack_logbook.md#L129-L157">Final TPU validation records</a></li>
+          </ul>
+        </article>
+
+        <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+          <h2 class="text-xl font-semibold text-white">tpu-inference Doc Anchors</h2>
+          <ul class="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/vllm-project/tpu-inference/blob/main/docs/developer_guides/jax_model_development.md">JAX model development guide</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/vllm-project/tpu-inference/blob/main/docs/getting_started/out-of-tree.md">Out-of-tree model/plugin guide</a></li>
+          </ul>
+          <div class="mt-4 rounded border border-slate-700 bg-slate-950 p-4 text-sm leading-6 text-slate-300">
+            <p class="text-slate-400">Relevant direct quotes:</p>
+            <blockquote class="mt-2 border-l-2 border-sky-400 pl-3">"context is managed outside of the model"</blockquote>
+            <blockquote class="mt-2 border-l-2 border-sky-400 pl-3">"new models are recommended to reuse weight loading mechanisms/utilities"</blockquote>
+            <blockquote class="mt-2 border-l-2 border-sky-400 pl-3">"You can load an external model using a plugin"</blockquote>
+          </div>
+        </article>
+      </section>
+
+      <section class="mt-8 rounded border border-slate-800 bg-[#0d1117] p-5">
+        <h2 class="text-2xl font-semibold text-white">Validation Evidence Extracted From The Agent Logbook</h2>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full min-w-[860px] border-collapse text-left text-sm">
+            <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+              <tr>
+                <th class="py-3 pr-4">Job</th>
+                <th class="py-3 pr-4">Result</th>
+                <th class="py-3 pr-4">Key evidence</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300">
+              <tr>
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-production-attn-small-diagnostic-20260619-2053</code></td>
+                <td class="py-3 pr-4 text-emerald-300">succeeded</td>
+                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Dense-vs-production hidden max delta 4.768e-07, logits max delta 2.384e-07, logprob max delta 0.0. Installed path returned <code class="code">works:full_canary_logprobs_and_routing</code>.</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-production-attn-full-canary-20260619-2058</code></td>
+                <td class="py-3 pr-4 text-emerald-300">succeeded</td>
+                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Generated IDs [57524, 45040, 67859]. Max logprob delta 0.001596. Routing top1 match 1.0, suspicious mismatch count 0.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="mt-8 rounded border border-slate-800 bg-[#0d1117] p-5">
+        <h2 class="text-2xl font-semibold text-white">Short Source Quotes</h2>
+        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Production mode is default if unset.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if value is None:
+    return GrugMoeAttentionMode.PRODUCTION</code></pre>
+          </div>
+          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Dense mode is explicit.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if self.cfg.attention_mode == GrugMoeAttentionMode.DENSE:
+    return kv_cache, self._dense_reference_attention(...)</code></pre>
+          </div>
+          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Production path uses shared attention.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>new_kv_cache, attn_out = shared_attention(
+    kv_cache, q, k, v, attention_metadata, self.mesh, ...)</code></pre>
+          </div>
+          <div class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">vLLM only stores routes when enabled.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if (
+    self.enable_return_routed_experts
+    and model_runner_output.routed_experts is not None
+):</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8 rounded border border-amber-700/60 bg-amber-950/20 p-5">
+        <h2 class="text-2xl font-semibold text-white">Known Caveats To Carry Into Review</h2>
+        <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
+          <li>The Marin logbook lists <code class="code">dcc5f985a</code> as current, but the branch head inspected here is <code class="code">bcaa1cee1</code>.</li>
+          <li>The Marin branch was observed ahead of its old base and behind current <code class="code">origin/main</code>; expect a final rebase before PR publication.</li>
+          <li>The direct dense-vs-production smoke uses a controlled synthetic setup. The installed vLLM TPU canaries are the evidence for the real serving path.</li>
+          <li>Pytest did not run in the bare tpu-inference checkout because dependencies were unavailable. Marin pre-commit was reported clean except for unrelated Pyrefly failures.</li>
+          <li>Weight loading remains bespoke and easy to audit for this model, but it is less general than the reusable tpu-inference loader path.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
