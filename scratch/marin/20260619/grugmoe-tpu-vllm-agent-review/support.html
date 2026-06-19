@@ -70,9 +70,17 @@
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L323-L347">GatedNorm implementation</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L463-L550">QB-routed MoE implementation</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/train.py#L253-L263">Training-time QB beta application</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://openathena.ai/blog/quantile-balancing/">Open Athena Quantile Balancing overview</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/issues/3406">Marin issue tracing QB to Jianlin Su's article</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://kexue.fm/archives/11619">Jianlin Su original Quantile Balancing article</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L557-L594">Grug block structure with shared expert</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L661-L686">Short/long sliding-window layer pattern</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L769-L860">Canonical GrugMoE artifact tensor schema</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/layers/jax/moe/moe.py#L63-L115">Generic JAX MoE router</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/qwen3_moe.py#L61-L132">Qwen3-MoE block</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/deepseek_v3.py#L1046-L1119">DeepSeek-V3 router</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/deepseek_v3.py#L815-L835">DeepSeek shared routed/shared MoE path</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/layers/jax/moe/gpt_oss_moe.py#L32-L70">GPT-OSS router</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L59-L76">GrugMoE attention mode parsing</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L835-L995">Dense and production attention paths</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/runner/tpu_runner.py#L186-L195">Routed expert output object construction</a></li>
@@ -134,6 +142,11 @@
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>Architecture: QB-routed MoE with GatedNorm, XSA, sigmoid combine weights.
 No load-balancing loss; router z-loss only. All layers are MoE.</code></pre>
           </div>
+          <div id="q-qb-provenance" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">QB is Quantile Balancing, sourced to an article-style update.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>Open Athena: Quantile Balancing (QB), a load balancing method for Mixture of Experts.
+Marin #3406: article-style MoE quantile load-balancing update from kexue.fm/archives/11619.</code></pre>
+          </div>
           <div id="q-topk-boundary" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">The router selects top-(K+1), then keeps top-K.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_topk_logits, selected_experts = jax.lax.top_k(..., K + 1)
@@ -186,6 +199,37 @@ attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code></pre>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"model.embed_gated_norm.down_proj.weight"
 f"{prefix}.mlp.router.bias"
 f"{prefix}.shared_expert.gate_proj.weight"</code></pre>
+          </div>
+          <div id="q-generic-router" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The generic JAX MoE router is conventional top-k.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>weights_TX, selected_experts_TX = jax.lax.top_k(
+    router_logits_TE, self.num_experts_per_tok)
+normalized_weights_TX = router_act(...)</code></pre>
+          </div>
+          <div id="q-qwen3-moe" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Qwen3-MoE uses JaxMoE and does not implement shared experts here.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>self.experts = JaxMoE(...)
+raise NotImplementedError(
+    "Shared expert is not implemented yet...")</code></pre>
+          </div>
+          <div id="q-deepseek-router" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">DeepSeek has a custom correction-bias router.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>scores_TE = scores_TE + self.e_score_correction_bias
+topk_indices_TX = self.get_topk_indices(probs_TE)
+# The actual weights do not include the bias terms.</code></pre>
+          </div>
+          <div id="q-deepseek-shared" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">DeepSeek has routed plus shared expert plumbing.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>class SharedFusedMoe(JaxMoE):
+    """Handles the routed and shared experts + the relevant forward pass."""
+if self.shared_experts is not None:
+    final_hidden_states += shared_output</code></pre>
+          </div>
+          <div id="q-gptoss-router" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">GPT-OSS has a model-specific biased router with softmax mixing.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>router_logits_TE += self.bias_E.value
+weights_TX, selected_experts_TX = jax.lax.top_k(...)
+normalized_weights_TX = jax.nn.softmax(..., axis=-1)</code></pre>
           </div>
           <div id="q-registration-rationale" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">The fork explains why GrugMoE is registered in-tree.</p>
