@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>GrugMoE TPU/vLLM Agent Work Review Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
     <style>
       :root { color-scheme: dark; }
       html { scroll-behavior: smooth; }
@@ -22,9 +23,10 @@
         max-width: 100%;
         align-items: center;
         border-radius: 4px;
+        margin: 0 0.03rem;
         padding: 0.02rem 0.12rem;
         text-decoration: none;
-        vertical-align: middle;
+        vertical-align: super;
       }
       .evidence:hover,
       .evidence:focus-visible {
@@ -33,10 +35,11 @@
       }
       .evidence span {
         display: inline;
-        color: #7dd3fc;
+        color: #93c5fd;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 0.72rem;
+        font-size: 0.68rem;
         font-weight: 600;
+        line-height: 1;
         letter-spacing: 0;
         text-transform: none;
       }
@@ -84,9 +87,17 @@
         color: #f0f9ff;
       }
       .journey-dot { transition: cx 180ms ease, cy 180ms ease; }
-      .journey-card[data-active="true"] {
-        border-color: #38bdf8;
-        background: rgba(8, 47, 73, 0.45);
+      pre.language-python[class*="language-"] {
+        margin: 1rem 0 0;
+        border: 1px solid #1e293b;
+        border-radius: 0.375rem;
+        background: #060913;
+        padding: 0.75rem;
+        font-size: 0.75rem;
+        line-height: 1.55;
+      }
+      pre.language-python code[class*="language-"] {
+        white-space: pre;
       }
     </style>
   </head>
@@ -296,7 +307,7 @@
           </p>
 
           <div class="mt-5 flex flex-wrap gap-2" role="group" aria-label="Token journey steps">
-            <button type="button" class="journey-step rounded border border-slate-700 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200" data-journey-step="0" aria-pressed="true">1 Token</button>
+            <button type="button" class="journey-step rounded border border-slate-700 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200" data-journey-step="0" aria-pressed="true">1 Setup</button>
             <button type="button" class="journey-step rounded border border-slate-700 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200" data-journey-step="1" aria-pressed="false">2 Norm</button>
             <button type="button" class="journey-step rounded border border-slate-700 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200" data-journey-step="2" aria-pressed="false">3 Attention</button>
             <button type="button" class="journey-step rounded border border-slate-700 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200" data-journey-step="3" aria-pressed="false">4 Router</button>
@@ -399,43 +410,43 @@
             </div>
 
             <div class="rounded border border-slate-800 bg-slate-950/70 p-4">
-              <p id="journey-title" class="text-sm font-semibold text-white">1. Token hidden state</p>
+              <p id="journey-title" class="text-sm font-semibold text-white">1. Token setup</p>
               <p id="journey-copy" class="mt-2 text-sm leading-6 text-slate-300">
-                Start with one token's hidden vector. The rest of the diagram tracks how this same point is transformed
-                and then added back through residual connections.
+                Start by defining the tiny toy values used by the rest of the walkthrough. These values are not
+                checkpoint values; they are deliberately small stand-ins that make the Grug operations easy to inspect.
               </p>
-              <pre id="journey-math" class="mt-4 overflow-x-auto rounded border border-slate-800 bg-[#060913] p-3 text-xs leading-5 text-slate-300"><code>x = jnp.array([2.00, -1.00, 0.50, 1.50])  // toy hidden vector</code></pre>
+              <pre id="journey-math" class="language-python overflow-x-auto"><code id="journey-code" class="language-python">import jax
+import jax.numpy as jnp
+
+# Toy shape knobs. The real Grug model uses much larger tensors.
+K = 2  # Number of routed experts that run for each token.
+eps = 1e-6  # RMSNorm denominator guard.
+
+# One token hidden state with hidden_size = 4.
+x = jnp.array([2.00, -1.00, 0.50, 1.50], dtype=jnp.float32)  # shape: [4]
+
+# GatedNorm stand-ins. Real values come from checkpoint activations and weights.
+gate_hidden = jnp.array([1.00], dtype=jnp.float32)  # Activation before the learned gate projection.
+w_up = jnp.array([[2.20, 0.00, 0.85, 1.39]], dtype=jnp.float32)  # sigmoid(gate_hidden @ w_up) ~= [0.90, 0.50, 0.70, 0.80]
+
+# Attention stand-ins used to show XSA and the head gate.
+weighted_attn_out = jnp.array([0.80, 0.30], dtype=jnp.float32)  # Toy attention output for one head.
+current_token_value = jnp.array([0.60, 0.80], dtype=jnp.float32)  # This token's own value vector.
+attn_gate = jnp.array([-0.255, 0.0, 0.0, 0.0], dtype=jnp.float32)  # 2 * sigmoid(x @ attn_gate) ~= 0.75.
+
+# Router and expert stand-ins.
+router_logits = jnp.array([1.2, -0.4, 0.7, 0.1], dtype=jnp.float32)  # Unbiased router logits for E0..E3.
+qb_bias = jnp.array([-0.3, 0.2, 0.0, 0.1], dtype=jnp.float32)  # Exported QB bias used only for expert choice.
+expert_outputs = {
+    0: jnp.array([0.20, -0.10, 0.40, 0.00], dtype=jnp.float32),  # Toy output from expert E0.
+    2: jnp.array([-0.30, 0.50, 0.10, 0.20], dtype=jnp.float32),  # Toy output from expert E2.
+}
+shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy shared SiLU MLP output.</code></pre>
               <ul id="journey-ledger" class="mt-3 space-y-2 text-xs leading-5 text-slate-400">
-                <li>Width 4 makes the arithmetic visible; the production code runs the same operations over full tensors.</li>
+                <li>This setup is the single source of toy values for all later states.</li>
+                <li>The real Grug block computes these tensors from checkpoint weights, but the operation order is the same.</li>
               </ul>
             </div>
-          </div>
-
-          <div class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="0" data-active="true">
-              <p class="text-sm font-semibold text-white">1. Token</p>
-              <p class="mt-2 text-xs leading-5 text-slate-400">The block receives a hidden vector for one token. Residual connections add the attention and MoE deltas back into this vector.</p>
-            </article>
-            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="1">
-              <p class="text-sm font-semibold text-white">2. RMSNorm + GatedNorm</p>
-              <p class="mt-2 text-xs leading-5 text-slate-400">RMSNorm rescales by root-mean-square size. Grug then applies a learned sigmoid gate, which is why standard RMSNorm alone is not enough.</p>
-            </article>
-            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="2">
-              <p class="text-sm font-semibold text-white">3. Attention + XSA</p>
-              <p class="mt-2 text-xs leading-5 text-slate-400">Attention uses Q/K normalization, RoPE, grouped-query attention, sliding windows, exclusive self-attention, and a headwise gate.</p>
-            </article>
-            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="3">
-              <p class="text-sm font-semibold text-white">4. QB Routing</p>
-              <p class="mt-2 text-xs leading-5 text-slate-400">Quantile Balancing stores a non-gradient bias used for expert choice. Grug chooses top K+1 so the extra candidate records the routing boundary.</p>
-            </article>
-            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="4">
-              <p class="text-sm font-semibold text-white">5. Experts</p>
-              <p class="mt-2 text-xs leading-5 text-slate-400">Only top K experts run. Their outputs use sigmoid weights from unbiased logits, then the always-on shared SiLU MLP is added.</p>
-            </article>
-            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="5">
-              <p class="text-sm font-semibold text-white">6. Output</p>
-              <p class="mt-2 text-xs leading-5 text-slate-400">The MoE delta is residual-added to produce the next hidden vector. Dense/reference and production paths should agree on this result.</p>
-            </article>
           </div>
         </div>
 
@@ -1035,16 +1046,46 @@
         <p><a class="text-sky-300 hover:text-sky-200" href="support.html">Open support references</a></p>
       </div>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     <script>
       (() => {
         const steps = [
           {
-            title: "1. Token hidden state",
-            copy: "Start with one token's hidden vector. The rest of the diagram tracks how this same point is transformed and then added back through residual connections.",
-            math: "x = jnp.array([2.00, -1.00, 0.50, 1.50])  // toy hidden vector",
+            title: "1. Token setup",
+            copy: "Start by defining the tiny toy values used by the rest of the walkthrough. These values are not checkpoint values; they are deliberately small stand-ins that make the Grug operations easy to inspect.",
+            math: [
+              "import jax",
+              "import jax.numpy as jnp",
+              "",
+              "# Toy shape knobs. The real Grug model uses much larger tensors.",
+              "K = 2  # Number of routed experts that run for each token.",
+              "eps = 1e-6  # RMSNorm denominator guard.",
+              "",
+              "# One token hidden state with hidden_size = 4.",
+              "x = jnp.array([2.00, -1.00, 0.50, 1.50], dtype=jnp.float32)  # shape: [4]",
+              "",
+              "# GatedNorm stand-ins. Real values come from checkpoint activations and weights.",
+              "gate_hidden = jnp.array([1.00], dtype=jnp.float32)  # Activation before the learned gate projection.",
+              "w_up = jnp.array([[2.20, 0.00, 0.85, 1.39]], dtype=jnp.float32)  # sigmoid(gate_hidden @ w_up) ~= [0.90, 0.50, 0.70, 0.80]",
+              "",
+              "# Attention stand-ins used to show XSA and the head gate.",
+              "weighted_attn_out = jnp.array([0.80, 0.30], dtype=jnp.float32)  # Toy attention output for one head.",
+              "current_token_value = jnp.array([0.60, 0.80], dtype=jnp.float32)  # This token's own value vector.",
+              "attn_gate = jnp.array([-0.255, 0.0, 0.0, 0.0], dtype=jnp.float32)  # 2 * sigmoid(x @ attn_gate) ~= 0.75.",
+              "",
+              "# Router and expert stand-ins.",
+              "router_logits = jnp.array([1.2, -0.4, 0.7, 0.1], dtype=jnp.float32)  # Unbiased router logits for E0..E3.",
+              "qb_bias = jnp.array([-0.3, 0.2, 0.0, 0.1], dtype=jnp.float32)  # Exported QB bias used only for expert choice.",
+              "expert_outputs = {",
+              "    0: jnp.array([0.20, -0.10, 0.40, 0.00], dtype=jnp.float32),  # Toy output from expert E0.",
+              "    2: jnp.array([-0.30, 0.50, 0.10, 0.20], dtype=jnp.float32),  # Toy output from expert E2.",
+              "}",
+              "shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy shared SiLU MLP output.",
+            ].join("\n"),
             ledger: [
-              "Toy hidden width is 4 so the arithmetic fits on the page.",
-              "The real Grug block applies the same sequence over full hidden tensors.",
+              "This setup is the single source of toy values for all later states.",
+              "The real Grug block computes these tensors from checkpoint weights, but the operation order is the same.",
             ],
             x: 70,
             y: 65,
@@ -1053,11 +1094,15 @@
             title: "2. RMSNorm plus GatedNorm",
             copy: "The token is magnitude-normalized, then passed through Grug's learned gate. This keeps the simple RMSNorm idea but adds Grug-specific gating weights.",
             math: [
-              "x_f32 = x.astype(jnp.float32)                         // [2.00, -1.00, 0.50, 1.50]",
-              "variance = jnp.mean(jnp.square(x_f32), axis=-1, keepdims=True)  // 1.875",
-              "normed = x * jax.lax.rsqrt(variance + eps)             // [1.46, -0.73, 0.36, 1.10]",
-              "gate = jax.nn.sigmoid(gate_hidden @ w_up)              // [0.90, 0.50, 0.70, 0.80]",
-              "gated = normed * gate                                  // [1.31, -0.36, 0.26, 0.88]",
+              "# RMSNorm: normalize by root-mean-square magnitude.",
+              "x_f32 = x.astype(jnp.float32)  # Accumulate the norm in fp32; [2.00, -1.00, 0.50, 1.50].",
+              "variance = jnp.mean(jnp.square(x_f32), axis=-1, keepdims=True)  # Mean square size; 1.875.",
+              "normed = x * jax.lax.rsqrt(variance + eps)  # RMS-normalized token; [1.46, -0.73, 0.36, 1.10].",
+              "",
+              "# Grug GatedNorm: apply a learned elementwise sigmoid gate after normalization.",
+              "gate_logits = gate_hidden @ w_up  # Toy gate projection; [2.20, 0.00, 0.85, 1.39].",
+              "gate = jax.nn.sigmoid(gate_logits)  # Learned gate; [0.90, 0.50, 0.70, 0.80].",
+              "gated = normed * gate  # Gated normalized token; [1.31, -0.36, 0.26, 0.88].",
             ].join("\n"),
             ledger: [
               "RMSNorm removes scale without changing the direction much.",
@@ -1070,16 +1115,21 @@
             title: "3. Attention with Grug post-processing",
             copy: "Attention uses Q/K normalization, RoPE, grouped-query attention, and the short or long layer window. After attention, XSA subtracts the own-value projection before the head gate.",
             math: [
-              "q = rms_norm(q); k = rms_norm(k)                       // Q/K vectors are normalized",
-              "q, k = apply_rotary_embedding(q, k, positions)         // RoPE before attention",
-              "attn_out = attention(q, k, v, ...)                     // toy head y = [0.80, 0.30]",
-              "aligned_v = current_token_value                        // toy own value [0.60, 0.80]",
-              "dot = jnp.sum(attn_out * aligned_v, axis=-1)           // 0.72",
-              "v_norm_sq = jnp.sum(aligned_v * aligned_v, axis=-1)    // 1.00",
-              "attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v  // [0.37, -0.28]",
-              "head_gate = 2 * jax.nn.sigmoid(x @ attn_gate)          // toy scalar 0.75",
-              "attn_delta = project(head_gate * attn_out)             // [0.28, -0.21, 0.05, -0.02]",
-              "h = x + attn_delta                                    // [2.28, -1.21, 0.55, 1.48]",
+              "# Real code computes q/k/v projections, RMS-normalizes q and k, then applies RoPE.",
+              "q = jnp.array([0.10, 0.20], dtype=jnp.float32)  # Toy query after Q RMSNorm and RoPE.",
+              "k = jnp.array([0.05, 0.30], dtype=jnp.float32)  # Toy key after K RMSNorm and RoPE.",
+              "attn_out = weighted_attn_out  # Weighted attention result for one head; [0.80, 0.30].",
+              "",
+              "# XSA: remove the component of the attention output aligned with this token's own value vector.",
+              "aligned_v = current_token_value  # Own value vector; [0.60, 0.80].",
+              "dot = jnp.sum(attn_out * aligned_v, axis=-1)  # Projection numerator; 0.72.",
+              "v_norm_sq = jnp.sum(aligned_v * aligned_v, axis=-1)  # Projection denominator before epsilon; 1.00.",
+              "attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v  # XSA output; [0.37, -0.28].",
+              "",
+              "# Headwise gate: Grug scales each attention head after XSA.",
+              "head_gate = 2 * jax.nn.sigmoid(x @ attn_gate)  # Toy scalar gate; 0.75.",
+              "attn_delta = jnp.array([0.28, -0.21, 0.05, -0.02], dtype=jnp.float32)  # Toy output projection of gated attention.",
+              "h = x + attn_delta  # Residual after attention; [2.28, -1.21, 0.55, 1.48].",
             ].join("\n"),
             ledger: [
               "Exclusive self-attention removes the component of the attention output that points along the token's own value vector.",
@@ -1092,12 +1142,13 @@
             title: "4. QB router chooses candidates",
             copy: "The router adds the exported Quantile Balancing bias only for expert choice. Here the biased scores choose top K+1 candidates: E0 and E2 run; E3 is kept only as the boundary.",
             math: [
-              "router_logits = router(h)                              // [ 1.2, -0.4, 0.7, 0.1]",
-              "qb_bias = exported_qb_bias                             // [-0.3,  0.2, 0.0, 0.1]",
-              "choice_logits = router_logits + qb_bias                // [ 0.9, -0.2, 0.7, 0.2]",
-              "_topk_logits, selected = jax.lax.top_k(choice_logits, K + 1)  // [E0, E2, E3]",
-              "experts_to_run = selected[:K]                          // [E0, E2]",
-              "boundary_expert = selected[K]                          // E3, recorded but not run",
+              "# QB bias affects expert choice only.",
+              "choice_logits = router_logits + qb_bias  # Biased choice logits; [0.9, -0.2, 0.7, 0.2].",
+              "",
+              "# Grug selects K + 1 experts: K run, and the extra one is the routing boundary.",
+              "_topk_logits, selected = jax.lax.top_k(choice_logits, K + 1)  # Experts [E0, E2, E3].",
+              "experts_to_run = selected[:K]  # Experts that execute; [E0, E2].",
+              "boundary_expert = selected[K]  # Boundary expert recorded for QB diagnostics; E3.",
             ].join("\n"),
             ledger: [
               "The bias affects expert choice, but it is not the value later used for combine weights.",
@@ -1110,12 +1161,15 @@
             title: "5. Routed experts and shared path",
             copy: "Only E0 and E2 execute. Their outputs are weighted by sigmoid of the original unbiased logits, then the always-on shared SiLU MLP is added.",
             math: [
-              "unbiased_topk = jnp.take(router_logits, experts_to_run)  // [1.2, 0.7]",
-              "combine_weights = jax.nn.sigmoid(unbiased_topk)          // [0.77, 0.67]",
-              "expert0 = expert_mlp[0](h)                               // [ 0.20, -0.10, 0.40, 0.00]",
-              "expert2 = expert_mlp[2](h)                               // [-0.30,  0.50, 0.10, 0.20]",
-              "shared = shared_silu_mlp(h)                              // [0.05, 0.02, -0.04, 0.01]",
-              "mlp_delta = 0.77 * expert0 + 0.67 * expert2 + shared      // [0.00, 0.28, 0.33, 0.14]",
+              "# Combine weights use the original unbiased router logits, not choice_logits.",
+              "unbiased_topk = jnp.take(router_logits, experts_to_run)  # Raw logits for E0 and E2; [1.2, 0.7].",
+              "combine_weights = jax.nn.sigmoid(unbiased_topk)  # Independent sigmoid weights; [0.77, 0.67].",
+              "",
+              "# Only the top-K experts run; the shared SiLU MLP always runs.",
+              "expert0 = expert_outputs[0]  # Toy output from E0; [0.20, -0.10, 0.40, 0.00].",
+              "expert2 = expert_outputs[2]  # Toy output from E2; [-0.30, 0.50, 0.10, 0.20].",
+              "routed_experts = combine_weights[0] * expert0 + combine_weights[1] * expert2  # [-0.05, 0.26, 0.37, 0.13].",
+              "mlp_delta = routed_experts + shared_output  # Routed plus shared MLP delta; [0.00, 0.28, 0.33, 0.14].",
             ].join("\n"),
             ledger: [
               "Unlike selected-expert softmax, sigmoid weights do not have to sum to one.",
@@ -1128,9 +1182,9 @@
             title: "6. Block output",
             copy: "The routed-plus-shared MLP contribution is added back through the residual path. The result is the next hidden vector x' for this token.",
             math: [
-              "h = x + attn_delta                                      // [2.28, -1.21, 0.55, 1.48]",
-              "mlp_delta = routed_experts + shared                     // [0.00, 0.28, 0.33, 0.14]",
-              "next_hidden = h + mlp_delta                             // [2.28, -0.93, 0.88, 1.62]",
+              "# The block output is another residual add.",
+              "h = x + attn_delta  # Hidden state after attention residual; [2.28, -1.21, 0.55, 1.48].",
+              "next_hidden = h + mlp_delta  # Hidden state after MoE residual; [2.28, -0.93, 0.88, 1.62].",
             ].join("\n"),
             ledger: [
               "The dense/reference attention path and production attention path should agree on this residual result under controlled inputs.",
@@ -1141,21 +1195,26 @@
           },
         ];
 
+        const footnoteNumbers = new Map();
         document.querySelectorAll(".evidence").forEach((link) => {
           const label = link.querySelector("span");
           if (!label) return;
           const href = link.getAttribute("href") || "";
-          const slug = href.split("#").pop().replace(/^q-/, "") || label.textContent.trim().toLowerCase().replace(/\s+/g, "-");
-          label.textContent = `[${slug}]`;
+          const originalLabel = label.textContent.trim();
+          if (!footnoteNumbers.has(href)) {
+            footnoteNumbers.set(href, footnoteNumbers.size + 1);
+          }
+          const number = footnoteNumbers.get(href);
+          label.textContent = `[${number}]`;
+          link.setAttribute("aria-label", `Open support reference ${number}: ${originalLabel}`);
         });
 
         const buttons = Array.from(document.querySelectorAll("[data-journey-step]"));
-        const cards = Array.from(document.querySelectorAll("[data-journey-card]"));
         const range = document.getElementById("journey-range");
         const dot = document.getElementById("journey-dot");
         const title = document.getElementById("journey-title");
         const copy = document.getElementById("journey-copy");
-        const math = document.getElementById("journey-math");
+        const code = document.getElementById("journey-code");
         const ledger = document.getElementById("journey-ledger");
 
         function setStep(index) {
@@ -1167,7 +1226,12 @@
           }
           if (title) title.textContent = step.title;
           if (copy) copy.textContent = step.copy;
-          if (math) math.textContent = step.math;
+          if (code) {
+            code.textContent = step.math;
+            if (window.Prism) {
+              Prism.highlightElement(code);
+            }
+          }
           if (ledger) {
             ledger.innerHTML = "";
             step.ledger.forEach((item) => {
@@ -1180,10 +1244,6 @@
           buttons.forEach((button) => {
             const isActive = Number(button.dataset.journeyStep) === stepIndex;
             button.setAttribute("aria-pressed", String(isActive));
-          });
-          cards.forEach((card) => {
-            const isActive = Number(card.dataset.journeyCard) === stepIndex;
-            card.dataset.active = String(isActive);
           });
         }
 
