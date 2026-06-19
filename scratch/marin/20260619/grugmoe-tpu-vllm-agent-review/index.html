@@ -25,12 +25,14 @@
             GrugMoE TPU/vLLM agent work review
           </h1>
           <p class="mt-4 max-w-3xl text-base leading-7 text-slate-300">
-            This page gives a low-friction path through the agent's latest fork-stack work:
-            production GrugMoE attention in <code class="code text-slate-100">tpu-inference</code>,
-            Marin smoke/parity coverage, and the small vLLM scheduler guard needed for routed experts.
+            This page assumes only high-level familiarity with Levanter, Grug, and vLLM. It first builds the
+            context needed to understand why GrugMoE needs custom TPU serving code, then gives a linear path
+            through the agent's fork-stack changes.
           </p>
         </div>
         <nav class="flex flex-wrap gap-3 text-sm">
+          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#context">Context</a>
+          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#flow">Request flow</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#order">Review order</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#mental-model">Mental model</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#hotspots">Hotspots</a>
@@ -62,6 +64,204 @@
           </p>
           <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/04321f0f01b8e60d577a85a1b1af688e4433e7e0...43e648985619749e7d1b232fbe408c7f5995d2d6">Open compare</a>
         </article>
+      </section>
+
+      <section id="context" class="mt-12">
+        <div class="max-w-4xl">
+          <p class="text-sm font-semibold uppercase tracking-wide text-sky-200">Prerequisite context</p>
+          <h2 class="mt-2 text-3xl font-semibold text-white">What This Work Is Actually Adding</h2>
+          <p class="mt-4 text-sm leading-7 text-slate-300">
+            The goal is to make a GrugMoE model trained and exported from Marin/Levanter run through the normal
+            vLLM TPU serving path. vLLM remains the serving API and scheduler. <code class="code text-slate-100">tpu-inference</code>
+            owns the TPU/JAX model implementation and kernels. Marin owns the training model, export path, fork pins,
+            and smoke tests that prove the pieces agree.
+          </p>
+          <p class="mt-3 text-sm leading-7 text-slate-300">
+            The PR is not just a registration change. GrugMoE has model semantics that existing supported
+            transformer/MoE implementations do not already encode, so the TPU path needs custom model code, custom
+            artifact loading, and custom diagnostics.
+          </p>
+        </div>
+
+        <div class="mt-6 grid gap-4 lg:grid-cols-2">
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+            <h3 class="text-lg font-semibold text-white">GrugMoE In One Pass</h3>
+            <p class="mt-3 text-sm leading-6 text-slate-300">
+              A normal transformer block has attention plus a feed-forward network. A normal MoE transformer replaces
+              some feed-forward layers with a router that chooses a few experts. GrugMoE goes further: every block is
+              an MoE block, the router uses Grug-specific QB routing, the block can add a shared dense expert, and the
+              attention path uses Grug-specific normalization, gating, and exclusive self-attention.
+            </p>
+            <div class="mt-4 overflow-x-auto">
+              <table class="w-full min-w-[560px] border-collapse text-left text-sm">
+                <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+                  <tr>
+                    <th class="py-3 pr-4">Part</th>
+                    <th class="py-3 pr-4">What Reviewers Need To Know</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-300">
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Router</td>
+                    <td class="py-3 pr-4">Computes fp32 router logits, adds a non-gradient router bias for expert choice, selects top-(K+1), keeps top-K experts, and uses the extra expert as a QB boundary signal.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Combine weights</td>
+                    <td class="py-3 pr-4">Uses sigmoid of the unbiased selected router logits. This is not simply a softmax over the selected experts.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Experts</td>
+                    <td class="py-3 pr-4">Every layer has routed experts, and the canary shape exercises 64 experts with top-4 routing.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Shared expert</td>
+                    <td class="py-3 pr-4">A dense SiLU MLP is added beside the routed experts when <code class="code">shared_expert_intermediate_dim</code> is positive.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Attention</td>
+                    <td class="py-3 pr-4">Uses q/k RMS norm, rotary embeddings, optional q scaling, grouped-query attention, short/long sliding windows, exclusive self-attention, and a headwise gate.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Norms</td>
+                    <td class="py-3 pr-4">GatedNorm appears around embeddings, attention input, MLP input, and final hidden states, so loader coverage must include those extra weights.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+            <h3 class="text-lg font-semibold text-white">Why Existing TPU Models Are Not Enough</h3>
+            <p class="mt-3 text-sm leading-6 text-slate-300">
+              Existing tpu-inference models already know how to run standard dense attention, ordinary RMSNorm,
+              common MoE routing, and common checkpoint layouts. GrugMoE differs in several places where changing one
+              line in a registry would be wrong.
+            </p>
+            <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
+              <li>The router decision, combine weights, and returned expert IDs must match Levanter's Grug routing.</li>
+              <li>The attention output is post-processed by removing each token's own value direction, then applying a headwise gate.</li>
+              <li>The production serving path must use vLLM/tpu-inference KV cache metadata, while the debug path must stay simple enough to compare against Levanter.</li>
+              <li>The exported HF-style artifact has Grug-specific tensor names for GatedNorm, router bias, routed experts, and shared experts.</li>
+              <li>The vLLM scheduler can see routed expert data from the TPU runner, so it needs to ignore that data unless the routed-expert output feature is enabled.</li>
+            </ul>
+            <p class="mt-4 text-sm leading-6 text-slate-300">
+              That is why the work lands in all three places: Marin exports/tests, tpu-inference model/runtime code,
+              and a narrow vLLM scheduler guard.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="flow" class="mt-12">
+        <div class="max-w-4xl">
+          <h2 class="text-2xl font-semibold text-white">How The Pieces Fit Together</h2>
+          <p class="mt-3 text-sm leading-7 text-slate-300">
+            Read the code as one pipeline. Levanter is the trusted training/reference implementation. Marin exports a
+            canonical HF-style artifact. vLLM serves requests and schedules tokens. tpu-inference runs the JAX model on
+            TPU and calls shared TPU attention kernels. Marin's tests compare the resulting logits, logprobs, generated
+            tokens, and expert routes against the Levanter/reference path.
+          </p>
+        </div>
+        <div class="mt-5 overflow-x-auto rounded border border-slate-800 bg-[#0d1117] p-5">
+          <svg role="img" aria-label="End-to-end Marin GrugMoE vLLM TPU request flow" viewBox="0 0 1060 250" class="min-w-[960px]">
+            <defs>
+              <marker id="flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"></path>
+              </marker>
+            </defs>
+            <rect x="20" y="50" width="150" height="78" rx="6" fill="#111827" stroke="#334155"></rect>
+            <text x="95" y="82" fill="#e2e8f0" font-size="15" text-anchor="middle">Levanter</text>
+            <text x="95" y="104" fill="#94a3b8" font-size="12" text-anchor="middle">training/reference</text>
+            <line x1="170" y1="89" x2="235" y2="89" stroke="#38bdf8" stroke-width="2" marker-end="url(#flow-arrow)"></line>
+            <rect x="240" y="50" width="150" height="78" rx="6" fill="#111827" stroke="#334155"></rect>
+            <text x="315" y="82" fill="#e2e8f0" font-size="15" text-anchor="middle">Marin export</text>
+            <text x="315" y="104" fill="#94a3b8" font-size="12" text-anchor="middle">HF safetensors</text>
+            <line x1="390" y1="89" x2="455" y2="89" stroke="#38bdf8" stroke-width="2" marker-end="url(#flow-arrow)"></line>
+            <rect x="460" y="50" width="150" height="78" rx="6" fill="#111827" stroke="#334155"></rect>
+            <text x="535" y="82" fill="#e2e8f0" font-size="15" text-anchor="middle">vLLM serve</text>
+            <text x="535" y="104" fill="#94a3b8" font-size="12" text-anchor="middle">API + scheduler</text>
+            <line x1="610" y1="89" x2="675" y2="89" stroke="#38bdf8" stroke-width="2" marker-end="url(#flow-arrow)"></line>
+            <rect x="680" y="50" width="160" height="78" rx="6" fill="#111827" stroke="#334155"></rect>
+            <text x="760" y="82" fill="#e2e8f0" font-size="15" text-anchor="middle">tpu-inference</text>
+            <text x="760" y="104" fill="#94a3b8" font-size="12" text-anchor="middle">JAX GrugMoE</text>
+            <line x1="840" y1="89" x2="905" y2="89" stroke="#38bdf8" stroke-width="2" marker-end="url(#flow-arrow)"></line>
+            <rect x="910" y="50" width="130" height="78" rx="6" fill="#064e3b" stroke="#34d399"></rect>
+            <text x="975" y="82" fill="#d1fae5" font-size="15" text-anchor="middle">TPU output</text>
+            <text x="975" y="104" fill="#a7f3d0" font-size="12" text-anchor="middle">tokens/logprobs</text>
+
+            <path d="M 760 128 C 760 180, 535 180, 315 128" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#flow-arrow)"></path>
+            <text x="535" y="190" fill="#fbbf24" font-size="13" text-anchor="middle">smoke tests compare vLLM/tpu-inference behavior back to the Levanter/reference path</text>
+          </svg>
+        </div>
+
+        <div class="mt-5 grid gap-4 lg:grid-cols-3">
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+            <h3 class="font-semibold text-white">Marin code</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-300">
+              Defines the GrugMoE model, emits a canonical inference artifact, pins the fork-stack SHAs, and owns the smoke/parity harness.
+            </p>
+          </article>
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+            <h3 class="font-semibold text-white">tpu-inference fork</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-300">
+              Adds the native JAX <code class="code">GrugMoeForCausalLM</code>, loads the Marin artifact, executes the forward pass, updates KV cache, and returns routed expert IDs for diagnostics.
+            </p>
+          </article>
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+            <h3 class="font-semibold text-white">vLLM fork</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-300">
+              Provides the serving front door and scheduler. The branch only needs a small guard so unsolicited routed expert data does not crash normal requests.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="attention-context" class="mt-12">
+        <div class="max-w-4xl">
+          <h2 class="text-2xl font-semibold text-white">Dense Attention vs Production Attention</h2>
+          <p class="mt-3 text-sm leading-7 text-slate-300">
+            This distinction is central to the PR. The dense path is deliberately boring: compute attention directly
+            over the visible tokens with explicit masks. It is slow and not a serving implementation, but it is easy to
+            reason about and compare to Levanter. The production path uses the shared tpu-inference attention kernel,
+            vLLM's request metadata, and the paged KV cache used during serving.
+          </p>
+        </div>
+        <div class="mt-5 overflow-x-auto rounded border border-slate-800 bg-[#0d1117] p-5">
+          <table class="w-full min-w-[760px] border-collapse text-left text-sm">
+            <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+              <tr>
+                <th class="py-3 pr-4">Question</th>
+                <th class="py-3 pr-4">Dense/reference mode</th>
+                <th class="py-3 pr-4">Production mode</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300">
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">Why exists?</td>
+                <td class="py-3 pr-4">Debugging and Levanter parity.</td>
+                <td class="py-3 pr-4">Real vLLM TPU serving.</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">Attention implementation</td>
+                <td class="py-3 pr-4">Explicit QK scores, explicit mask, softmax, and value matmul.</td>
+                <td class="py-3 pr-4">Shared tpu-inference attention with KV cache and full <code class="code">AttentionMetadata</code>.</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">What should match?</td>
+                <td class="py-3 pr-4">Hidden states, logits, selected logprobs, and routed experts under controlled prompts.</td>
+                <td class="py-3 pr-4">Same outputs within tolerance, then successful installed vLLM canaries on real TPU.</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">What stays shared?</td>
+                <td class="py-3 pr-4" colspan="2">QKV projection, rotary/q scaling, exclusive self-attention post-processing, headwise gate, MLP routing, shared expert, norms, and output logits.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-4 max-w-4xl text-sm leading-7 text-slate-300">
+          The default exported artifact now says <code class="code text-slate-100">grugmoe_attention_mode = production</code>,
+          so an installed vLLM smoke exercises the real serving path. Dense mode remains available as the clean reference path.
+        </p>
       </section>
 
       <section id="order" class="mt-10">
