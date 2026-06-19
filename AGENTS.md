@@ -41,6 +41,8 @@ The typical website page should include:
 * Feel free to embed code diffs from GitHub, or use Shiki plus diff2html.
 * For advanced use cases, MDX can be used.
 * Use a simple and consistent dark theme only.
+* To render simple animations, feel free to use React-rendered SVG/JSX + simple state (e.g. with hover, click, selected states, progressive reveal, and small animations with ordinary React)
+* For Math, use MathJax
 
 ## Destination
 
