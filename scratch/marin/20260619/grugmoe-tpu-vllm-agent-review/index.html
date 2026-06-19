@@ -13,38 +13,32 @@
       .evidence-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.4rem;
-        margin-top: 0.75rem;
+        gap: 0.15rem 0.35rem;
+        margin-top: 0.5rem;
       }
       .evidence {
         position: relative;
         display: inline-flex;
         max-width: 100%;
         align-items: center;
-        border: 1px solid #334155;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.58);
-        padding: 0.25rem 0.55rem;
+        border-radius: 4px;
+        padding: 0.02rem 0.12rem;
         text-decoration: none;
         vertical-align: middle;
       }
       .evidence:hover,
       .evidence:focus-visible {
-        border-color: #38bdf8;
         background: #07111f;
         outline: none;
       }
       .evidence span {
         display: inline;
         color: #7dd3fc;
-        font-size: 0.62rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-      .evidence span::after {
-        content: " >";
-        color: #38bdf8;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
       }
       .evidence q, .evidence code {
         position: absolute;
@@ -90,6 +84,10 @@
         color: #f0f9ff;
       }
       .journey-dot { transition: cx 180ms ease, cy 180ms ease; }
+      .journey-card[data-active="true"] {
+        border-color: #38bdf8;
+        background: rgba(8, 47, 73, 0.45);
+      }
     </style>
   </head>
   <body class="min-h-screen bg-[#090b10] text-slate-100 antialiased">
@@ -110,7 +108,7 @@
             through the agent's fork-stack changes.
           </p>
           <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
-            Small source pills quote the support page on hover/focus. Click any pill to inspect the source link, validation record, or caveat behind the claim.
+            Footnote-style source links such as <span class="text-sky-300">[xsa]</span> quote the support page on hover/focus. Click any one to inspect the source link, validation record, or caveat behind the claim.
           </p>
         </div>
         <nav class="flex flex-wrap gap-3 text-sm">
@@ -275,126 +273,38 @@
           </div>
         </div>
 
-        <div class="mt-5 grid gap-4 lg:grid-cols-2">
-          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
-            <h3 class="text-lg font-semibold text-white">Normalization And Attention Terms</h3>
-            <div class="mt-4 space-y-4 text-sm leading-6 text-slate-300">
-              <p>
-                <span class="font-semibold text-slate-100">RMSNorm</span> rescales a hidden vector by its root-mean-square magnitude, then applies a learned per-dimension weight.
-                GrugMoE uses this before attention, before the MoE, after embeddings, and before final logits.
-              </p>
-              <p>
-                <span class="font-semibold text-slate-100">GatedNorm</span> is an extra learned gate after RMSNorm.
-                It projects the hidden vector down to a small rank-128 space, applies SiLU, projects back to hidden size,
-                runs sigmoid, and multiplies the original normalized vector by that gate. It is not a standard vLLM
-                normalization layer, so the loader and TPU model need Grug-specific weights and code.
-              </p>
-              <p>
-                <span class="font-semibold text-slate-100">Attention</span> starts with normal Q/K/V projections, but
-                normalizes Q and K, applies RoPE position rotation, optionally scales Q, uses grouped-query attention
-                where several query heads share each K/V head, and alternates short and long sliding windows by layer.
-              </p>
-              <p>
-                <span class="font-semibold text-slate-100">Exclusive self-attention</span> is the unusual part: after
-                attention returns a head output <code class="code text-slate-100">y</code>, Grug subtracts the part of
-                <code class="code text-slate-100">y</code> that points in the same direction as this token's own value
-                vector <code class="code text-slate-100">v</code>. The code computes the projection removal
-                <span class="math">y - ((y &middot; v) / ||v||<sup>2</sup>) v</span>, then applies a learned scalar gate per
-                attention head. Dense and production attention must both apply this same post-processing.
-              </p>
-            </div>
-            <div class="evidence-row">
-              <a class="evidence" href="support.html#q-rmsnorm" title="Open quoted support and source">
-                <span>Quoted support</span>
-                <code>normed = x * jax.lax.rsqrt(variance + self.eps)</code>
-              </a>
-              <a class="evidence" href="support.html#q-gatednorm" title="Open quoted support and source">
-                <span>Quoted support</span>
-                <code>gate = jax.nn.sigmoid(gate_hidden @ w_up)</code>
-              </a>
-              <a class="evidence" href="support.html#q-attention-setup" title="Open quoted support and source">
-                <span>Quoted support</span>
-                <code>q = rms_norm(q); k = rms_norm(k); q, k = apply_rotary_embedding(...)</code>
-              </a>
-              <a class="evidence" href="support.html#q-xsa" title="Open quoted support and source">
-                <span>Quoted support</span>
-                <code>attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code>
-              </a>
-            </div>
-          </article>
-
-          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
-            <h3 class="text-lg font-semibold text-white">QB Routing And Expert Mixing</h3>
-            <div class="mt-4 space-y-4 text-sm leading-6 text-slate-300">
-              <p>
-                <span class="font-semibold text-slate-100">QB routing</span> means Quantile Balancing. I found it
-                sourced in the Marin notes to Jianlin Su's article-style quantile router-bias update, not to a formal
-                paper. Operationally, each training step records a per-expert
-                <code class="code text-slate-100">beta</code> statistic from the router's top-k boundary. On the next step, Marin writes
-                <code class="code text-slate-100">router_bias := -beta</code>, mean-centered. That pushes over-used experts
-                down and under-used experts up without using a normal auxiliary load-balancing gradient loss.
-              </p>
-              <p>
-                <span class="font-semibold text-slate-100">Non-gradient router bias</span> means the bias is added for
-                expert choice, but wrapped in <code class="code text-slate-100">stop_gradient</code>. Backprop does not
-                learn that bias directly. In an exported inference artifact, it is just a final tensor that the vLLM TPU
-                path must load and add before top-k selection.
-              </p>
-              <p>
-                <span class="font-semibold text-slate-100">Boundary expert</span> means the router asks for
-                <code class="code text-slate-100">K + 1</code> experts. The first <code class="code text-slate-100">K</code>
-                are executed. The extra one is not executed; it gives the threshold logit used by QB statistics and by
-                routing debug records.
-              </p>
-              <p>
-                <span class="font-semibold text-slate-100">Sigmoid combine weights</span> are computed from the raw,
-                unbiased logits of the selected experts. A selected-expert softmax would force the chosen expert weights
-                to sum to one. Grug's sigmoid lets every selected expert independently contribute more or less, so the
-                total contribution can be below or above one. The router bias affects which experts are chosen, not how
-                strongly their outputs are mixed.
-              </p>
-              <p>
-                <span class="font-semibold text-slate-100">Shared dense SiLU MLP</span> is an always-on feed-forward
-                network that runs for every token beside the sparse routed experts. SiLU is the activation
-                <code class="code text-slate-100">x * sigmoid(x)</code>. When
-                <code class="code text-slate-100">shared_expert_intermediate_dim</code> is positive, the final MLP output
-                is routed-expert output plus this shared MLP output.
-              </p>
-            </div>
-            <div class="evidence-row">
-              <a class="evidence" href="support.html#q-qb-provenance" title="Open quoted support and source">
-                <span>QB source</span>
-                <q>Quantile Balancing (QB), a load balancing method for Mixture of Experts.</q>
-              </a>
-              <a class="evidence" href="support.html#q-qb-bias" title="Open quoted support and source">
-                <span>Quoted support</span>
-                <code>new_bias = -qb_betas[moe_idx]</code>
-              </a>
-              <a class="evidence" href="support.html#q-topk-boundary" title="Open quoted support and source">
-                <span>Quoted support</span>
-                <code>jax.lax.top_k(..., K + 1); selected_experts = selected_experts[:, :-1]</code>
-              </a>
-              <a class="evidence" href="support.html#q-combine-sigmoid" title="Open quoted support and source">
-                <span>Quoted support</span>
-                <code>combine_weights = jax.nn.sigmoid(unbiased_topk)</code>
-              </a>
-              <a class="evidence" href="support.html#q-shared-expert" title="Open quoted support and source">
-                <span>Quoted support</span>
-                <code>mlp_out = mlp_out + self.shared(..., activation=...silu)</code>
-              </a>
-            </div>
-          </article>
-        </div>
-
         <div class="mt-5 rounded border border-slate-800 bg-[#0d1117] p-5">
           <h3 class="text-lg font-semibold text-white">One Token Journey Through A Tiny GrugMoE Block</h3>
           <p class="mt-3 max-w-4xl text-sm leading-7 text-slate-300">
-            This example follows one token through the same operations described above. The numbers are small on
-            purpose: four experts, <code class="code text-slate-100">K = 2</code>, raw router logits
-            <code class="code text-slate-100">[1.2, -0.4, 0.7, 0.1]</code>, and exported QB bias
-            <code class="code text-slate-100">[-0.3, +0.2, 0.0, +0.1]</code>.
+            This single walkthrough inlines the normalization, attention, QB routing, and expert-mixing terms. The
+            numbers are intentionally tiny: hidden width 4, four experts, and <code class="code text-slate-100">K = 2</code>.
+            They are toy values, but each Grug-specific operation is shown numerically.
           </p>
           <div class="evidence-row">
+            <a class="evidence" href="support.html#q-rmsnorm" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>normed = x * jax.lax.rsqrt(variance + self.eps)</code>
+            </a>
+            <a class="evidence" href="support.html#q-gatednorm" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>gate = jax.nn.sigmoid(gate_hidden @ w_up)</code>
+            </a>
+            <a class="evidence" href="support.html#q-attention-setup" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>q = rms_norm(q); k = rms_norm(k); q, k = apply_rotary_embedding(...)</code>
+            </a>
+            <a class="evidence" href="support.html#q-xsa" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code>
+            </a>
+            <a class="evidence" href="support.html#q-attn-head-gate" title="Open quoted support and source">
+              <span>Quoted support</span>
+              <code>gate = 2 * jax.nn.sigmoid(...); attn_out = gate * attn_out</code>
+            </a>
+            <a class="evidence" href="support.html#q-qb-provenance" title="Open quoted support and source">
+              <span>QB source</span>
+              <q>Quantile Balancing (QB), a load balancing method for Mixture of Experts.</q>
+            </a>
             <a class="evidence" href="support.html#q-topk-boundary" title="Open quoted support and source">
               <span>Top-k quote</span>
               <code>_topk_logits, selected_experts = jax.lax.top_k(..., K + 1)</code>
@@ -419,104 +329,137 @@
           </div>
           <input id="journey-range" class="mt-4 w-full accent-sky-400" type="range" min="0" max="5" value="0" aria-label="Token journey step" />
 
-          <div class="mt-5 overflow-x-auto rounded border border-slate-800 bg-slate-950 p-4">
-            <svg role="img" aria-label="One token moving through a tiny GrugMoE block" viewBox="0 0 1120 430" class="min-w-[980px]">
-              <defs>
-                <marker id="journey-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"></path>
-                </marker>
-              </defs>
+          <div class="mt-5 space-y-4">
+            <div class="overflow-x-auto rounded border border-slate-800 bg-slate-950 p-4">
+              <svg role="img" aria-label="One token moving through a tiny GrugMoE block" viewBox="0 0 1120 430" class="w-full min-w-[760px]">
+                <defs>
+                  <marker id="journey-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"></path>
+                  </marker>
+                </defs>
 
-              <path d="M 70 65 H 1040" stroke="#1f2937" stroke-width="12" stroke-linecap="round"></path>
-              <path d="M 70 65 H 1040" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 10"></path>
-              <circle id="journey-dot" class="journey-dot" cx="70" cy="65" r="14" fill="#f8fafc" stroke="#38bdf8" stroke-width="4"></circle>
-              <text x="70" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">token</text>
-              <text x="240" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">norm/gate</text>
-              <text x="430" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">attention</text>
-              <text x="650" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">QB router</text>
-              <text x="875" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">experts</text>
-              <text x="1040" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">output</text>
+                <path d="M 70 65 H 1040" stroke="#1f2937" stroke-width="12" stroke-linecap="round"></path>
+                <path d="M 70 65 H 1040" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 10"></path>
+                <circle id="journey-dot" class="journey-dot" cx="70" cy="65" r="14" fill="#f8fafc" stroke="#38bdf8" stroke-width="4"></circle>
+                <text x="70" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">token</text>
+                <text x="240" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">norm/gate</text>
+                <text x="430" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">attention</text>
+                <text x="650" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">QB router</text>
+                <text x="875" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">experts</text>
+                <text x="1040" y="30" fill="#e2e8f0" font-size="13" text-anchor="middle">output</text>
 
-              <rect x="25" y="105" width="120" height="92" rx="6" fill="#111827" stroke="#334155"></rect>
-              <text x="85" y="137" fill="#e2e8f0" font-size="14" text-anchor="middle">hidden vector</text>
-              <text x="85" y="162" fill="#94a3b8" font-size="12" text-anchor="middle">x for this token</text>
-              <circle cx="85" cy="180" r="8" fill="#38bdf8"></circle>
-              <line x1="145" y1="151" x2="195" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
+                <rect x="25" y="105" width="120" height="92" rx="6" fill="#111827" stroke="#334155"></rect>
+                <text x="85" y="137" fill="#e2e8f0" font-size="14" text-anchor="middle">x</text>
+                <text x="85" y="162" fill="#94a3b8" font-size="12" text-anchor="middle">[2,-1,.5,1.5]</text>
+                <circle cx="85" cy="180" r="8" fill="#38bdf8"></circle>
+                <line x1="145" y1="151" x2="195" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
 
-              <rect x="200" y="105" width="150" height="92" rx="6" fill="#052e2b" stroke="#14b8a6"></rect>
-              <text x="275" y="132" fill="#ccfbf1" font-size="14" text-anchor="middle">RMSNorm</text>
-              <text x="275" y="154" fill="#99f6e4" font-size="12" text-anchor="middle">rescale magnitude</text>
-              <text x="275" y="176" fill="#99f6e4" font-size="12" text-anchor="middle">then GatedNorm</text>
-              <line x1="350" y1="151" x2="385" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
+                <rect x="200" y="105" width="150" height="92" rx="6" fill="#052e2b" stroke="#14b8a6"></rect>
+                <text x="275" y="132" fill="#ccfbf1" font-size="14" text-anchor="middle">RMSNorm</text>
+                <text x="275" y="154" fill="#99f6e4" font-size="12" text-anchor="middle">x / rms(x)</text>
+                <text x="275" y="176" fill="#99f6e4" font-size="12" text-anchor="middle">then learned gate</text>
+                <line x1="350" y1="151" x2="385" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
 
-              <rect x="390" y="105" width="165" height="132" rx="6" fill="#172554" stroke="#60a5fa"></rect>
-              <text x="472" y="132" fill="#dbeafe" font-size="14" text-anchor="middle">attention</text>
-              <text x="472" y="155" fill="#bfdbfe" font-size="12" text-anchor="middle">Q/K RMSNorm + RoPE</text>
-              <text x="472" y="176" fill="#bfdbfe" font-size="12" text-anchor="middle">windowed GQA</text>
-              <text x="472" y="197" fill="#bfdbfe" font-size="12" text-anchor="middle">subtract own-value</text>
-              <text x="472" y="218" fill="#bfdbfe" font-size="12" text-anchor="middle">apply head gate</text>
-              <line x1="555" y1="151" x2="590" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
+                <rect x="390" y="105" width="165" height="132" rx="6" fill="#172554" stroke="#60a5fa"></rect>
+                <text x="472" y="132" fill="#dbeafe" font-size="14" text-anchor="middle">attention</text>
+                <text x="472" y="155" fill="#bfdbfe" font-size="12" text-anchor="middle">Q/K norm + RoPE</text>
+                <text x="472" y="176" fill="#bfdbfe" font-size="12" text-anchor="middle">windowed GQA</text>
+                <text x="472" y="197" fill="#bfdbfe" font-size="12" text-anchor="middle">XSA removes own-value</text>
+                <text x="472" y="218" fill="#bfdbfe" font-size="12" text-anchor="middle">then head gate</text>
+                <line x1="555" y1="151" x2="590" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
 
-              <rect x="595" y="105" width="190" height="230" rx="6" fill="#422006" stroke="#f59e0b"></rect>
-              <text x="690" y="132" fill="#fef3c7" font-size="14" text-anchor="middle">QB router</text>
-              <text x="625" y="164" fill="#fde68a" font-size="11">raw</text>
-              <text x="665" y="164" fill="#fde68a" font-size="11">bias</text>
-              <text x="716" y="164" fill="#fde68a" font-size="11">biased</text>
-              <text x="625" y="189" fill="#e2e8f0" font-size="12">E0</text>
-              <text x="665" y="189" fill="#94a3b8" font-size="12">+1.2</text>
-              <text x="710" y="189" fill="#94a3b8" font-size="12">-0.3</text>
-              <text x="755" y="189" fill="#86efac" font-size="12">0.9 run</text>
-              <text x="625" y="214" fill="#e2e8f0" font-size="12">E1</text>
-              <text x="665" y="214" fill="#94a3b8" font-size="12">-0.4</text>
-              <text x="710" y="214" fill="#94a3b8" font-size="12">+0.2</text>
-              <text x="755" y="214" fill="#64748b" font-size="12">-0.2 skip</text>
-              <text x="625" y="239" fill="#e2e8f0" font-size="12">E2</text>
-              <text x="665" y="239" fill="#94a3b8" font-size="12">+0.7</text>
-              <text x="710" y="239" fill="#94a3b8" font-size="12">+0.0</text>
-              <text x="755" y="239" fill="#86efac" font-size="12">0.7 run</text>
-              <text x="625" y="264" fill="#e2e8f0" font-size="12">E3</text>
-              <text x="665" y="264" fill="#94a3b8" font-size="12">+0.1</text>
-              <text x="710" y="264" fill="#94a3b8" font-size="12">+0.1</text>
-              <text x="755" y="264" fill="#fbbf24" font-size="12">0.2 boundary</text>
-              <rect x="628" y="286" width="32" height="28" rx="4" fill="#16a34a"></rect>
-              <rect x="668" y="304" width="32" height="10" rx="4" fill="#475569"></rect>
-              <rect x="708" y="292" width="32" height="22" rx="4" fill="#22c55e"></rect>
-              <rect x="748" y="301" width="32" height="13" rx="4" fill="#f59e0b"></rect>
-              <text x="704" y="328" fill="#fef3c7" font-size="11" text-anchor="middle">top K+1 = E0, E2, E3</text>
-              <line x1="785" y1="151" x2="825" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
+                <rect x="595" y="105" width="190" height="230" rx="6" fill="#422006" stroke="#f59e0b"></rect>
+                <text x="690" y="132" fill="#fef3c7" font-size="14" text-anchor="middle">QB router</text>
+                <text x="625" y="164" fill="#fde68a" font-size="11">raw</text>
+                <text x="665" y="164" fill="#fde68a" font-size="11">bias</text>
+                <text x="716" y="164" fill="#fde68a" font-size="11">biased</text>
+                <text x="625" y="189" fill="#e2e8f0" font-size="12">E0</text>
+                <text x="665" y="189" fill="#94a3b8" font-size="12">+1.2</text>
+                <text x="710" y="189" fill="#94a3b8" font-size="12">-0.3</text>
+                <text x="755" y="189" fill="#86efac" font-size="12">0.9 run</text>
+                <text x="625" y="214" fill="#e2e8f0" font-size="12">E1</text>
+                <text x="665" y="214" fill="#94a3b8" font-size="12">-0.4</text>
+                <text x="710" y="214" fill="#94a3b8" font-size="12">+0.2</text>
+                <text x="755" y="214" fill="#64748b" font-size="12">-0.2 skip</text>
+                <text x="625" y="239" fill="#e2e8f0" font-size="12">E2</text>
+                <text x="665" y="239" fill="#94a3b8" font-size="12">+0.7</text>
+                <text x="710" y="239" fill="#94a3b8" font-size="12">+0.0</text>
+                <text x="755" y="239" fill="#86efac" font-size="12">0.7 run</text>
+                <text x="625" y="264" fill="#e2e8f0" font-size="12">E3</text>
+                <text x="665" y="264" fill="#94a3b8" font-size="12">+0.1</text>
+                <text x="710" y="264" fill="#94a3b8" font-size="12">+0.1</text>
+                <text x="755" y="264" fill="#fbbf24" font-size="12">0.2 boundary</text>
+                <rect x="628" y="286" width="32" height="28" rx="4" fill="#16a34a"></rect>
+                <rect x="668" y="304" width="32" height="10" rx="4" fill="#475569"></rect>
+                <rect x="708" y="292" width="32" height="22" rx="4" fill="#22c55e"></rect>
+                <rect x="748" y="301" width="32" height="13" rx="4" fill="#f59e0b"></rect>
+                <text x="704" y="328" fill="#fef3c7" font-size="11" text-anchor="middle">top K+1 = E0, E2, E3</text>
+                <line x1="785" y1="151" x2="825" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
 
-              <rect x="830" y="105" width="185" height="230" rx="6" fill="#052e16" stroke="#22c55e"></rect>
-              <text x="922" y="132" fill="#dcfce7" font-size="14" text-anchor="middle">execute and mix</text>
-              <rect x="858" y="154" width="58" height="42" rx="6" fill="#14532d" stroke="#22c55e"></rect>
-              <text x="887" y="179" fill="#dcfce7" font-size="12" text-anchor="middle">E0</text>
-              <text x="887" y="193" fill="#bbf7d0" font-size="10" text-anchor="middle">w=.77</text>
-              <rect x="936" y="154" width="58" height="42" rx="6" fill="#14532d" stroke="#22c55e"></rect>
-              <text x="965" y="179" fill="#dcfce7" font-size="12" text-anchor="middle">E2</text>
-              <text x="965" y="193" fill="#bbf7d0" font-size="10" text-anchor="middle">w=.67</text>
-              <rect x="858" y="215" width="58" height="42" rx="6" fill="#451a03" stroke="#f59e0b" stroke-dasharray="4 4"></rect>
-              <text x="887" y="239" fill="#fde68a" font-size="12" text-anchor="middle">E3</text>
-              <text x="887" y="253" fill="#fbbf24" font-size="10" text-anchor="middle">not run</text>
-              <rect x="936" y="215" width="58" height="42" rx="6" fill="#064e3b" stroke="#34d399"></rect>
-              <text x="965" y="238" fill="#d1fae5" font-size="12" text-anchor="middle">shared</text>
-              <text x="965" y="252" fill="#a7f3d0" font-size="10" text-anchor="middle">SiLU MLP</text>
-              <text x="922" y="293" fill="#bbf7d0" font-size="12" text-anchor="middle">sum weighted E0/E2 + shared path</text>
-              <line x1="1015" y1="151" x2="1040" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
+                <rect x="830" y="105" width="185" height="230" rx="6" fill="#052e16" stroke="#22c55e"></rect>
+                <text x="922" y="132" fill="#dcfce7" font-size="14" text-anchor="middle">execute and mix</text>
+                <rect x="858" y="154" width="58" height="42" rx="6" fill="#14532d" stroke="#22c55e"></rect>
+                <text x="887" y="179" fill="#dcfce7" font-size="12" text-anchor="middle">E0</text>
+                <text x="887" y="193" fill="#bbf7d0" font-size="10" text-anchor="middle">w=.77</text>
+                <rect x="936" y="154" width="58" height="42" rx="6" fill="#14532d" stroke="#22c55e"></rect>
+                <text x="965" y="179" fill="#dcfce7" font-size="12" text-anchor="middle">E2</text>
+                <text x="965" y="193" fill="#bbf7d0" font-size="10" text-anchor="middle">w=.67</text>
+                <rect x="858" y="215" width="58" height="42" rx="6" fill="#451a03" stroke="#f59e0b" stroke-dasharray="4 4"></rect>
+                <text x="887" y="239" fill="#fde68a" font-size="12" text-anchor="middle">E3</text>
+                <text x="887" y="253" fill="#fbbf24" font-size="10" text-anchor="middle">not run</text>
+                <rect x="936" y="215" width="58" height="42" rx="6" fill="#064e3b" stroke="#34d399"></rect>
+                <text x="965" y="238" fill="#d1fae5" font-size="12" text-anchor="middle">shared</text>
+                <text x="965" y="252" fill="#a7f3d0" font-size="10" text-anchor="middle">SiLU MLP</text>
+                <text x="922" y="293" fill="#bbf7d0" font-size="12" text-anchor="middle">.77E0 + .67E2 + shared</text>
+                <line x1="1015" y1="151" x2="1040" y2="151" stroke="#38bdf8" stroke-width="2" marker-end="url(#journey-arrow)"></line>
 
-              <rect x="1045" y="105" width="58" height="92" rx="6" fill="#064e3b" stroke="#34d399"></rect>
-              <text x="1074" y="143" fill="#d1fae5" font-size="14" text-anchor="middle">x'</text>
-              <text x="1074" y="166" fill="#a7f3d0" font-size="11" text-anchor="middle">residual</text>
+                <rect x="1045" y="105" width="58" height="92" rx="6" fill="#064e3b" stroke="#34d399"></rect>
+                <text x="1074" y="143" fill="#d1fae5" font-size="14" text-anchor="middle">x'</text>
+                <text x="1074" y="166" fill="#a7f3d0" font-size="11" text-anchor="middle">residual</text>
 
-              <path d="M 472 237 C 525 375, 795 375, 922 335" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 6"></path>
-              <text x="700" y="392" fill="#94a3b8" font-size="12" text-anchor="middle">attention output is added back before the MoE norm and routing path</text>
-            </svg>
+                <path d="M 472 237 C 525 375, 795 375, 922 335" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 6"></path>
+                <text x="700" y="392" fill="#94a3b8" font-size="12" text-anchor="middle">attention delta is residual-added before the MoE norm and routing path</text>
+              </svg>
+            </div>
+
+            <div class="rounded border border-slate-800 bg-slate-950/70 p-4">
+              <p id="journey-title" class="text-sm font-semibold text-white">1. Token hidden state</p>
+              <p id="journey-copy" class="mt-2 text-sm leading-6 text-slate-300">
+                Start with one token's hidden vector. The rest of the diagram tracks how this same point is transformed
+                and then added back through residual connections.
+              </p>
+              <pre id="journey-math" class="mt-4 overflow-x-auto rounded border border-slate-800 bg-[#060913] p-3 text-xs leading-5 text-slate-300"><code>x = [2.00, -1.00, 0.50, 1.50]</code></pre>
+              <ul id="journey-ledger" class="mt-3 space-y-2 text-xs leading-5 text-slate-400">
+                <li>Width 4 makes the arithmetic visible; the production code runs the same operations over full tensors.</li>
+              </ul>
+            </div>
           </div>
 
-          <div class="mt-4 rounded border border-slate-800 bg-slate-950/70 p-4">
-            <p id="journey-title" class="text-sm font-semibold text-white">1. Token hidden state</p>
-            <p id="journey-copy" class="mt-2 text-sm leading-6 text-slate-300">
-              Start with one token's hidden vector. The rest of the diagram tracks how this same point is transformed
-              and then added back through residual connections.
-            </p>
+          <div class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="0" data-active="true">
+              <p class="text-sm font-semibold text-white">1. Token</p>
+              <p class="mt-2 text-xs leading-5 text-slate-400">The block receives a hidden vector for one token. Residual connections add the attention and MoE deltas back into this vector.</p>
+            </article>
+            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="1">
+              <p class="text-sm font-semibold text-white">2. RMSNorm + GatedNorm</p>
+              <p class="mt-2 text-xs leading-5 text-slate-400">RMSNorm rescales by root-mean-square size. Grug then applies a learned sigmoid gate, which is why standard RMSNorm alone is not enough.</p>
+            </article>
+            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="2">
+              <p class="text-sm font-semibold text-white">3. Attention + XSA</p>
+              <p class="mt-2 text-xs leading-5 text-slate-400">Attention uses Q/K normalization, RoPE, grouped-query attention, sliding windows, exclusive self-attention, and a headwise gate.</p>
+            </article>
+            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="3">
+              <p class="text-sm font-semibold text-white">4. QB Routing</p>
+              <p class="mt-2 text-xs leading-5 text-slate-400">Quantile Balancing stores a non-gradient bias used for expert choice. Grug chooses top K+1 so the extra candidate records the routing boundary.</p>
+            </article>
+            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="4">
+              <p class="text-sm font-semibold text-white">5. Experts</p>
+              <p class="mt-2 text-xs leading-5 text-slate-400">Only top K experts run. Their outputs use sigmoid weights from unbiased logits, then the always-on shared SiLU MLP is added.</p>
+            </article>
+            <article class="journey-card rounded border border-slate-800 bg-slate-950/70 p-4" data-journey-card="5">
+              <p class="text-sm font-semibold text-white">6. Output</p>
+              <p class="mt-2 text-xs leading-5 text-slate-400">The MoE delta is residual-added to produce the next hidden vector. Dense/reference and production paths should agree on this result.</p>
+            </article>
           </div>
         </div>
 
@@ -555,6 +498,13 @@
                   <td class="py-3 pr-4">No GatedNorm, no XSA, no QB boundary expert, and Qwen3 shared expert is explicitly not implemented.</td>
                 </tr>
                 <tr>
+                  <td class="py-3 pl-4 pr-4 text-slate-100">Gemma4-MoE</td>
+                  <td class="py-3 pr-4">Dedicated router preprocessing, then softmax over all experts, top-k, and renormalization.</td>
+                  <td class="py-3 pr-4">FusedMoE dispatch with Gemma4-specific routing weights.</td>
+                  <td class="py-3 pr-4">Relevant because this fork does have a Gemma4 MoE path, even though "Gemma" generically should not be read as MoE.</td>
+                  <td class="py-3 pr-4">Still not Grug: no QB K+1 boundary, no sigmoid-of-unbiased-logits mixing, no Grug GatedNorm/XSA combination.</td>
+                </tr>
+                <tr>
                   <td class="py-3 pl-4 pr-4 text-slate-100">DeepSeek-V3 MoE</td>
                   <td class="py-3 pr-4">Sigmoid or softmax scores, correction bias, optional grouped top-k.</td>
                   <td class="py-3 pr-4">Weights come from scored probabilities; optional top-k renormalization.</td>
@@ -586,6 +536,10 @@
             <a class="evidence" href="support.html#q-qwen3-moe" title="Open quoted support and source">
               <span>Qwen3 quote</span>
               <q>Shared expert is not implemented yet.</q>
+            </a>
+            <a class="evidence" href="support.html#q-gemma4-moe" title="Open quoted support and source">
+              <span>Gemma4 quote</span>
+              <q>Gemma4 routing: softmax over ALL experts, top-k, renormalize.</q>
             </a>
             <a class="evidence" href="support.html#q-deepseek-router" title="Open quoted support and source">
               <span>DeepSeek quote</span>
@@ -1111,46 +1065,118 @@
           {
             title: "1. Token hidden state",
             copy: "Start with one token's hidden vector. The rest of the diagram tracks how this same point is transformed and then added back through residual connections.",
+            math: "x = [2.00, -1.00, 0.50, 1.50]",
+            ledger: [
+              "Toy hidden width is 4 so the arithmetic fits on the page.",
+              "The real Grug block applies the same sequence over full hidden tensors.",
+            ],
             x: 70,
             y: 65,
           },
           {
             title: "2. RMSNorm plus GatedNorm",
             copy: "The token is magnitude-normalized, then passed through Grug's learned gate. This keeps the simple RMSNorm idea but adds Grug-specific gating weights.",
+            math: [
+              "mean(x^2) = (4.00 + 1.00 + 0.25 + 2.25) / 4 = 1.875",
+              "rsqrt(1.875) = 0.730",
+              "RMSNorm(x) = [1.46, -0.73, 0.36, 1.10]",
+              "toy gate = [0.90, 0.50, 0.70, 0.80]",
+              "GatedNorm(x) = [1.31, -0.36, 0.26, 0.88]",
+            ].join("\n"),
+            ledger: [
+              "RMSNorm removes scale without changing the direction much.",
+              "GatedNorm is Grug-specific: a learned sigmoid gate multiplies the normalized vector elementwise.",
+            ],
             x: 240,
             y: 65,
           },
           {
             title: "3. Attention with Grug post-processing",
             copy: "Attention uses Q/K normalization, RoPE, grouped-query attention, and the short or long layer window. After attention, XSA subtracts the own-value projection before the head gate.",
+            math: [
+              "toy head output y = [0.80, 0.30]",
+              "this token's own value v = [0.60, 0.80]",
+              "dot(y, v) = 0.72 and ||v||^2 = 1.00",
+              "XSA(y) = y - 0.72 * v = [0.37, -0.28]",
+              "head gate 0.75 -> [0.28, -0.21]",
+              "toy attention delta = [0.28, -0.21, 0.05, -0.02]",
+              "h = x + delta = [2.28, -1.21, 0.55, 1.48]",
+            ].join("\n"),
+            ledger: [
+              "Exclusive self-attention removes the component of the attention output that points along the token's own value vector.",
+              "The production attention path can use shared vLLM/TPU attention for the weighted sum, but it must still apply XSA and the headwise gate afterward.",
+            ],
             x: 430,
             y: 65,
           },
           {
             title: "4. QB router chooses candidates",
             copy: "The router adds the exported Quantile Balancing bias only for expert choice. Here the biased scores choose top K+1 candidates: E0 and E2 run; E3 is kept only as the boundary.",
+            math: [
+              "raw logits        = [ 1.2, -0.4, 0.7, 0.1]",
+              "exported QB bias  = [-0.3,  0.2, 0.0, 0.1]",
+              "biased for top-k  = [ 0.9, -0.2, 0.7, 0.2]",
+              "top K+1 with K=2 = E0, E2, E3",
+              "run E0 and E2; keep E3 only as the boundary record",
+            ].join("\n"),
+            ledger: [
+              "The bias affects expert choice, but it is not the value later used for combine weights.",
+              "The K+1 boundary expert is why Grug routing does not match a plain top-K MoE implementation.",
+            ],
             x: 650,
             y: 65,
           },
           {
             title: "5. Routed experts and shared path",
             copy: "Only E0 and E2 execute. Their outputs are weighted by sigmoid of the original unbiased logits, then the always-on shared SiLU MLP is added.",
+            math: [
+              "w0 = sigmoid(raw E0) = sigmoid(1.2) = 0.77",
+              "w2 = sigmoid(raw E2) = sigmoid(0.7) = 0.67",
+              "E0(h) = [ 0.20, -0.10, 0.40, 0.00]",
+              "E2(h) = [-0.30,  0.50, 0.10, 0.20]",
+              "shared SiLU MLP = [0.05, 0.02, -0.04, 0.01]",
+              "mlp_delta = 0.77*E0 + 0.67*E2 + shared = [0.00, 0.28, 0.33, 0.14]",
+            ].join("\n"),
+            ledger: [
+              "Unlike selected-expert softmax, sigmoid weights do not have to sum to one.",
+              "The shared dense SiLU MLP runs for every token alongside the sparse routed experts.",
+            ],
             x: 875,
             y: 65,
           },
           {
             title: "6. Block output",
             copy: "The routed-plus-shared MLP contribution is added back through the residual path. The result is the next hidden vector x' for this token.",
+            math: [
+              "h = [2.28, -1.21, 0.55, 1.48]",
+              "mlp_delta = [0.00, 0.28, 0.33, 0.14]",
+              "x' = h + mlp_delta = [2.28, -0.93, 0.88, 1.62]",
+            ].join("\n"),
+            ledger: [
+              "The dense/reference attention path and production attention path should agree on this residual result under controlled inputs.",
+              "Routing records and logprobs then test whether the serving path stayed aligned with the reference implementation.",
+            ],
             x: 1040,
             y: 65,
           },
         ];
 
+        document.querySelectorAll(".evidence").forEach((link) => {
+          const label = link.querySelector("span");
+          if (!label) return;
+          const href = link.getAttribute("href") || "";
+          const slug = href.split("#").pop().replace(/^q-/, "") || label.textContent.trim().toLowerCase().replace(/\s+/g, "-");
+          label.textContent = `[${slug}]`;
+        });
+
         const buttons = Array.from(document.querySelectorAll("[data-journey-step]"));
+        const cards = Array.from(document.querySelectorAll("[data-journey-card]"));
         const range = document.getElementById("journey-range");
         const dot = document.getElementById("journey-dot");
         const title = document.getElementById("journey-title");
         const copy = document.getElementById("journey-copy");
+        const math = document.getElementById("journey-math");
+        const ledger = document.getElementById("journey-ledger");
 
         function setStep(index) {
           const stepIndex = Math.max(0, Math.min(steps.length - 1, Number(index)));
@@ -1161,10 +1187,23 @@
           }
           if (title) title.textContent = step.title;
           if (copy) copy.textContent = step.copy;
+          if (math) math.textContent = step.math;
+          if (ledger) {
+            ledger.innerHTML = "";
+            step.ledger.forEach((item) => {
+              const li = document.createElement("li");
+              li.textContent = item;
+              ledger.appendChild(li);
+            });
+          }
           if (range) range.value = String(stepIndex);
           buttons.forEach((button) => {
             const isActive = Number(button.dataset.journeyStep) === stepIndex;
             button.setAttribute("aria-pressed", String(isActive));
+          });
+          cards.forEach((card) => {
+            const isActive = Number(card.dataset.journeyCard) === stepIndex;
+            card.dataset.active = String(isActive);
           });
         }
 

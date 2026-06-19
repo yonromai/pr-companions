@@ -78,6 +78,7 @@
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L769-L860">Canonical GrugMoE artifact tensor schema</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/layers/jax/moe/moe.py#L63-L115">Generic JAX MoE router</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/qwen3_moe.py#L61-L132">Qwen3-MoE block</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/gemma4.py#L112-L178">Gemma4 router and MoE block</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/deepseek_v3.py#L1046-L1119">DeepSeek-V3 router</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/deepseek_v3.py#L815-L835">DeepSeek shared routed/shared MoE path</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/layers/jax/moe/gpt_oss_moe.py#L32-L70">GPT-OSS router</a></li>
@@ -189,6 +190,12 @@ q = q * self.cfg.qk_mult</code></pre>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>dot = jnp.sum(attn_out * aligned_v, axis=-1, keepdims=True)
 attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code></pre>
           </div>
+          <div id="q-attn-head-gate" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Attention applies a learned headwise gate after XSA.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code># Headwise gating: sigmoid(x @ attn_gate) produces one scalar per head.
+gate = 2 * jax.nn.sigmoid(jnp.einsum("bsd,dn->bsn", x, self.attn_gate))[..., None]
+attn_out = gate * attn_out</code></pre>
+          </div>
           <div id="q-shared-expert" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">The shared expert runs beside routed experts when present.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if self.shared is not None:
@@ -211,6 +218,14 @@ normalized_weights_TX = router_act(...)</code></pre>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>self.experts = JaxMoE(...)
 raise NotImplementedError(
     "Shared expert is not implemented yet...")</code></pre>
+          </div>
+          <div id="q-gemma4-moe" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Gemma4 has a MoE path in this fork, with different routing semantics.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>class Gemma4Router(JaxModule):
+    """Router for Gemma4 MoE that preprocesses input before projection."""
+class Gemma4MoE(JaxMoE):
+    """Mixture of Experts for Gemma4 using FusedMoE.
+    Gemma4 routing: softmax over ALL experts -> top-k -> renormalize."""</code></pre>
           </div>
           <div id="q-deepseek-router" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">DeepSeek has a custom correction-bias router.</p>
