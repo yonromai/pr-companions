@@ -27,7 +27,9 @@ An index page will typically contain at least the following sections:
 
 Notes:
 * Companion websites are expected to be consumed along with the PR. Consequently, they should avoid repeating content that is already visible in the PR.
-* Fully leverage HTML features such as collapsibles, footnotes, and tooltips to allow for optional extra content without compromising clarity and approachability.
+* Fully leverage HTML features such as collapsibles, footnotes, and tooltips to allow for optional extra content without compromising clarity and approachability. They effectively make content "on demand" which allows readers to interactively spend time where they need to. This is highly desirable.
+* I love representative yet simple examples. Bonus points if examples are consistently evolved over time, providing a comprehension anchor to the readers.
+* Paper references will preferably be Arxiv html links (e.g. https://arxiv.org/html/XXX rather than https://arxiv.org/abs/XXX or https://arxiv.org/pdf/XXX)
 
 ## Coding languages
 
@@ -38,6 +40,7 @@ The typical website page should include:
 * For interactive diagrams, use React Flow (e.g. along with Dagre or ELK.js)
 * Feel free to embed code diffs from GitHub, or use Shiki plus diff2html.
 * For advanced use cases, MDX can be used.
+* Use a simple and consistent dark theme only.
 
 ## Destination
 

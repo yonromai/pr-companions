@@ -290,17 +290,18 @@ function renderListingPage({ title, description, companions, fromDirectory }) {
   <title>${escapeHtml(title)}</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #f7f8fb;
-      --panel: #ffffff;
-      --text: #17202e;
-      --muted: #5b6678;
-      --line: #d9dee8;
-      --accent: #0f6b5f;
-      --accent-strong: #0a4b43;
-      --tag-bg: #e7f1ef;
-      --tag-text: #164c45;
-      --shadow: 0 10px 24px rgb(23 32 46 / 8%);
+      color-scheme: dark;
+      --bg: #101010;
+      --panel: #181818;
+      --panel-subtle: #141414;
+      --text: #f4f1ea;
+      --muted: #b7b1a6;
+      --line: #34322e;
+      --accent: #7dd8c7;
+      --accent-strong: #a9f0df;
+      --tag-bg: #213d37;
+      --tag-text: #c4f4e8;
+      --shadow: 0 12px 26px rgb(0 0 0 / 24%);
     }
 
     * {
@@ -347,7 +348,7 @@ function renderListingPage({ title, description, companions, fromDirectory }) {
     nav a {
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: #fff;
+      background: var(--panel);
       color: var(--text);
       padding: 8px 13px;
       box-shadow: 0 2px 8px rgb(23 32 46 / 4%);
@@ -444,7 +445,7 @@ function renderListingPage({ title, description, companions, fromDirectory }) {
       min-height: 40px;
       border: 1px solid var(--line);
       border-radius: 6px;
-      background: #fff;
+      background: var(--panel-subtle);
       padding: 8px 12px;
       white-space: nowrap;
     }
@@ -452,18 +453,18 @@ function renderListingPage({ title, description, companions, fromDirectory }) {
     .actions .primary-link {
       border-color: var(--accent);
       background: var(--accent);
-      color: #fff;
+      color: #0b1714;
     }
 
     .actions .primary-link:hover {
       background: var(--accent-strong);
-      color: #fff;
+      color: #0b1714;
     }
 
     .empty-state {
       border: 1px dashed var(--line);
       border-radius: 8px;
-      background: #fff;
+      background: var(--panel);
       padding: 24px;
       color: var(--muted);
     }
