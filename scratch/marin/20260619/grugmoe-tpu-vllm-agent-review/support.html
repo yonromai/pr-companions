@@ -93,6 +93,7 @@
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/real_checkpoint_vllm_smoke.py">Real-checkpoint vLLM smoke</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/real_checkpoint_levanter_vllm_compare.py">Real-checkpoint Levanter/JAX comparison</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L210-L246">HF config export default</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/pyproject.toml#L161-L164">Marin fork pins for vLLM and tpu-inference</a></li>
           </ul>
         </article>
 
@@ -330,6 +331,11 @@ if artifact_schema_version != _ARTIFACT_SCHEMA_VERSION:
             <p class="text-sm font-semibold text-slate-200">vLLM documents that Marin owns the tpu-inference fork dependency.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code># Marin pins the tpu-inference fork in its workspace. Keep this file free of a
 # direct tpu-inference pin so marin-core[vllm] resolves Marin's selected fork.</code></pre>
+          </div>
+          <div id="q-marin-fork-pins" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Marin directly pins the fork-stack dependencies used by its vLLM extra.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>vllm = { git = "https://github.com/marin-community/vllm.git", rev = "7557e69ddb2e28b287d0729b4aee4d7de8de18f9" }
+tpu-inference = { git = "https://github.com/marin-community/tpu-inference.git", rev = "10d880c4641b13c88ecf45771625bd3b30551311" }</code></pre>
           </div>
           <div id="q-vllm-route-disabled-test" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">The vLLM unit test ensures unsolicited routes are ignored when disabled.</p>
