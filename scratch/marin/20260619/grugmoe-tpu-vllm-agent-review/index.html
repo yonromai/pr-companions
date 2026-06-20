@@ -147,12 +147,12 @@
               <code>new_kv_cache, attn_out = shared_attention(...)</code>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/4c38590e29d33451f2b4375a78ad8f70cacd7b98...871f9ba84a6682348a306b5acd903fb723cd2675">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/4c38590e29d33451f2b4375a78ad8f70cacd7b98...42cfdd4ac38c8caa87e4b97c5cad4e5947fa6cd2">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-200">Marin</h2>
           <p class="mt-3 text-sm leading-6 text-slate-300">
-            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and runs dense-vs-production plus Levanter-vs-vLLM canaries.
+            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and keeps focused parity plus installed vLLM smoke coverage.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
@@ -161,10 +161,14 @@
             </a>
             <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
               <span>Quoted support</span>
-              <q>Full canary succeeded; max logprob delta 0.001596.</q>
+              <q>Historical full canary succeeded; max logprob delta 0.001596.</q>
+            </a>
+            <a class="evidence" href="support.html#q-validation-post-cleanup" title="Open quoted support and source">
+              <span>Current gap</span>
+              <q>The real TPU v6e-4 serving smoke still needs a fresh run.</q>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/aa6a44e77d2f51672077bdf0ca2d5f81e1608de2...bcaa1cee11a3df2270da237a97574caae2b92903">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/aa6a44e77d2f51672077bdf0ca2d5f81e1608de2...62a90c213babe309f9cea69acbf0036514b0eb27">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-violet-200">vLLM</h2>
@@ -697,7 +701,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               <tr>
                 <td class="py-3 pr-4 text-slate-100">What should match?</td>
                 <td class="py-3 pr-4">Hidden states, logits, selected logprobs, and routed experts under controlled prompts.</td>
-                <td class="py-3 pr-4">Same outputs within tolerance, then successful installed vLLM canaries on real TPU.</td>
+                <td class="py-3 pr-4">Same outputs within tolerance, then a fresh installed vLLM smoke on real TPU.</td>
               </tr>
               <tr>
                 <td class="py-3 pr-4 text-slate-100">What stays shared?</td>
@@ -716,8 +720,8 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <code>"grugmoe_attention_mode": "production"</code>
           </a>
           <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
-            <span>Installed canary quote</span>
-            <q>Installed path returned works:full_canary_logprobs_and_routing.</q>
+            <span>Installed smoke quote</span>
+            <q>The installed vLLM TPU smoke is the evidence for the real serving path.</q>
           </a>
         </div>
       </section>
@@ -738,9 +742,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   This is the core behavior change.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L59-L76">mode parser</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/42cfdd4ac38c8caa87e4b97c5cad4e5947fa6cd2/tpu_inference/models/jax/grugmoe.py#L53-L67">mode parser</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/models/jax/grugmoe.py#L835-L995">attention implementation</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/42cfdd4ac38c8caa87e4b97c5cad4e5947fa6cd2/tpu_inference/models/jax/grugmoe.py#L714-L801">attention implementation</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-dense-mode" title="Open quoted support and source">
@@ -764,9 +768,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   Verify tpu-inference emits routed expert IDs with slot mappings, then verify vLLM ignores them unless routed expert output is enabled.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/871f9ba84a6682348a306b5acd903fb723cd2675/tpu_inference/runner/tpu_runner.py#L186-L195">runner output</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/42cfdd4ac38c8caa87e4b97c5cad4e5947fa6cd2/tpu_inference/runner/tpu_runner.py#L186-L195">runner output</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/43e648985619749e7d1b232fbe408c7f5995d2d6/vllm/v1/core/sched/scheduler.py#L1325-L1339">scheduler guard</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/43e648985619749e7d1b232fbe408c7f5995d2d6/vllm/v1/core/sched/scheduler.py#L1334-L1343">scheduler guard</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-runner-output" title="Open quoted support and source">
@@ -787,12 +791,12 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               <div>
                 <h3 class="font-semibold text-white">Read the Marin parity harness only after the model path is clear.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
-                  The important test is simple: copy the same Levanter model into dense and production tpu-inference models, feed the same prompt, then compare hidden states, logits, selected logprobs, and routed expert IDs.
+                  The important checks are now tighter: copy the same Levanter model into dense and production tpu-inference models, then compare hidden states, logits, selected logprobs, and routed expert IDs; separately verify checkpoint/export/load roundtrip tensor accounting.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/vllm_tpu_parity.py#L1347-L1417">dense-vs-production smoke</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/62a90c213babe309f9cea69acbf0036514b0eb27/experiments/grug/moe/vllm_tpu_parity.py#L1031-L1101">dense-vs-production smoke</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/installed_vllm_full_canary_smoke.py#L217-L228">installed canary hook</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/62a90c213babe309f9cea69acbf0036514b0eb27/experiments/grug/moe/vllm_tpu_parity.py#L1256-L1434">artifact roundtrip</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-parity-smoke" title="Open quoted support and source">
@@ -811,14 +815,14 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <div class="flex gap-3">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-sky-500 text-sm font-bold text-slate-950">4</span>
               <div>
-                <h3 class="font-semibold text-white">Confirm the exported artifact defaults to production mode.</h3>
+                <h3 class="font-semibold text-white">Confirm the exported artifact and smaller installed smoke.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
-                  This is the difference between a debug-only smoke and a user-facing installed vLLM path.
+                  First confirm the artifact defaults to production mode, then review the smaller smoke that serves it through Marin's existing vLLM environment with raw token IDs.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/experiments/grug/moe/model.py#L220-L246">HF config export</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/62a90c213babe309f9cea69acbf0036514b0eb27/experiments/grug/moe/model.py#L210-L246">HF config export</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bcaa1cee11a3df2270da237a97574caae2b92903/pyproject.toml#L163-L167">fork pins</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/62a90c213babe309f9cea69acbf0036514b0eb27/experiments/grug/moe/installed_vllm_smoke.py#L204-L349">installed vLLM smoke</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
@@ -827,7 +831,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   </a>
                   <a class="evidence" href="support.html#q-caveat-serving-evidence" title="Open quoted support and source">
                     <span>Caveat quote</span>
-                    <q>The installed vLLM TPU canaries are the evidence for the real serving path.</q>
+                    <q>The cleaned branch needs that smoke rerun.</q>
                   </a>
                 </div>
               </div>
@@ -837,15 +841,14 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <div class="flex gap-3">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-amber-400 text-sm font-bold text-slate-950">5</span>
               <div>
-                <h3 class="font-semibold text-white">Finish with the logbook and fix the stale SHA before publishing a PR.</h3>
+                <h3 class="font-semibold text-white">Finish with pins and a fresh post-cleanup TPU smoke.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
-                  The logbook evidence is useful, but its Marin "Current" field still points at <code class="code text-amber-100">dcc5f985a</code>
-                  while the branch head is <code class="code text-amber-100">bcaa1cee1</code>.
+                  The PR-local logbook is no longer part of the landing diff. Before opening the PR, confirm the fork pins and rerun the new smaller installed smoke on v6e-4.
                 </p>
                 <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-caveat-stale-sha" title="Open quoted support and source">
+                  <a class="evidence" href="support.html#q-caveat-post-cleanup-smoke" title="Open quoted support and source">
                     <span>Caveat quote</span>
-                    <q>The Marin logbook lists dcc5f985a as current, but the branch head inspected here is bcaa1cee1.</q>
+                    <q>Treat the listed TPU canaries as historical pre-cleanup evidence.</q>
                   </a>
                 </div>
               </div>
@@ -971,23 +974,23 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               </div>
               <div>
                 <dt class="text-xs uppercase tracking-wide text-slate-500">Fork stack</dt>
-                <dd class="mt-1 text-sm text-slate-200">Marin bcaa1cee1, tpu-inference 871f9ba8, vLLM 43e648985</dd>
+                <dd class="mt-1 text-sm text-slate-200">Marin 62a90c213, tpu-inference 42cfdd4a, vLLM 43e648985</dd>
                 <a class="evidence" href="support.html#links" title="Open quoted support and source">
                   <span>Branch heads</span>
-                  <q>Marin bcaa1cee..., tpu-inference 871f9ba..., vLLM 43e648...</q>
+                  <q>Marin 62a90c213..., tpu-inference 42cfdd4a..., vLLM 43e648...</q>
                 </a>
               </div>
               <div>
-                <dt class="text-xs uppercase tracking-wide text-slate-500">Small diagnostic</dt>
-                <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.0006318, route mismatch 0</dd>
+                <dt class="text-xs uppercase tracking-wide text-slate-500">Historical small diagnostic</dt>
+                <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.0006318, route mismatch 0 before cleanup</dd>
                 <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
                   <span>Validation quote</span>
                   <q>Installed path returned works:full_canary_logprobs_and_routing.</q>
                 </a>
               </div>
               <div>
-                <dt class="text-xs uppercase tracking-wide text-slate-500">Full canary</dt>
-                <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.001596, suspicious mismatch 0</dd>
+                <dt class="text-xs uppercase tracking-wide text-slate-500">Historical full canary</dt>
+                <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.001596, suspicious mismatch 0 before cleanup</dd>
                 <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
                   <span>Validation quote</span>
                   <q>Max logprob delta 0.001596. Routing top1 match 1.0.</q>
@@ -995,7 +998,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               </div>
             </dl>
             <p class="mt-5 text-sm text-slate-300">
-              Treat this as strong smoke evidence, not exhaustive production qualification. The remaining gaps are broader model-size coverage, CI in a full vLLM environment, and a final Marin rebase.
+              Treat this as strong historical smoke evidence, not proof that the cleaned branch has been rerun end to end. The current gap is a fresh TPU v6e-4 run of the smaller installed smoke.
             </p>
             <div class="evidence-row">
               <a class="evidence" href="support.html#q-caveat-rebase" title="Open quoted support and source">
@@ -1004,7 +1007,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               </a>
               <a class="evidence" href="support.html#q-caveat-serving-evidence" title="Open quoted support and source">
                 <span>Caveat quote</span>
-                <q>The installed vLLM TPU canaries are the evidence for the real serving path.</q>
+                <q>The cleaned branch needs that smoke rerun.</q>
               </a>
             </div>
           </div>
@@ -1014,15 +1017,15 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
       <section class="mt-12 rounded border border-amber-700/60 bg-amber-950/20 p-5">
         <h2 class="text-xl font-semibold text-white">Before This Becomes A PR</h2>
         <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
-          <li>Fix the stale Marin SHA in the logbook.</li>
+          <li>Preserve the removed validation notes outside the PR, then reference them from the PR description or a gist if useful.</li>
           <li>Rebase the Marin branch onto current <code class="code text-slate-100">origin/main</code>.</li>
           <li>Confirm the pinned vLLM and tpu-inference branches are exactly the intended long-lived fork heads.</li>
-          <li>Rerun at least the lightweight local checks after any rebase conflict; rerun TPU smoke if code paths move.</li>
+          <li>Rerun the smaller installed vLLM smoke on TPU v6e-4 after the cleanup and after any rebase conflict.</li>
         </ul>
         <div class="evidence-row">
-          <a class="evidence" href="support.html#q-caveat-stale-sha" title="Open quoted support and source">
+          <a class="evidence" href="support.html#q-caveat-post-cleanup-smoke" title="Open quoted support and source">
             <span>Caveat quote</span>
-            <q>The Marin logbook lists dcc5f985a as current, but the branch head inspected here is bcaa1cee1.</q>
+            <q>Treat the listed TPU canaries as historical pre-cleanup evidence.</q>
           </a>
           <a class="evidence" href="support.html#q-caveat-rebase" title="Open quoted support and source">
             <span>Caveat quote</span>
@@ -1030,7 +1033,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
           </a>
           <a class="evidence" href="support.html#links" title="Open quoted support and source">
             <span>Branch heads quote</span>
-            <q>tpu-inference 871f9ba..., vLLM 43e648...</q>
+            <q>tpu-inference 42cfdd4a..., vLLM 43e648...</q>
           </a>
           <a class="evidence" href="support.html#q-caveat-rerun" title="Open quoted support and source">
             <span>Caveat quote</span>
