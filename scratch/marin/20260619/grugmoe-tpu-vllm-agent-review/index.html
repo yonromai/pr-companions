@@ -148,7 +148,7 @@
               <code>new_kv_cache, attn_out = shared_attention(...)</code>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/4c38590e29d33451f2b4375a78ad8f70cacd7b98...42cfdd4ac38c8caa87e4b97c5cad4e5947fa6cd2">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/4c38590e29d33451f2b4375a78ad8f70cacd7b98...1d69fb9dc49a17f893f1a92a2583ab2964bc4b01">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-200">Marin</h2>
@@ -169,7 +169,7 @@
               <q>The real TPU v6e-4 serving smoke still needs a fresh run.</q>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/aa6a44e77d2f51672077bdf0ca2d5f81e1608de2...62a90c213babe309f9cea69acbf0036514b0eb27">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/aa6a44e77d2f51672077bdf0ca2d5f81e1608de2...bb49eaf89c49bde5419ac13fb02427cf13d8cf41">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-violet-200">vLLM</h2>
@@ -186,7 +186,7 @@
               <code>self.enable_return_routed_experts and model_runner_output.routed_experts</code>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/04321f0f01b8e60d577a85a1b1af688e4433e7e0...43e648985619749e7d1b232fbe408c7f5995d2d6">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/04321f0f01b8e60d577a85a1b1af688e4433e7e0...850f1b88975027d82f95062229e47a9852fe33dd">Open compare</a>
         </article>
       </section>
 
@@ -861,6 +861,140 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
         </div>
 
         <div class="mt-6 grid gap-5 lg:grid-cols-[1fr_1fr]">
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5 lg:col-span-2">
+            <h3 class="text-xl font-semibold text-white">Coverage By Model Path</h3>
+            <p class="mt-2 max-w-4xl text-sm leading-6 text-slate-300">
+              The coverage is broad for correctness diagnostics, but intentionally narrow for production serving.
+              Native parity tests exercise most GrugMoE math surfaces; the installed vLLM smoke proves the real
+              serving path starts and returns sane outputs on a short single-sequence request.
+            </p>
+            <div class="mt-4 overflow-x-auto">
+              <table class="w-full min-w-[1040px] border-collapse text-left text-sm">
+                <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+                  <tr>
+                    <th class="py-3 pr-4">Path</th>
+                    <th class="py-3 pr-4">Covered well</th>
+                    <th class="py-3 pr-4">Covered lightly</th>
+                    <th class="py-3 pr-4">Not covered yet</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-300">
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Experts and top-k routing</td>
+                    <td class="py-3 pr-4">Small diagnostic uses four experts and top-2 routing; realistic configs are guarded to keep 64 experts and top-4 routing.
+                      <a class="evidence" href="support.html#q-test-shapes" title="Open quoted support and source">
+                        <span>shape</span>
+                        <code>num_experts=4; num_experts_per_token=2</code>
+                      </a>
+                      <a class="evidence" href="support.html#q-test-production-structure" title="Open quoted support and source">
+                        <span>realistic</span>
+                        <q>realistic config must keep 64 experts</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Installed vLLM checks routed-expert tensor rank, layer count, top-k width, and ID range.
+                      <a class="evidence" href="support.html#q-installed-routed-experts" title="Open quoted support and source">
+                        <span>serve</span>
+                        <q>routed_experts top-k</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">No exhaustive proof that every expert is selected, no load-balance distribution test, and no route replay yet.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Short and long attention windows</td>
+                    <td class="py-3 pr-4">The reference forward applies the same per-layer window rule as the model, and realistic configs assert that both short and long windows appear.
+                      <a class="evidence" href="support.html#q-layer-window-rule" title="Open quoted support and source">
+                        <span>rule</span>
+                        <code>layer_index % 4 == 3</code>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">The installed smoke sets <code class="code">max_model_len</code> just large enough for prompt plus generation.
+                      <a class="evidence" href="support.html#q-installed-smoke-context" title="Open quoted support and source">
+                        <span>serve</span>
+                        <code>max_model_len = max(16, ...)</code>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">No long-context stress, boundary-position sweep, or many-step KV-cache reuse test.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Shared expert and routed MLP math</td>
+                    <td class="py-3 pr-4">Component parity and full-forward parity compare selected experts, sigmoid combine weights, shared expert contribution, hidden states, logits, and expert IDs against Levanter.
+                      <a class="evidence" href="support.html#q-test-component" title="Open quoted support and source">
+                        <span>component</span>
+                        <q>np.testing.assert_array_equal(actual_selected, selected)</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Installed vLLM only checks generated IDs, selected-token logprobs, and optional route shape/range.
+                      <a class="evidence" href="support.html#q-installed-vllm-assertions" title="Open quoted support and source">
+                        <span>serve</span>
+                        <q>selected logprobs</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">No installed-serving comparison of full hidden states or all-token prefill logprobs.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Dense vs production attention</td>
+                    <td class="py-3 pr-4">Native tests compare dense and production attention with the same weights and prompt, including hidden states, logits, selected next-token logprobs, and expert IDs.
+                      <a class="evidence" href="support.html#q-test-production-attention" title="Open quoted support and source">
+                        <span>parity</span>
+                        <code>production-attention selected next-token logprobs</code>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Installed vLLM uses production attention by default through the exported config.
+                      <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
+                        <span>config</span>
+                        <code>"grugmoe_attention_mode": "production"</code>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">No production traffic profile, batching matrix, or throughput claim.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Artifact export and loading</td>
+                    <td class="py-3 pr-4">Single-file and forced-sharded safetensors are exported, loaded, and compared; the latest branches add schema-version checks on both sides.
+                      <a class="evidence" href="support.html#q-committed-schema-version" title="Open quoted support and source">
+                        <span>schema</span>
+                        <code>grugmoe_artifact_schema_version</code>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">The installed smoke rejects artifacts with the wrong schema version before serving.
+                      <a class="evidence" href="support.html#q-installed-schema-check" title="Open quoted support and source">
+                        <span>smoke</span>
+                        <q>invalid artifact grugmoe_artifact_schema_version</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">No general streaming loader, quantization loader, TP-sharded loader, or PP-sharded artifact load.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Pipeline and tensor parallelism</td>
+                    <td class="py-3 pr-4">A small regression test prevents embed normalization from being re-applied on received PP hidden states.
+                      <a class="evidence" href="support.html#q-committed-pp-test" title="Open quoted support and source">
+                        <span>PP</span>
+                        <q>skips embed norm for received PP hidden states</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">The model has rank-aware branches for first and last pipeline rank.</td>
+                    <td class="py-3 pr-4">Artifact loading still explicitly supports only a full model on one pipeline rank, and there is no real PP/TP serving test.
+                      <a class="evidence" href="support.html#q-pp-loader-limit" title="Open quoted support and source">
+                        <span>limit</span>
+                        <q>single pipeline rank</q>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Installed serving behavior</td>
+                    <td class="py-3 pr-4">The smoke starts Marin's existing <code class="code">VllmEnvironment</code> and calls vLLM's raw-token generation endpoint.</td>
+                    <td class="py-3 pr-4">It can check deterministic continuation IDs, selected-token logprobs, and routed-expert shape/range.
+                      <a class="evidence" href="support.html#q-installed-vllm-request" title="Open quoted support and source">
+                        <span>request</span>
+                        <code>"temperature": 0.0</code>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">No tokenizer path, multiple concurrent requests, batch scheduling, streaming, throughput, or latency coverage.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
           <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
             <h3 class="text-xl font-semibold text-white">Correctness Trust Matrix</h3>
             <div class="mt-4 overflow-x-auto">
@@ -916,9 +1050,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                         <q>if exported_names != expected_names</q>
                       </a>
                     </td>
-                    <td class="py-3 pr-4">Cross-repo schema drift still needs review; local worktree adds a version guard.
-                      <a class="evidence" href="support.html#q-local-schema-version" title="Open quoted support and source">
-                        <span>local</span>
+                    <td class="py-3 pr-4">Cross-repo schema drift still needs review; the latest Marin and tpu-inference commits add a version guard.
+                      <a class="evidence" href="support.html#q-committed-schema-version" title="Open quoted support and source">
+                        <span>src</span>
                         <code>grugmoe_artifact_schema_version</code>
                       </a>
                     </td>
@@ -993,16 +1127,20 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                 </div>
               </div>
               <div class="rounded border border-sky-700/50 bg-sky-950/20 p-4">
-                <p class="font-semibold text-sky-200">The local product worktrees now contain extra uncommitted validation hardening.</p>
-                <p class="mt-1">Marin and tpu-inference have local edits adding schema-version checks, and tpu-inference has a local PP embed-norm regression test. Review those commits once the dev agent publishes them.</p>
+                <p class="font-semibold text-sky-200">The latest pushed heads include extra validation hardening.</p>
+                <p class="mt-1">Marin and tpu-inference now include schema-version checks, tpu-inference includes a PP embed-norm regression test, and vLLM documents that Marin owns the tpu-inference fork pin.</p>
                 <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-local-schema-version" title="Open quoted support and source">
+                  <a class="evidence" href="support.html#q-committed-schema-version" title="Open quoted support and source">
                     <span>Schema quote</span>
                     <code>grugmoe_artifact_schema_version</code>
                   </a>
-                  <a class="evidence" href="support.html#q-local-pp-test" title="Open quoted support and source">
+                  <a class="evidence" href="support.html#q-committed-pp-test" title="Open quoted support and source">
                     <span>PP quote</span>
                     <q>skips embed norm for received PP hidden states</q>
+                  </a>
+                  <a class="evidence" href="support.html#q-vllm-marin-pin" title="Open quoted support and source">
+                    <span>Pin quote</span>
+                    <q>Marin pins the tpu-inference fork</q>
                   </a>
                 </div>
               </div>
@@ -1046,9 +1184,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   This is the core behavior change.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/42cfdd4ac38c8caa87e4b97c5cad4e5947fa6cd2/tpu_inference/models/jax/grugmoe.py#L53-L67">mode parser</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/1d69fb9dc49a17f893f1a92a2583ab2964bc4b01/tpu_inference/models/jax/grugmoe.py#L53-L67">mode parser</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/42cfdd4ac38c8caa87e4b97c5cad4e5947fa6cd2/tpu_inference/models/jax/grugmoe.py#L714-L801">attention implementation</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/1d69fb9dc49a17f893f1a92a2583ab2964bc4b01/tpu_inference/models/jax/grugmoe.py#L714-L801">attention implementation</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-dense-mode" title="Open quoted support and source">
@@ -1072,9 +1210,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   Verify tpu-inference emits routed expert IDs with slot mappings, then verify vLLM ignores them unless routed expert output is enabled.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/42cfdd4ac38c8caa87e4b97c5cad4e5947fa6cd2/tpu_inference/runner/tpu_runner.py#L186-L195">runner output</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/1d69fb9dc49a17f893f1a92a2583ab2964bc4b01/tpu_inference/runner/tpu_runner.py#L186-L195">runner output</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/43e648985619749e7d1b232fbe408c7f5995d2d6/vllm/v1/core/sched/scheduler.py#L1334-L1343">scheduler guard</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/850f1b88975027d82f95062229e47a9852fe33dd/vllm/v1/core/sched/scheduler.py#L1334-L1343">scheduler guard</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-runner-output" title="Open quoted support and source">
@@ -1098,9 +1236,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   The important checks are now tighter: copy the same Levanter model into dense and production tpu-inference models, then compare hidden states, logits, selected logprobs, and routed expert IDs; separately verify checkpoint/export/load roundtrip tensor accounting.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/62a90c213babe309f9cea69acbf0036514b0eb27/experiments/grug/moe/vllm_tpu_parity.py#L1031-L1101">dense-vs-production smoke</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bb49eaf89c49bde5419ac13fb02427cf13d8cf41/experiments/grug/moe/vllm_tpu_parity.py#L1031-L1101">dense-vs-production smoke</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/62a90c213babe309f9cea69acbf0036514b0eb27/experiments/grug/moe/vllm_tpu_parity.py#L1256-L1434">artifact roundtrip</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bb49eaf89c49bde5419ac13fb02427cf13d8cf41/experiments/grug/moe/vllm_tpu_parity.py#L1256-L1434">artifact roundtrip</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-parity-smoke" title="Open quoted support and source">
@@ -1124,9 +1262,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   First confirm the artifact defaults to production mode, then review the smaller smoke that serves it through Marin's existing vLLM environment with raw token IDs.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/62a90c213babe309f9cea69acbf0036514b0eb27/experiments/grug/moe/model.py#L210-L246">HF config export</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bb49eaf89c49bde5419ac13fb02427cf13d8cf41/experiments/grug/moe/model.py#L210-L246">HF config export</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/62a90c213babe309f9cea69acbf0036514b0eb27/experiments/grug/moe/installed_vllm_smoke.py#L204-L349">installed vLLM smoke</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bb49eaf89c49bde5419ac13fb02427cf13d8cf41/experiments/grug/moe/installed_vllm_smoke.py#L204-L349">installed vLLM smoke</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
@@ -1278,10 +1416,10 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               </div>
               <div>
                 <dt class="text-xs uppercase tracking-wide text-slate-500">Fork stack</dt>
-                <dd class="mt-1 text-sm text-slate-200">Marin 62a90c213, tpu-inference 42cfdd4a, vLLM 43e648985</dd>
+                <dd class="mt-1 text-sm text-slate-200">Marin bb49eaf89, tpu-inference 1d69fb9d, vLLM 850f1b88</dd>
                 <a class="evidence" href="support.html#links" title="Open quoted support and source">
                   <span>Branch heads</span>
-                  <q>Marin 62a90c213..., tpu-inference 42cfdd4a..., vLLM 43e648...</q>
+                  <q>Marin bb49eaf89..., tpu-inference 1d69fb9d..., vLLM 850f1b88...</q>
                 </a>
               </div>
               <div>
@@ -1337,7 +1475,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
           </a>
           <a class="evidence" href="support.html#links" title="Open quoted support and source">
             <span>Branch heads quote</span>
-            <q>tpu-inference 42cfdd4a..., vLLM 43e648...</q>
+            <q>tpu-inference 1d69fb9d..., vLLM 850f1b88...</q>
           </a>
           <a class="evidence" href="support.html#q-caveat-rerun" title="Open quoted support and source">
             <span>Caveat quote</span>
