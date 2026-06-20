@@ -126,7 +126,7 @@
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#validation">Validation</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#order">Review order</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#mental-model">Mental model</a>
-          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#hotspots">Hotspots</a>
+          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#hotspots">Review focus</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="support.html">Support references</a>
         </nav>
       </div>
@@ -214,27 +214,6 @@
               <span>Serve helper</span>
               <code>from marin.inference.vllm_server import VllmEnvironment</code>
             </a>
-          </div>
-        </div>
-
-        <div class="mt-5 grid gap-4 md:grid-cols-3">
-          <div class="rounded border border-emerald-800/70 bg-[#0d1117] p-4">
-            <h3 class="font-semibold text-white">Dependency surface</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-300">
-              Check that the fork pins are intentional, narrow, and auditable from the PR description.
-            </p>
-          </div>
-          <div class="rounded border border-emerald-800/70 bg-[#0d1117] p-4">
-            <h3 class="font-semibold text-white">Marin runtime surface</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-300">
-              Check that Grug-specific scripts do not quietly alter unrelated Marin inference or eval workflows.
-            </p>
-          </div>
-          <div class="rounded border border-emerald-800/70 bg-[#0d1117] p-4">
-            <h3 class="font-semibold text-white">Manual TPU surface</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-300">
-              Check that expensive TPU/GCS assumptions stay explicit in smoke entrypoints and review notes.
-            </p>
           </div>
         </div>
 
@@ -909,119 +888,6 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
         </div>
 
         <div class="mt-6 rounded border border-slate-800 bg-[#0d1117] p-5">
-          <h3 class="text-xl font-semibold text-white">Review Readiness At A Glance</h3>
-          <div class="mt-4 grid gap-4 md:grid-cols-3">
-            <div class="rounded border border-emerald-800/70 bg-emerald-950/20 p-4">
-              <p class="text-sm font-semibold text-emerald-200">Trust for this PR</p>
-              <p class="mt-2 text-sm leading-6 text-slate-300">
-                A trained GrugMoE checkpoint serves through the installed Marin/vLLM fork stack on v6e-4, and
-                Levanter/JAX agrees with vLLM on generated text and token IDs for the tested prompt.
-              </p>
-              <div class="evidence-row">
-                <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
-                  <span>Serve</span>
-                  <q>The installed Marin/vLLM serving path passed.</q>
-                </a>
-                <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
-                  <span>Compare</span>
-                  <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
-                </a>
-              </div>
-            </div>
-            <div class="rounded border border-sky-800/70 bg-sky-950/20 p-4">
-              <p class="text-sm font-semibold text-sky-200">Trust from lower-level tests</p>
-              <p class="mt-2 text-sm leading-6 text-slate-300">
-                Native parity covers Grug math, dense-vs-production attention, artifact roundtrip, and routed expert
-                plumbing with tighter diagnostics than the final serving result exposes.
-              </p>
-              <div class="evidence-row">
-                <a class="evidence" href="support.html#q-test-production-attention" title="Open quoted support and source">
-                  <span>Attention</span>
-                  <code>production-attention selected next-token logprobs</code>
-                </a>
-                <a class="evidence" href="support.html#q-installed-routed-experts" title="Open quoted support and source">
-                  <span>Routes</span>
-                  <q>routed_experts top-k</q>
-                </a>
-              </div>
-            </div>
-            <div class="rounded border border-amber-800/70 bg-amber-950/20 p-4">
-              <p class="text-sm font-semibold text-amber-200">Do not claim yet</p>
-              <p class="mt-2 text-sm leading-6 text-slate-300">
-                This is not a broad prompt suite, performance result, multi-rank validation, or vLLM TPU logprob
-                comparison. The final serve response also does not include routed experts.
-              </p>
-              <div class="evidence-row">
-                <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
-                  <span>Limit</span>
-                  <q>token_ids=null, logprobs=null, and routed_experts=null</q>
-                </a>
-                <a class="evidence" href="support.html#q-caveat-final-smoke-scope" title="Open quoted support and source">
-                  <span>Narrow</span>
-                  <q>one prompt, one short decode, one-rank serving</q>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6 overflow-x-auto rounded border border-slate-800 bg-[#0d1117] p-5">
-          <h3 class="text-xl font-semibold text-white">Marin Trust Boundary</h3>
-          <p class="mt-2 max-w-4xl text-sm leading-6 text-slate-300">
-            For Marin review, separate repo-level confidence from fork implementation confidence. The same TPU runs
-            can be enough to justify a narrow smoke path while still being insufficient for broad Marin rollout claims.
-          </p>
-          <table class="mt-4 w-full min-w-[880px] border-collapse text-left text-sm">
-            <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
-              <tr>
-                <th class="py-3 pr-4">Confidence</th>
-                <th class="py-3 pr-4">Marin claim</th>
-                <th class="py-3 pr-4">Why</th>
-                <th class="py-3 pr-4">Do not infer</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800 text-slate-300">
-              <tr>
-                <td class="py-3 pr-4 text-emerald-300">High</td>
-                <td class="py-3 pr-4 text-slate-100">A trained Grug checkpoint can be served through installed Marin/vLLM on one v6e-4.</td>
-                <td class="py-3 pr-4">
-                  The final smoke used the real checkpoint and final fork heads.
-                  <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
-                    <span>src</span>
-                    <q>The installed Marin/vLLM serving path passed.</q>
-                  </a>
-                </td>
-                <td class="py-3 pr-4">No throughput, latency, multi-rank, or broad prompt coverage.</td>
-              </tr>
-              <tr>
-                <td class="py-3 pr-4 text-sky-300">Medium</td>
-                <td class="py-3 pr-4 text-slate-100">The Marin export/parity path gives focused correctness evidence.</td>
-                <td class="py-3 pr-4">
-                  The parity harness compares dense and production paths plus artifact roundtrip.
-                  <a class="evidence" href="support.html#q-test-production-attention" title="Open quoted support and source">
-                    <span>src</span>
-                    <code>production-attention selected next-token logprobs</code>
-                  </a>
-                </td>
-                <td class="py-3 pr-4">It is not a replacement for a larger prompt suite or future logprob API coverage.</td>
-              </tr>
-              <tr>
-                <td class="py-3 pr-4 text-amber-300">Low / not covered</td>
-                <td class="py-3 pr-4 text-slate-100">General Marin eval, production serving, and scaling behavior.</td>
-                <td class="py-3 pr-4">
-                  The final serve result is deliberately narrow and omits several diagnostics.
-                  <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
-                    <span>src</span>
-                    <q>token_ids=null, logprobs=null, and routed_experts=null</q>
-                  </a>
-                </td>
-                <td class="py-3 pr-4">Do not infer readiness for multi-host, parallel serving, or performance-sensitive rollout.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="mt-6 rounded border border-slate-800 bg-[#0d1117] p-5">
           <h3 class="text-xl font-semibold text-white">Validation Map</h3>
           <p class="mt-2 max-w-4xl text-sm leading-6 text-slate-300">
             Read this table from top to bottom. Each layer narrows a different failure mode; no single row is enough
@@ -1285,7 +1151,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             </div>
           </article>
 
-          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5 lg:col-span-2">
             <h3 class="text-xl font-semibold text-white">Correctness Trust Matrix</h3>
             <div class="mt-4 overflow-x-auto">
               <table class="w-full min-w-[620px] border-collapse text-left text-sm">
@@ -1385,57 +1251,6 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             </div>
           </article>
 
-          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
-            <h3 class="text-xl font-semibold text-white">Current Freshness</h3>
-            <div class="mt-4 space-y-3 text-sm leading-6 text-slate-300">
-              <div class="rounded border border-emerald-700/50 bg-emerald-950/20 p-4">
-                <p class="font-semibold text-emerald-200">Fresh final-stack TPU evidence exists.</p>
-                <p class="mt-1">The real-checkpoint vLLM smoke and the Levanter/JAX comparison both succeeded against the final branch heads.</p>
-                <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
-                    <span>Serve</span>
-                    <q>The installed Marin/vLLM serving path passed.</q>
-                  </a>
-                  <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
-                    <span>Compare</span>
-                    <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
-                  </a>
-                </div>
-              </div>
-              <div class="rounded border border-amber-700/60 bg-amber-950/20 p-4">
-                <p class="font-semibold text-amber-200">The final evidence is deliberately narrow.</p>
-                <p class="mt-1">It validates one prompt, one short decode, and one-rank serving. The final serve result does not expose vLLM logprobs or routed experts.</p>
-                <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
-                    <span>Limit</span>
-                    <q>token_ids=null, logprobs=null, and routed_experts=null</q>
-                  </a>
-                  <a class="evidence" href="support.html#q-caveat-rerun" title="Open quoted support and source">
-                    <span>Rerun quote</span>
-                    <q>Rerun TPU smoke if GrugMoE serving code paths move.</q>
-                  </a>
-                </div>
-              </div>
-              <div class="rounded border border-sky-700/50 bg-sky-950/20 p-4">
-                <p class="font-semibold text-sky-200">The latest pushed heads include extra validation hardening.</p>
-                <p class="mt-1">Marin and tpu-inference now include schema-version checks, tpu-inference includes a PP embed-norm regression test, and vLLM documents that Marin owns the tpu-inference fork pin.</p>
-                <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-committed-schema-version" title="Open quoted support and source">
-                    <span>Schema quote</span>
-                    <code>grugmoe_artifact_schema_version</code>
-                  </a>
-                  <a class="evidence" href="support.html#q-committed-pp-test" title="Open quoted support and source">
-                    <span>PP quote</span>
-                    <q>skips embed norm for received PP hidden states</q>
-                  </a>
-                  <a class="evidence" href="support.html#q-vllm-marin-pin" title="Open quoted support and source">
-                    <span>Pin quote</span>
-                    <q>Marin pins the tpu-inference fork</q>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </article>
         </div>
 
         <div class="mt-6 rounded border border-rose-700/60 bg-rose-950/20 p-5">
@@ -1664,113 +1479,62 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
         </div>
       </section>
 
-      <section id="hotspots" class="mt-12 grid gap-5 lg:grid-cols-[1fr_1fr]">
-        <div>
-          <h2 class="text-2xl font-semibold text-white">What To Scrutinize</h2>
-          <div class="mt-4 space-y-3">
-            <details class="rounded border border-slate-800 bg-[#0d1117] p-4" open>
-              <summary class="cursor-pointer font-semibold text-white">Marin dependency blast radius</summary>
-              <p class="mt-3 text-sm leading-6 text-slate-300">
-                Check that the fork pins are intentional, explicit, and called out in the PR. This is the broadest
-                Marin-facing change because it affects what the workspace resolves for vLLM-backed inference.
+      <section id="hotspots" class="mt-12">
+        <div class="rounded border border-slate-800 bg-[#0d1117] p-5">
+          <h2 class="text-2xl font-semibold text-white">Review Focus</h2>
+          <p class="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
+            Use this as the short checklist after the linear review order. It points back to the canonical sections
+            instead of restating their full validation and risk details.
+          </p>
+          <div class="mt-5 grid gap-4 md:grid-cols-3">
+            <article class="rounded border border-emerald-800/70 bg-emerald-950/20 p-4">
+              <h3 class="font-semibold text-white">1. Marin blast radius</h3>
+              <p class="mt-2 text-sm leading-6 text-slate-300">
+                Start with dependency pins and artifact defaults, because those are the broad Marin-facing changes.
               </p>
               <div class="evidence-row">
                 <a class="evidence" href="support.html#q-marin-fork-pins" title="Open quoted support and source">
-                  <span>Pin quote</span>
+                  <span>pins</span>
                   <code>vllm = {...}; tpu-inference = {...}</code>
                 </a>
-                <a class="evidence" href="support.html#q-vllm-marin-pin" title="Open quoted support and source">
-                  <span>Ownership quote</span>
-                  <q>Marin pins the tpu-inference fork in its workspace.</q>
+                <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
+                  <span>default</span>
+                  <code>"grugmoe_attention_mode": "production"</code>
                 </a>
               </div>
-            </details>
-            <details class="rounded border border-slate-800 bg-[#0d1117] p-4">
-              <summary class="cursor-pointer font-semibold text-white">Marin smoke scope</summary>
-              <p class="mt-3 text-sm leading-6 text-slate-300">
-                Check that the real-checkpoint smoke and compare are narrow, manual, and region-explicit. They are
-                valuable correctness smoke, but they should not be read as broad production or performance coverage.
+            </article>
+            <article class="rounded border border-sky-800/70 bg-sky-950/20 p-4">
+              <h3 class="font-semibold text-white">2. Correctness evidence</h3>
+              <p class="mt-2 text-sm leading-6 text-slate-300">
+                Treat the validation map as the source of truth for what each smoke or parity test does and does not prove.
               </p>
               <div class="evidence-row">
                 <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
-                  <span>Result quote</span>
-                  <q>TPU v6e-4 in europe-west4.</q>
+                  <span>serve</span>
+                  <q>The installed Marin/vLLM serving path passed.</q>
                 </a>
-                <a class="evidence" href="support.html#q-caveat-final-smoke-scope" title="Open quoted support and source">
-                  <span>Caveat quote</span>
-                  <q>one prompt, one short decode, one-rank serving</q>
+                <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
+                  <span>limit</span>
+                  <q>logprobs=null</q>
                 </a>
               </div>
-            </details>
-            <details class="rounded border border-slate-800 bg-[#0d1117] p-4">
-              <summary class="cursor-pointer font-semibold text-white">Fork internals after Marin is clear</summary>
-              <p class="mt-3 text-sm leading-6 text-slate-300">
-                Once the Marin diff is understood, inspect production attention, routed-expert output, and bespoke
-                loading as the implementation details Marin now depends on.
+            </article>
+            <article class="rounded border border-amber-800/70 bg-amber-950/20 p-4">
+              <h3 class="font-semibold text-white">3. Fork internals</h3>
+              <p class="mt-2 text-sm leading-6 text-slate-300">
+                Inspect tpu-inference and vLLM after Marin is clear, focusing on the exact behavior Marin now depends on.
               </p>
               <div class="evidence-row">
                 <a class="evidence" href="support.html#q-shared-attention" title="Open quoted support and source">
-                  <span>Attention quote</span>
+                  <span>attention</span>
                   <code>shared_attention(kv_cache, q, k, v, attention_metadata, ...)</code>
                 </a>
-                <a class="evidence" href="support.html#q-caveat-loading" title="Open quoted support and source">
-                  <span>Caveat quote</span>
-                  <q>Weight loading remains bespoke and easy to audit for this model.</q>
+                <a class="evidence" href="support.html#q-vllm-route-guard" title="Open quoted support and source">
+                  <span>vLLM</span>
+                  <code>self.enable_return_routed_experts and model_runner_output.routed_experts</code>
                 </a>
               </div>
-            </details>
-          </div>
-        </div>
-        <div>
-          <h2 class="text-2xl font-semibold text-white">Validation Snapshot</h2>
-          <div class="mt-4 rounded border border-slate-800 bg-[#0d1117] p-5">
-            <dl class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <dt class="text-xs uppercase tracking-wide text-slate-500">Hardware</dt>
-                <dd class="mt-1 text-sm text-slate-200">TPU v6e-4, europe-west4</dd>
-                <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
-                  <span>Validation quote</span>
-                  <q>TPU v6e-4 in europe-west4.</q>
-                </a>
-              </div>
-              <div>
-                <dt class="text-xs uppercase tracking-wide text-slate-500">Fork stack</dt>
-                <dd class="mt-1 text-sm text-slate-200">Marin 6755f227, tpu-inference 10d880c4, vLLM 7557e69d</dd>
-                <a class="evidence" href="support.html#links" title="Open quoted support and source">
-                  <span>Branch heads</span>
-                  <q>Marin 6755f227..., tpu-inference 10d880c4..., vLLM 7557e69d...</q>
-                </a>
-              </div>
-              <div>
-                <dt class="text-xs uppercase tracking-wide text-slate-500">Real checkpoint serve</dt>
-                <dd class="mt-1 text-sm text-slate-200">passed on v6e-4; completion matched calibrated expected output</dd>
-                <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
-                  <span>Validation quote</span>
-                  <q>The installed Marin/vLLM serving path passed.</q>
-                </a>
-              </div>
-              <div>
-                <dt class="text-xs uppercase tracking-wide text-slate-500">Levanter/JAX compare</dt>
-                <dd class="mt-1 text-sm text-slate-200">text, token IDs, and prompt token count matched</dd>
-                <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
-                  <span>Validation quote</span>
-                  <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
-                </a>
-              </div>
-            </dl>
-            <p class="mt-5 text-sm text-slate-300">
-              Treat this as current final-stack smoke evidence, not a broad production qualification. It does not cover performance, multi-rank serving, a prompt suite, or vLLM TPU logprob comparison.
-            </p>
-            <div class="evidence-row">
-              <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
-                <span>Caveat quote</span>
-                <q>logprobs=null</q>
-              </a>
-              <a class="evidence" href="support.html#q-caveat-serving-evidence" title="Open quoted support and source">
-                <span>Caveat quote</span>
-                <q>routed_experts=null</q>
-              </a>
-            </div>
+            </article>
           </div>
         </div>
       </section>
