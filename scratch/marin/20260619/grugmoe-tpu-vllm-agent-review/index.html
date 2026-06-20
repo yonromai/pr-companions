@@ -154,7 +154,7 @@
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-200">Marin</h2>
           <p class="mt-3 text-sm leading-6 text-slate-300">
-            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and keeps focused parity plus installed vLLM smoke coverage.
+            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and keeps focused parity plus installed vLLM smoke coverage. The current local review head is <code class="code text-slate-100">11b93ca6a</code>, with cleanup-only commits after the TPU run.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
@@ -168,6 +168,10 @@
             <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
               <span>Compare</span>
               <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
+            </a>
+            <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
+              <span>Latest cleanup</span>
+              <q>Added StagedArtifact named result.</q>
             </a>
           </div>
           <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/main...codex/grugmoe-real-checkpoint-smoke-stack-20260620">Open compare</a>
@@ -282,6 +286,30 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="mt-5 rounded border border-amber-700/60 bg-amber-950/20 p-4">
+          <h3 class="font-semibold text-amber-100">Latest Local Head</h3>
+          <p class="mt-2 text-sm leading-6 text-slate-300">
+            The local Marin branch now ends at <code class="code text-slate-100">11b93ca6a</code>. The two commits
+            after the TPU-validated <code class="code text-slate-100">6755f227</code> head are cleanup-only review
+            hygiene: import placement/comments, shared helper extraction, a named staging return, and preload env
+            string cleanup. Focused tests and changed-files pre-commit passed at the local head; the TPU smoke and
+            Levanter/JAX compare evidence below still come from <code class="code text-slate-100">6755f227</code>.
+          </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
+              <span>Cleanup quote</span>
+              <q>Moved safe local imports to module scope.</q>
+            </a>
+            <a class="evidence" href="support.html#q-validation-cleanup" title="Open quoted support and source">
+              <span>Local checks</span>
+              <q>20 passed</q>
+            </a>
+            <a class="evidence" href="support.html#q-caveat-cleanup-head" title="Open quoted support and source">
+              <span>TPU caveat</span>
+              <q>Hardware smoke evidence was collected at 6755f2272.</q>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -852,9 +880,11 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
           <article class="rounded border border-emerald-700/50 bg-emerald-950/20 p-5">
             <h3 class="text-xl font-semibold text-white">Fresh Top-Level TPU Evidence</h3>
             <p class="mt-3 text-sm leading-7 text-slate-300">
-              The final Marin branch served the real GrugMoE checkpoint through installed Marin/vLLM on TPU v6e-4
-              in <code class="code text-slate-100">europe-west4</code>. The recorded runtime SHAs match the final
-              Marin, tpu-inference, and vLLM heads listed in the support page.
+              The TPU-validated Marin branch served the real GrugMoE checkpoint through installed Marin/vLLM on TPU
+              v6e-4 in <code class="code text-slate-100">europe-west4</code>. The recorded runtime SHAs match
+              Marin <code class="code text-slate-100">6755f227</code>, tpu-inference <code class="code text-slate-100">10d880c4</code>,
+              and vLLM <code class="code text-slate-100">7557e69d</code>. The current local Marin review head adds
+              cleanup-only commits on top.
             </p>
             <div class="evidence-row">
               <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
@@ -863,7 +893,11 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               </a>
               <a class="evidence" href="support.html#links" title="Open quoted support and source">
                 <span>Heads</span>
-                <q>Marin 6755f227..., tpu-inference 10d880c4..., vLLM 7557e69d...</q>
+                <q>TPU evidence below was collected at 6755f2272.</q>
+              </a>
+              <a class="evidence" href="support.html#q-latest-local-head" title="Open quoted support and source">
+                <span>Local head</span>
+                <q>The current local Marin branch is ahead of its remote by two commits.</q>
               </a>
             </div>
           </article>
@@ -1288,6 +1322,23 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             Then follow the numbered code-review order below.
           </p>
         </div>
+        <div class="mb-5 rounded border border-amber-700/60 bg-amber-950/20 p-4">
+          <h3 class="font-semibold text-amber-100">Current-head caveat</h3>
+          <p class="mt-1 text-sm leading-6 text-slate-300">
+            Review the two latest Marin cleanup commits first if they are still present in the PR. They should read
+            as mechanical hygiene only; the expensive TPU evidence was collected one Marin commit group earlier.
+          </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
+              <span>Cleanup</span>
+              <q>Clean up GrugMoE smoke lint findings</q>
+            </a>
+            <a class="evidence" href="support.html#q-caveat-cleanup-head" title="Open quoted support and source">
+              <span>Caveat</span>
+              <q>not a fresh TPU rerun</q>
+            </a>
+          </div>
+        </div>
         <ol class="space-y-3">
           <li class="rounded border border-slate-800 bg-[#0d1117] p-4">
             <div class="flex gap-3">
@@ -1296,7 +1347,8 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                 <h3 class="font-semibold text-white">Start with Marin dependency pins and install surface.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
                   Confirm that Marin intentionally points <code class="code text-slate-100">marin-core[vllm]</code> at the Marin-owned
-                  vLLM and tpu-inference forks, and that the pinned SHAs match the final branch heads.
+                  vLLM and tpu-inference forks, and that the pinned SHAs match the fork heads. Also confirm that the
+                  latest Marin cleanup commits do not change dependency selection or serving semantics.
                 </p>
                 <p class="mt-2 text-sm">
                   <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/pyproject.toml#L161-L164">Marin fork pins</a>
@@ -1311,6 +1363,10 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   <a class="evidence" href="support.html#q-vllm-marin-pin" title="Open quoted support and source">
                     <span>Ownership quote</span>
                     <q>Marin pins the tpu-inference fork in its workspace.</q>
+                  </a>
+                  <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
+                    <span>Cleanup quote</span>
+                    <q>Deduped MARIN_VLLM_PRELOAD_MODULES usage in vllm_server tests/helper.</q>
                   </a>
                 </div>
               </div>
@@ -1544,6 +1600,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
         <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
           <li>Preserve the removed validation notes outside the PR, then reference them from the PR description or a gist if useful.</li>
           <li>Confirm the pinned vLLM and tpu-inference branches are exactly the final fork heads listed here.</li>
+          <li>If the two local Marin cleanup commits are included, say explicitly in the PR description that the hardware smoke was run at <code class="code">6755f227</code> and the newer commits are local hygiene checked by focused tests.</li>
           <li>Include the two fresh result paths in the PR description so reviewers can audit the TPU evidence.</li>
           <li>Rerun TPU smoke if any serving, export, or fork pin code path moves before opening the PR.</li>
         </ul>
