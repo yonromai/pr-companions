@@ -142,6 +142,161 @@
       </section>
 
       <section class="mt-8 rounded border border-slate-800 bg-[#0d1117] p-5">
+        <h2 class="text-2xl font-semibold text-white">Validation Source Quotes</h2>
+        <p class="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
+          These quotes back the companion's detailed test map. Public GitHub links still point at the committed
+          branch heads listed above; entries marked local come from the current product worktrees and should be
+          reviewed once the corresponding dev-agent commits are published.
+        </p>
+        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+          <div id="q-test-harness-docstring" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The Marin parity harness states its test surfaces.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>The component check compares tpu-inference's native JAX GrugMoE MLP against
+Levanter's `moe_mlp` with the same selected experts and sigmoid combine
+weights. The full check ... compares final hidden states, logits from
+`compute_logits`, and routed expert IDs against a dense reference.</code></pre>
+          </div>
+          <div id="q-test-shapes" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The small diagnostic shape is intentionally small but MoE-realistic.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>hidden_dim=512
+num_experts=4
+num_experts_per_token=2
+num_layers=2
+num_heads=4
+num_kv_heads=1</code></pre>
+          </div>
+          <div id="q-test-production-structure" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Non-small realistic configs must preserve production-relevant structure.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>realistic config must keep 64 experts
+realistic config must keep top-4 routing
+realistic config must keep the shared expert
+realistic config must keep GQA
+realistic config must exercise short and long windows</code></pre>
+          </div>
+          <div id="q-test-registration" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The tpu-inference loader test checks registration and config parsing.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>assert isinstance(hf_config, GrugMoeHfConfig)
+assert hf_config.architectures == ["GrugMoeForCausalLM"]
+assert GrugMoeConfig.from_hf_config(...).attention_mode == GrugMoeAttentionMode.DENSE
+assert _CONFIG_REGISTRY["grug_moe"] is GrugMoeHfConfig
+assert arch == "GrugMoeForCausalLM"</code></pre>
+          </div>
+          <div id="q-test-component" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The component test compares native GrugMoE MLP to Levanter MoE.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>selected, combine_weights = _route_jax(...)
+expected = moe_mlp(...)
+actual, actual_selected = native_mlp(...)
+np.testing.assert_array_equal(actual_selected, selected)
+np.testing.assert_allclose(actual, expected, rtol=1e-5, atol=1e-5)</code></pre>
+          </div>
+          <div id="q-test-full-forward" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The tiny full-forward check compares native outputs to Levanter.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>expected_hidden, expected_expert_ids = jax.jit(_jax_full_forward)(lev_model, token_ids)
+expected_logits = _jax_logits(lev_model, expected_hidden)[0]
+np.testing.assert_allclose(actual_hidden, expected_hidden[0], rtol=5e-4, atol=5e-4)
+np.testing.assert_allclose(actual_logits, expected_logits, rtol=5e-4, atol=5e-4)
+np.testing.assert_array_equal(actual_expert_ids, expected_expert_ids)</code></pre>
+          </div>
+          <div id="q-test-production-attention" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Dense-vs-production attention compares multiple correctness signals.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_copy_transformer(dense_model, lev_model, mesh=tpu_mesh)
+_copy_transformer(production_model, lev_model, mesh=tpu_mesh)
+label="production-attention hidden"
+label="production-attention logits"
+label="production-attention selected next-token logprobs"
+np.testing.assert_array_equal(production_expert_ids, dense_expert_ids)</code></pre>
+          </div>
+          <div id="q-test-artifact-roundtrip" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Artifact roundtrip checks tensor schema, strict load report, and loaded behavior.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if exported_names != expected_names: raise AssertionError(...)
+if report.consumed != expected_names: raise AssertionError(...)
+if report.missing or report.unexpected: raise AssertionError(...)
+np.testing.assert_allclose(loaded_hidden, manual_hidden, rtol=5e-4, atol=5e-4)
+np.testing.assert_array_equal(loaded_expert_ids, manual_expert_ids)</code></pre>
+          </div>
+          <div id="q-test-realistic-roundtrip" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The realistic roundtrip validates non-zero training-state export/load and generation.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>realistic-roundtrip: dtype_policy=params=float32,compute=bfloat16,output=bfloat16
+manual-copy native reference matches Levanter hidden states, logits, and routed experts
+loaded native artifact full-forward greedy generation matched Levanter reference
+sharded training-state export loaded in native tpu-inference and matched Levanter/manual-copy</code></pre>
+          </div>
+          <div id="q-test-reference-json" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The reference JSON records continuation logprobs and routed experts.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"continuation_ids": continuation_ids
+"levanter_continuation_logprobs": continuation_logprobs_np
+"levanter_routed_experts": np.transpose(expert_ids_np, (1, 0, 2))
+"levanter_router_margin": np.transpose(router_margins_np, (1, 0))</code></pre>
+          </div>
+          <div id="q-installed-vllm-serve" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke uses Marin's existing vLLM helper.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>from marin.inference.vllm_server import VllmEnvironment
+with VllmEnvironment(... extra_args=extra_args) as env:
+    generate_url = _server_base_url(env.server_url) + "/inference/v1/generate"</code></pre>
+          </div>
+          <div id="q-installed-vllm-request" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke sends raw token IDs and deterministic sampling params.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"token_ids": prompt_ids
+"sampling_params": {
+    "max_tokens": generation_tokens,
+    "temperature": 0.0,
+    **({"logprobs": 1} if check_reference_logprobs else {}),
+}</code></pre>
+          </div>
+          <div id="q-installed-vllm-assertions" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke checks generated IDs, selected logprobs, and routed experts when requested.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if expected_ids is not None and generated_ids != expected_ids: raise AssertionError(...)
+deltas = np.abs(actual_logprobs - expected_logprobs)
+if logprob_summary["max_abs_delta"] > max_logprob_delta: raise AssertionError(...)
+routed_shape = _assert_routed_experts(choice, artifact_config)</code></pre>
+          </div>
+          <div id="q-installed-routed-experts" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke validates routed-expert shape and ID range.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if routed_experts.shape[1] != expected_layers: raise AssertionError(...)
+if routed_experts.shape[2] != expected_topk: raise AssertionError(...)
+if not np.all((routed_experts >= 0) & (routed_experts < num_experts)): raise AssertionError(...)</code></pre>
+          </div>
+          <div id="q-installed-process-split" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke isolates export and serve phases in subprocesses.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_run_phase_subprocess("export", ...)
+artifact_dir = _artifact_dir(output_dir)
+reference_path = _reference_path(output_dir)
+_run_phase_subprocess("serve", ...)</code></pre>
+          </div>
+          <div id="q-performance-boundary" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke is configured for correctness smoke, not performance measurement.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"--enforce-eager"
+"--max-num-seqs", "1"
+"--skip-tokenizer-init"
+"--tokens-only"</code></pre>
+          </div>
+          <div id="q-local-schema-version" class="rounded border border-sky-700/70 bg-sky-950/30 p-4">
+            <p class="text-sm font-semibold text-sky-100">Local working-tree evidence: schema version guard.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>GRUG_MOE_ARTIFACT_SCHEMA_VERSION_KEY = "grugmoe_artifact_schema_version"
+GRUG_MOE_ARTIFACT_SCHEMA_VERSION = 1
+if config.get(_ARTIFACT_SCHEMA_VERSION_KEY) != _ARTIFACT_SCHEMA_VERSION:
+    raise AssertionError(...)</code></pre>
+          </div>
+          <div id="q-local-pp-test" class="rounded border border-sky-700/70 bg-sky-950/30 p-4">
+            <p class="text-sm font-semibold text-sky-100">Local working-tree evidence: PP embed-norm regression test.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>def test_grugmoe_skips_embed_norm_for_received_pp_hidden_states():
+    model = _minimal_model(is_first_rank=False)
+    ...
+    assert jnp.array_equal(hidden_states, inputs_embeds)
+    assert model.embed_norm.calls == 0</code></pre>
+          </div>
+          <div id="q-vllm-route-disabled-test" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The vLLM unit test ensures unsolicited routes are ignored when disabled.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>scheduler.enable_return_routed_experts = False
+model_runner_output = ModelRunnerOutput(... routed_experts=RoutedExpertsLists(...))
+engine_core_outputs = scheduler.update_from_output(...)
+assert not hasattr(scheduler, "routed_experts_mgr")
+assert engine_core_outputs[0].outputs[0].routed_experts is None</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8 rounded border border-slate-800 bg-[#0d1117] p-5">
         <h2 class="text-2xl font-semibold text-white">Short Source Quotes</h2>
         <div class="mt-4 grid gap-4 lg:grid-cols-2">
           <div id="q-architecture" class="rounded border border-slate-700 bg-slate-950 p-4">

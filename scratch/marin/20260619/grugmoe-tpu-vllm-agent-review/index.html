@@ -122,6 +122,7 @@
         <nav class="flex flex-wrap gap-3 text-sm">
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#context">Context</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#flow">Request flow</a>
+          <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#validation">Validation</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#order">Review order</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#mental-model">Mental model</a>
           <a class="rounded border border-slate-700 px-3 py-2 text-slate-200 hover:border-sky-400 hover:text-white" href="#hotspots">Hotspots</a>
@@ -723,6 +724,309 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <span>Installed smoke quote</span>
             <q>The installed vLLM TPU smoke is the evidence for the real serving path.</q>
           </a>
+        </div>
+      </section>
+
+      <section id="validation" class="mt-12">
+        <div class="max-w-4xl">
+          <p class="text-sm font-semibold uppercase tracking-wide text-sky-200">Validation and trust</p>
+          <h2 class="mt-2 text-3xl font-semibold text-white">What The Tests Prove, And What They Do Not</h2>
+          <p class="mt-4 text-sm leading-7 text-slate-300">
+            The validation suite is strongest as a correctness and integration smoke for one-rank GrugMoE TPU
+            serving. It checks the Grug math against the Levanter/JAX reference, checks dense attention against
+            production attention, checks export/load tensor accounting, and checks that an installed Marin vLLM
+            server can serve raw-token Grug requests on TPU. It is not a performance benchmark.
+          </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-test-harness-docstring" title="Open quoted support and source">
+              <span>Harness quote</span>
+              <q>compares final hidden states, logits ... and routed expert IDs</q>
+            </a>
+            <a class="evidence" href="support.html#q-installed-vllm-serve" title="Open quoted support and source">
+              <span>Serving quote</span>
+              <code>VllmEnvironment(... "--skip-tokenizer-init", "--tokens-only")</code>
+            </a>
+            <a class="evidence" href="support.html#q-performance-boundary" title="Open quoted support and source">
+              <span>Perf caveat</span>
+              <code>"--max-num-seqs", "1"</code>
+            </a>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded border border-slate-800 bg-[#0d1117] p-5">
+          <h3 class="text-xl font-semibold text-white">Validation Map</h3>
+          <p class="mt-2 max-w-4xl text-sm leading-6 text-slate-300">
+            Read this table from top to bottom. Each layer narrows a different failure mode; no single row is enough
+            to trust the full system.
+          </p>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full min-w-[1040px] border-collapse text-left text-sm">
+              <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+                <tr>
+                  <th class="py-3 pr-4">Layer</th>
+                  <th class="py-3 pr-4">What is tested</th>
+                  <th class="py-3 pr-4">How it is tested</th>
+                  <th class="py-3 pr-4">What to trust</th>
+                  <th class="py-3 pr-4">What not to trust from this alone</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 text-slate-300">
+                <tr>
+                  <td class="py-3 pr-4 text-slate-100">Registration and config</td>
+                  <td class="py-3 pr-4">vLLM/Transformers can identify <code class="code">grug_moe</code> as <code class="code">GrugMoeForCausalLM</code>.</td>
+                  <td class="py-3 pr-4">The tpu-inference loader test registers the config, checks the HF aliases, and rejects unknown attention modes.
+                    <a class="evidence" href="support.html#q-test-registration" title="Open quoted support and source">
+                      <span>src</span>
+                      <q>assert arch == "GrugMoeForCausalLM"</q>
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">Model discovery and basic config parsing are covered.</td>
+                  <td class="py-3 pr-4">No forward pass, TPU execution, or artifact loading is covered here.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4 text-slate-100">MoE component parity</td>
+                  <td class="py-3 pr-4">The tpu-inference Grug MoE layer matches Levanter's expert mixing on a tiny synthetic case.</td>
+                  <td class="py-3 pr-4">The harness fixes router weights, router bias, expert weights, selected experts, and sigmoid combine weights, then checks exact expert IDs and close outputs.
+                    <a class="evidence" href="support.html#q-test-component" title="Open quoted support and source">
+                      <span>src</span>
+                      <q>np.testing.assert_allclose(actual, expected, rtol=1e-5, atol=1e-5)</q>
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">Router top-k, QB bias use, sigmoid combine weights, and expert MLP orientation are directly exercised.</td>
+                  <td class="py-3 pr-4">Attention, norms, full-block residual flow, export/load, and serving are not covered.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4 text-slate-100">Tiny full forward</td>
+                  <td class="py-3 pr-4">A complete tiny Grug model in native tpu-inference matches the Levanter reference.</td>
+                  <td class="py-3 pr-4">The harness copies one seeded Levanter model into tpu-inference and compares hidden states, logits, and routed expert IDs with <code class="code">5e-4</code> tolerances for hidden/logits.
+                    <a class="evidence" href="support.html#q-test-full-forward" title="Open quoted support and source">
+                      <span>src</span>
+                      <q>assert_allclose(... rtol=5e-4, atol=5e-4)</q>
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">Whole-block math is covered on a small shape, including norms, attention, MoE, shared expert, final norm, and logits.</td>
+                  <td class="py-3 pr-4">It still uses a controlled native harness, not installed vLLM serving.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4 text-slate-100">Dense vs production attention</td>
+                  <td class="py-3 pr-4">The production shared-attention/KV-cache path agrees with dense reference attention.</td>
+                  <td class="py-3 pr-4">Two tpu-inference models receive the same Levanter weights and prompt; the harness compares hidden states, logits, selected next-token logprobs, and routed expert IDs.
+                    <a class="evidence" href="support.html#q-test-production-attention" title="Open quoted support and source">
+                      <span>src</span>
+                      <code>production-attention selected next-token logprobs</code>
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">The production attention path is not obviously diverging from the simpler dense path on the controlled case.</td>
+                  <td class="py-3 pr-4">It does not stress batching, long contexts, many decode steps, or production traffic patterns.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4 text-slate-100">Artifact roundtrip</td>
+                  <td class="py-3 pr-4">Marin/Levanter export and tpu-inference artifact loading agree on tensor names, sharding layout, and loaded values.</td>
+                  <td class="py-3 pr-4">The harness exports single-file and forced-sharded safetensors artifacts, compares canonical tensor names, checks load reports, then compares loaded hidden states, logits, and routed expert IDs.
+                    <a class="evidence" href="support.html#q-test-artifact-roundtrip" title="Open quoted support and source">
+                      <span>src</span>
+                      <q>if report.missing or report.unexpected: raise AssertionError</q>
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">Tensor schema and basic artifact load correctness are strongly covered for the tested shapes.</td>
+                  <td class="py-3 pr-4">The loader is still bespoke and single-pipeline-rank oriented; this is not a general weight-loading proof.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4 text-slate-100">Realistic checkpoint roundtrip</td>
+                  <td class="py-3 pr-4">A seeded Grug training state can be exported, loaded, and compared back to Levanter on production-relevant shapes.</td>
+                  <td class="py-3 pr-4">The realistic path asserts production structure for non-small profiles, exports a sharded artifact, compares native loaded outputs to Levanter, and checks deterministic full-forward greedy generation.
+                    <a class="evidence" href="support.html#q-test-realistic-roundtrip" title="Open quoted support and source">
+                      <span>src</span>
+                      <q>full-forward greedy generation matched Levanter reference</q>
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">The export/load path is exercised with non-zero training-state weights and reference generation.</td>
+                  <td class="py-3 pr-4">The reference generation path explicitly does not use production KV-cache decode.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4 text-slate-100">Installed vLLM smoke</td>
+                  <td class="py-3 pr-4">The artifact can be served by Marin's installed <code class="code">marin-core[vllm]</code> path using vLLM on TPU.</td>
+                  <td class="py-3 pr-4">The smoke starts <code class="code">VllmEnvironment</code>, sends raw token IDs to <code class="code">/inference/v1/generate</code>, optionally checks generated IDs, selected-token logprobs, and routed-expert shape/range.
+                    <a class="evidence" href="support.html#q-installed-vllm-assertions" title="Open quoted support and source">
+                      <span>src</span>
+                      <q>generated token IDs ... expected</q>
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">This is the main evidence for the real installed serving path.</td>
+                  <td class="py-3 pr-4">The post-cleanup smaller smoke still needs a fresh v6e-4 rerun; the current strong TPU results are historical pre-cleanup evidence.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mt-6 grid gap-5 lg:grid-cols-[1fr_1fr]">
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+            <h3 class="text-xl font-semibold text-white">Correctness Trust Matrix</h3>
+            <div class="mt-4 overflow-x-auto">
+              <table class="w-full min-w-[620px] border-collapse text-left text-sm">
+                <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+                  <tr>
+                    <th class="py-3 pr-4">Area</th>
+                    <th class="py-3 pr-4">Current trust</th>
+                    <th class="py-3 pr-4">Reason</th>
+                    <th class="py-3 pr-4">Caveat</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-300">
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Grug MoE math</td>
+                    <td class="py-3 pr-4 text-emerald-300">High for tested shapes</td>
+                    <td class="py-3 pr-4">Component parity checks selected experts and expert output against Levanter.
+                      <a class="evidence" href="support.html#q-test-component" title="Open quoted support and source">
+                        <span>src</span>
+                        <q>assert_array_equal(actual_selected, selected)</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Synthetic tensor size is tiny.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Full forward math</td>
+                    <td class="py-3 pr-4 text-emerald-300">High for tiny/full-forward cases</td>
+                    <td class="py-3 pr-4">Hidden, logits, and routed experts are compared to Levanter.
+                      <a class="evidence" href="support.html#q-test-full-forward" title="Open quoted support and source">
+                        <span>src</span>
+                        <q>np.testing.assert_array_equal(actual_expert_ids, expected_expert_ids)</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Does not prove all prompt lengths, dtypes, or scheduler cases.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Production attention</td>
+                    <td class="py-3 pr-4 text-amber-300">Medium-high</td>
+                    <td class="py-3 pr-4">Compared directly against dense attention with same weights and prompt.
+                      <a class="evidence" href="support.html#q-test-production-attention" title="Open quoted support and source">
+                        <span>src</span>
+                        <q>_copy_transformer(production_model, lev_model, mesh=tpu_mesh)</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Limited stress on decode scheduling and cache reuse.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Artifact schema/load</td>
+                    <td class="py-3 pr-4 text-emerald-300">High for current schema</td>
+                    <td class="py-3 pr-4">Canonical names, load report, loaded outputs, and routed experts are checked.
+                      <a class="evidence" href="support.html#q-test-artifact-roundtrip" title="Open quoted support and source">
+                        <span>src</span>
+                        <q>if exported_names != expected_names</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Cross-repo schema drift still needs review; local worktree adds a version guard.
+                      <a class="evidence" href="support.html#q-local-schema-version" title="Open quoted support and source">
+                        <span>local</span>
+                        <code>grugmoe_artifact_schema_version</code>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Installed serving path</td>
+                    <td class="py-3 pr-4 text-amber-300">Smoke confidence</td>
+                    <td class="py-3 pr-4">Uses Marin's vLLM helper and raw-token generation API.
+                      <a class="evidence" href="support.html#q-installed-vllm-serve" title="Open quoted support and source">
+                        <span>src</span>
+                        <code>VllmEnvironment</code>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Fresh post-cleanup TPU run is still the gating evidence.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Routed expert reporting</td>
+                    <td class="py-3 pr-4 text-amber-300">Medium</td>
+                    <td class="py-3 pr-4">Native parity compares expert IDs; installed smoke checks returned route shape/range.
+                      <a class="evidence" href="support.html#q-installed-routed-experts" title="Open quoted support and source">
+                        <span>src</span>
+                        <q>routed_experts.shape[2] != expected_topk</q>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">Route replay is not implemented yet.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-4 text-slate-100">Performance</td>
+                    <td class="py-3 pr-4 text-rose-300">Low</td>
+                    <td class="py-3 pr-4">The smoke deliberately uses one sequence and eager serving.
+                      <a class="evidence" href="support.html#q-performance-boundary" title="Open quoted support and source">
+                        <span>src</span>
+                        <code>"--max-num-seqs", "1"</code>
+                      </a>
+                    </td>
+                    <td class="py-3 pr-4">No throughput, latency, memory, batching, or scaling benchmark.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+            <h3 class="text-xl font-semibold text-white">Current Freshness</h3>
+            <div class="mt-4 space-y-3 text-sm leading-6 text-slate-300">
+              <div class="rounded border border-emerald-700/50 bg-emerald-950/20 p-4">
+                <p class="font-semibold text-emerald-200">Strong historical TPU evidence exists.</p>
+                <p class="mt-1">The small diagnostic and full canary both succeeded on TPU v6e-4 in europe-west4 before the cleanup that shrank the installed smoke.</p>
+                <div class="evidence-row">
+                  <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
+                    <span>Small job</span>
+                    <q>Dense-vs-production hidden max delta 4.768e-07</q>
+                  </a>
+                  <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
+                    <span>Full job</span>
+                    <q>Max logprob delta 0.001596</q>
+                  </a>
+                </div>
+              </div>
+              <div class="rounded border border-amber-700/60 bg-amber-950/20 p-4">
+                <p class="font-semibold text-amber-200">The gating gap is a fresh post-cleanup TPU run.</p>
+                <p class="mt-1">The new smaller <code class="code">installed_vllm_smoke.py</code> has lightweight local checks, but the real vLLM TPU serving path still needs to be rerun after cleanup and after any rebase.</p>
+                <div class="evidence-row">
+                  <a class="evidence" href="support.html#q-validation-post-cleanup" title="Open quoted support and source">
+                    <span>Current gap</span>
+                    <q>real TPU v6e-4 serving smoke still needs a fresh run</q>
+                  </a>
+                  <a class="evidence" href="support.html#q-caveat-rerun" title="Open quoted support and source">
+                    <span>Rerun quote</span>
+                    <q>rerun TPU smoke if GrugMoE serving code paths move</q>
+                  </a>
+                </div>
+              </div>
+              <div class="rounded border border-sky-700/50 bg-sky-950/20 p-4">
+                <p class="font-semibold text-sky-200">The local product worktrees now contain extra uncommitted validation hardening.</p>
+                <p class="mt-1">Marin and tpu-inference have local edits adding schema-version checks, and tpu-inference has a local PP embed-norm regression test. Review those commits once the dev agent publishes them.</p>
+                <div class="evidence-row">
+                  <a class="evidence" href="support.html#q-local-schema-version" title="Open quoted support and source">
+                    <span>Schema quote</span>
+                    <code>grugmoe_artifact_schema_version</code>
+                  </a>
+                  <a class="evidence" href="support.html#q-local-pp-test" title="Open quoted support and source">
+                    <span>PP quote</span>
+                    <q>skips embed norm for received PP hidden states</q>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="mt-6 rounded border border-rose-700/60 bg-rose-950/20 p-5">
+          <h3 class="text-xl font-semibold text-white">Performance Boundary</h3>
+          <p class="mt-3 max-w-4xl text-sm leading-7 text-slate-300">
+            Do not read the current validation as a throughput or latency claim. The installed smoke uses one
+            sequence, eager execution, raw token IDs, and a short deterministic generation. It is designed to show
+            that the serving path works and returns sane correctness signals, not that it is production-fast.
+          </p>
+          <div class="evidence-row">
+            <a class="evidence" href="support.html#q-performance-boundary" title="Open quoted support and source">
+              <span>Smoke args</span>
+              <code>"--enforce-eager"; "--max-num-seqs", "1"</code>
+            </a>
+            <a class="evidence" href="support.html#q-installed-vllm-request" title="Open quoted support and source">
+              <span>Request quote</span>
+              <code>"temperature": 0.0</code>
+            </a>
+          </div>
         </div>
       </section>
 
