@@ -148,7 +148,7 @@
               <code>new_kv_cache, attn_out = shared_attention(...)</code>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/4c38590e29d33451f2b4375a78ad8f70cacd7b98...1d69fb9dc49a17f893f1a92a2583ab2964bc4b01">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/main...codex/grugmoe-forkstack-tpu-20260618">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-200">Marin</h2>
@@ -160,16 +160,16 @@
               <span>Quoted support</span>
               <code>"grugmoe_attention_mode": "production"</code>
             </a>
-            <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
-              <span>Quoted support</span>
-              <q>Historical full canary succeeded; max logprob delta 0.001596.</q>
+            <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+              <span>TPU smoke</span>
+              <q>The installed Marin/vLLM serving path passed.</q>
             </a>
-            <a class="evidence" href="support.html#q-validation-post-cleanup" title="Open quoted support and source">
-              <span>Current gap</span>
-              <q>The real TPU v6e-4 serving smoke still needs a fresh run.</q>
+            <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
+              <span>Compare</span>
+              <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/aa6a44e77d2f51672077bdf0ca2d5f81e1608de2...bb49eaf89c49bde5419ac13fb02427cf13d8cf41">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/main...codex/grugmoe-real-checkpoint-smoke-stack-20260620">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-violet-200">vLLM</h2>
@@ -186,7 +186,7 @@
               <code>self.enable_return_routed_experts and model_runner_output.routed_experts</code>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/04321f0f01b8e60d577a85a1b1af688e4433e7e0...850f1b88975027d82f95062229e47a9852fe33dd">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/main...codex/grugmoe-forkstack-vllm-20260618">Open compare</a>
         </article>
       </section>
 
@@ -753,6 +753,102 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
           </div>
         </div>
 
+        <div class="mt-6 grid gap-5 lg:grid-cols-2">
+          <article class="rounded border border-emerald-700/50 bg-emerald-950/20 p-5">
+            <h3 class="text-xl font-semibold text-white">Fresh Top-Level TPU Evidence</h3>
+            <p class="mt-3 text-sm leading-7 text-slate-300">
+              The final Marin branch served the real GrugMoE checkpoint through installed Marin/vLLM on TPU v6e-4
+              in <code class="code text-slate-100">europe-west4</code>. The recorded runtime SHAs match the final
+              Marin, tpu-inference, and vLLM heads listed in the support page.
+            </p>
+            <div class="evidence-row">
+              <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+                <span>Result</span>
+                <q>The installed Marin/vLLM serving path passed.</q>
+              </a>
+              <a class="evidence" href="support.html#links" title="Open quoted support and source">
+                <span>Heads</span>
+                <q>Marin 6755f227..., tpu-inference 10d880c4..., vLLM 7557e69d...</q>
+              </a>
+            </div>
+          </article>
+
+          <article class="rounded border border-sky-700/50 bg-sky-950/20 p-5">
+            <h3 class="text-xl font-semibold text-white">Fresh Levanter/JAX Comparison</h3>
+            <p class="mt-3 text-sm leading-7 text-slate-300">
+              A separate TPU run compared the same checkpoint against the Levanter/JAX implementation and matched
+              generated text, generated token IDs, and prompt token count for the tested prompt.
+            </p>
+            <div class="evidence-row">
+              <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
+                <span>Compare</span>
+                <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
+              </a>
+              <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
+                <span>Limit</span>
+                <q>vLLM TPU logprobs were not available in the serve result.</q>
+              </a>
+            </div>
+          </article>
+        </div>
+
+        <div class="mt-6 rounded border border-slate-800 bg-[#0d1117] p-5">
+          <h3 class="text-xl font-semibold text-white">Review Readiness At A Glance</h3>
+          <div class="mt-4 grid gap-4 md:grid-cols-3">
+            <div class="rounded border border-emerald-800/70 bg-emerald-950/20 p-4">
+              <p class="text-sm font-semibold text-emerald-200">Trust for this PR</p>
+              <p class="mt-2 text-sm leading-6 text-slate-300">
+                A trained GrugMoE checkpoint serves through the installed Marin/vLLM fork stack on v6e-4, and
+                Levanter/JAX agrees with vLLM on generated text and token IDs for the tested prompt.
+              </p>
+              <div class="evidence-row">
+                <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+                  <span>Serve</span>
+                  <q>The installed Marin/vLLM serving path passed.</q>
+                </a>
+                <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
+                  <span>Compare</span>
+                  <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
+                </a>
+              </div>
+            </div>
+            <div class="rounded border border-sky-800/70 bg-sky-950/20 p-4">
+              <p class="text-sm font-semibold text-sky-200">Trust from lower-level tests</p>
+              <p class="mt-2 text-sm leading-6 text-slate-300">
+                Native parity covers Grug math, dense-vs-production attention, artifact roundtrip, and routed expert
+                plumbing with tighter diagnostics than the final serving result exposes.
+              </p>
+              <div class="evidence-row">
+                <a class="evidence" href="support.html#q-test-production-attention" title="Open quoted support and source">
+                  <span>Attention</span>
+                  <code>production-attention selected next-token logprobs</code>
+                </a>
+                <a class="evidence" href="support.html#q-installed-routed-experts" title="Open quoted support and source">
+                  <span>Routes</span>
+                  <q>routed_experts top-k</q>
+                </a>
+              </div>
+            </div>
+            <div class="rounded border border-amber-800/70 bg-amber-950/20 p-4">
+              <p class="text-sm font-semibold text-amber-200">Do not claim yet</p>
+              <p class="mt-2 text-sm leading-6 text-slate-300">
+                This is not a broad prompt suite, performance result, multi-rank validation, or vLLM TPU logprob
+                comparison. The final serve response also does not include routed experts.
+              </p>
+              <div class="evidence-row">
+                <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
+                  <span>Limit</span>
+                  <q>token_ids=null, logprobs=null, and routed_experts=null</q>
+                </a>
+                <a class="evidence" href="support.html#q-caveat-final-smoke-scope" title="Open quoted support and source">
+                  <span>Narrow</span>
+                  <q>one prompt, one short decode, one-rank serving</q>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="mt-6 rounded border border-slate-800 bg-[#0d1117] p-5">
           <h3 class="text-xl font-semibold text-white">Validation Map</h3>
           <p class="mt-2 max-w-4xl text-sm leading-6 text-slate-300">
@@ -844,16 +940,33 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   <td class="py-3 pr-4">The reference generation path explicitly does not use production KV-cache decode.</td>
                 </tr>
                 <tr>
-                  <td class="py-3 pr-4 text-slate-100">Installed vLLM smoke</td>
-                  <td class="py-3 pr-4">The artifact can be served by Marin's installed <code class="code">marin-core[vllm]</code> path using vLLM on TPU.</td>
-                  <td class="py-3 pr-4">The smoke starts <code class="code">VllmEnvironment</code>, sends raw token IDs to <code class="code">/inference/v1/generate</code>, optionally checks generated IDs, selected-token logprobs, and routed-expert shape/range.
-                    <a class="evidence" href="support.html#q-installed-vllm-assertions" title="Open quoted support and source">
-                      <span>src</span>
-                      <q>generated token IDs ... expected</q>
+                  <td class="py-3 pr-4 text-slate-100">Real-checkpoint installed vLLM smoke</td>
+                  <td class="py-3 pr-4">The mirrored 0.747B-total GrugMoE checkpoint can be served by Marin's installed <code class="code">marin-core[vllm]</code> path using vLLM on TPU.</td>
+                  <td class="py-3 pr-4">The smoke exports the checkpoint artifact, starts Marin's <code class="code">VllmEnvironment</code>, sends a real string prompt through vLLM, and checks the calibrated deterministic completion.
+                    <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+                      <span>result</span>
+                      <q>The installed Marin/vLLM serving path passed.</q>
                     </a>
                   </td>
-                  <td class="py-3 pr-4">This is the main evidence for the real installed serving path.</td>
-                  <td class="py-3 pr-4">The post-cleanup smaller smoke still needs a fresh v6e-4 rerun; the current strong TPU results are historical pre-cleanup evidence.</td>
+                  <td class="py-3 pr-4">This is the current main evidence that the final fork stack serves a trained GrugMoE checkpoint on real TPU hardware.</td>
+                  <td class="py-3 pr-4">It is one prompt, one short decode, one-rank serving, and not a broad prompt or performance suite.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4 text-slate-100">Real-checkpoint Levanter/JAX compare</td>
+                  <td class="py-3 pr-4">The trained checkpoint's vLLM output agrees with the assumed-correct Levanter/JAX implementation for the tested prompt.</td>
+                  <td class="py-3 pr-4">The compare job reads the fresh vLLM result and checks generated text, generated token IDs, and prompt token count against Levanter/JAX.
+                    <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
+                      <span>result</span>
+                      <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">This is stronger than generated text alone because it verifies the same continuation token IDs.</td>
+                  <td class="py-3 pr-4">vLLM TPU logprobs were not available, so this does not validate logprob closeness for the real checkpoint.
+                    <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
+                      <span>limit</span>
+                      <q>logprobs=null</q>
+                    </a>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -891,7 +1004,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                         <q>realistic config must keep 64 experts</q>
                       </a>
                     </td>
-                    <td class="py-3 pr-4">Installed vLLM checks routed-expert tensor rank, layer count, top-k width, and ID range.
+                    <td class="py-3 pr-4">Lower-level installed smoke checks routed-expert tensor rank, layer count, top-k width, and ID range.
                       <a class="evidence" href="support.html#q-installed-routed-experts" title="Open quoted support and source">
                         <span>serve</span>
                         <q>routed_experts top-k</q>
@@ -923,7 +1036,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                         <q>np.testing.assert_array_equal(actual_selected, selected)</q>
                       </a>
                     </td>
-                    <td class="py-3 pr-4">Installed vLLM only checks generated IDs, selected-token logprobs, and optional route shape/range.
+                    <td class="py-3 pr-4">Lower-level installed smoke can check generated IDs, selected-token logprobs, and optional route shape/range.
                       <a class="evidence" href="support.html#q-installed-vllm-assertions" title="Open quoted support and source">
                         <span>serve</span>
                         <q>selected logprobs</q>
@@ -981,14 +1094,19 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   </tr>
                   <tr>
                     <td class="py-3 pr-4 text-slate-100">Installed serving behavior</td>
-                    <td class="py-3 pr-4">The smoke starts Marin's existing <code class="code">VllmEnvironment</code> and calls vLLM's raw-token generation endpoint.</td>
-                    <td class="py-3 pr-4">It can check deterministic continuation IDs, selected-token logprobs, and routed-expert shape/range.
-                      <a class="evidence" href="support.html#q-installed-vllm-request" title="Open quoted support and source">
-                        <span>request</span>
-                        <code>"temperature": 0.0</code>
+                    <td class="py-3 pr-4">The smoke starts Marin's existing <code class="code">VllmEnvironment</code> and calls vLLM's generation endpoint.</td>
+                    <td class="py-3 pr-4">The fresh real-checkpoint run validates a deterministic completion on TPU v6e-4; lower-level smokes cover route/logprob plumbing.
+                      <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+                        <span>result</span>
+                        <q>The installed Marin/vLLM serving path passed.</q>
                       </a>
                     </td>
-                    <td class="py-3 pr-4">No tokenizer path, multiple concurrent requests, batch scheduling, streaming, throughput, or latency coverage.</td>
+                    <td class="py-3 pr-4">No broad prompt suite, multiple concurrent requests, batch scheduling, streaming, throughput, latency, or final-result routed-expert/logprob coverage.
+                      <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
+                        <span>limit</span>
+                        <q>routed_experts=null</q>
+                      </a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -1059,14 +1177,14 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   </tr>
                   <tr>
                     <td class="py-3 pr-4 text-slate-100">Installed serving path</td>
-                    <td class="py-3 pr-4 text-amber-300">Smoke confidence</td>
-                    <td class="py-3 pr-4">Uses Marin's vLLM helper and raw-token generation API.
-                      <a class="evidence" href="support.html#q-installed-vllm-serve" title="Open quoted support and source">
-                        <span>src</span>
-                        <code>VllmEnvironment</code>
+                    <td class="py-3 pr-4 text-emerald-300">Smoke confidence</td>
+                    <td class="py-3 pr-4">The fresh real-checkpoint TPU run uses Marin's vLLM helper and the installed fork stack.
+                      <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+                        <span>result</span>
+                        <q>The installed Marin/vLLM serving path passed.</q>
                       </a>
                     </td>
-                    <td class="py-3 pr-4">Fresh post-cleanup TPU run is still the gating evidence.</td>
+                    <td class="py-3 pr-4">Still only a single-prompt, single-rank smoke; not performance or broad serving coverage.</td>
                   </tr>
                   <tr>
                     <td class="py-3 pr-4 text-slate-100">Routed expert reporting</td>
@@ -1099,30 +1217,30 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <h3 class="text-xl font-semibold text-white">Current Freshness</h3>
             <div class="mt-4 space-y-3 text-sm leading-6 text-slate-300">
               <div class="rounded border border-emerald-700/50 bg-emerald-950/20 p-4">
-                <p class="font-semibold text-emerald-200">Strong historical TPU evidence exists.</p>
-                <p class="mt-1">The small diagnostic and full canary both succeeded on TPU v6e-4 in europe-west4 before the cleanup that shrank the installed smoke.</p>
+                <p class="font-semibold text-emerald-200">Fresh final-stack TPU evidence exists.</p>
+                <p class="mt-1">The real-checkpoint vLLM smoke and the Levanter/JAX comparison both succeeded against the final branch heads.</p>
                 <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
-                    <span>Small job</span>
-                    <q>Dense-vs-production hidden max delta 4.768e-07</q>
+                  <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+                    <span>Serve</span>
+                    <q>The installed Marin/vLLM serving path passed.</q>
                   </a>
-                  <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
-                    <span>Full job</span>
-                    <q>Max logprob delta 0.001596</q>
+                  <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
+                    <span>Compare</span>
+                    <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
                   </a>
                 </div>
               </div>
               <div class="rounded border border-amber-700/60 bg-amber-950/20 p-4">
-                <p class="font-semibold text-amber-200">The gating gap is a fresh post-cleanup TPU run.</p>
-                <p class="mt-1">The new smaller <code class="code">installed_vllm_smoke.py</code> has lightweight local checks, but the real vLLM TPU serving path still needs to be rerun after cleanup and after any rebase.</p>
+                <p class="font-semibold text-amber-200">The final evidence is deliberately narrow.</p>
+                <p class="mt-1">It validates one prompt, one short decode, and one-rank serving. The final serve result does not expose vLLM logprobs or routed experts.</p>
                 <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-validation-post-cleanup" title="Open quoted support and source">
-                    <span>Current gap</span>
-                    <q>real TPU v6e-4 serving smoke still needs a fresh run</q>
+                  <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
+                    <span>Limit</span>
+                    <q>token_ids=null, logprobs=null, and routed_experts=null</q>
                   </a>
                   <a class="evidence" href="support.html#q-caveat-rerun" title="Open quoted support and source">
                     <span>Rerun quote</span>
-                    <q>rerun TPU smoke if GrugMoE serving code paths move</q>
+                    <q>Rerun TPU smoke if GrugMoE serving code paths move.</q>
                   </a>
                 </div>
               </div>
@@ -1184,9 +1302,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   This is the core behavior change.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/1d69fb9dc49a17f893f1a92a2583ab2964bc4b01/tpu_inference/models/jax/grugmoe.py#L53-L67">mode parser</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/grugmoe.py#L53-L67">mode parser</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/1d69fb9dc49a17f893f1a92a2583ab2964bc4b01/tpu_inference/models/jax/grugmoe.py#L714-L801">attention implementation</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/grugmoe.py#L714-L801">attention implementation</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-dense-mode" title="Open quoted support and source">
@@ -1210,9 +1328,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   Verify tpu-inference emits routed expert IDs with slot mappings, then verify vLLM ignores them unless routed expert output is enabled.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/1d69fb9dc49a17f893f1a92a2583ab2964bc4b01/tpu_inference/runner/tpu_runner.py#L186-L195">runner output</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/runner/tpu_runner.py#L186-L195">runner output</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/850f1b88975027d82f95062229e47a9852fe33dd/vllm/v1/core/sched/scheduler.py#L1334-L1343">scheduler guard</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/7557e69ddb2e28b287d0729b4aee4d7de8de18f9/vllm/v1/core/sched/scheduler.py#L1334-L1343">scheduler guard</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-runner-output" title="Open quoted support and source">
@@ -1236,9 +1354,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   The important checks are now tighter: copy the same Levanter model into dense and production tpu-inference models, then compare hidden states, logits, selected logprobs, and routed expert IDs; separately verify checkpoint/export/load roundtrip tensor accounting.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bb49eaf89c49bde5419ac13fb02427cf13d8cf41/experiments/grug/moe/vllm_tpu_parity.py#L1031-L1101">dense-vs-production smoke</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/vllm_tpu_parity.py#L1031-L1101">dense-vs-production smoke</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bb49eaf89c49bde5419ac13fb02427cf13d8cf41/experiments/grug/moe/vllm_tpu_parity.py#L1256-L1434">artifact roundtrip</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/vllm_tpu_parity.py#L1256-L1434">artifact roundtrip</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-parity-smoke" title="Open quoted support and source">
@@ -1257,23 +1375,29 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <div class="flex gap-3">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-sky-500 text-sm font-bold text-slate-950">4</span>
               <div>
-                <h3 class="font-semibold text-white">Confirm the exported artifact and smaller installed smoke.</h3>
+                <h3 class="font-semibold text-white">Confirm the exported artifact, real-checkpoint smoke, and compare.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
-                  First confirm the artifact defaults to production mode, then review the smaller smoke that serves it through Marin's existing vLLM environment with raw token IDs.
+                  First confirm the artifact defaults to production mode, then review the real-checkpoint smoke and the Levanter/JAX comparison that use the final fork stack on TPU.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bb49eaf89c49bde5419ac13fb02427cf13d8cf41/experiments/grug/moe/model.py#L210-L246">HF config export</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L210-L246">HF config export</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/bb49eaf89c49bde5419ac13fb02427cf13d8cf41/experiments/grug/moe/installed_vllm_smoke.py#L204-L349">installed vLLM smoke</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/real_checkpoint_vllm_smoke.py">real-checkpoint vLLM smoke</a>
+                  <span class="text-slate-500">/</span>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/real_checkpoint_levanter_vllm_compare.py">Levanter/JAX compare</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
                     <span>Export quote</span>
                     <code>"grugmoe_attention_mode": "production"</code>
                   </a>
-                  <a class="evidence" href="support.html#q-caveat-serving-evidence" title="Open quoted support and source">
-                    <span>Caveat quote</span>
-                    <q>The cleaned branch needs that smoke rerun.</q>
+                  <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+                    <span>Serve result</span>
+                    <q>The installed Marin/vLLM serving path passed.</q>
+                  </a>
+                  <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
+                    <span>Compare result</span>
+                    <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
                   </a>
                 </div>
               </div>
@@ -1283,14 +1407,18 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <div class="flex gap-3">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-amber-400 text-sm font-bold text-slate-950">5</span>
               <div>
-                <h3 class="font-semibold text-white">Finish with pins and a fresh post-cleanup TPU smoke.</h3>
+                <h3 class="font-semibold text-white">Finish with pins and the fresh result records.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
-                  The PR-local logbook is no longer part of the landing diff. Before opening the PR, confirm the fork pins and rerun the new smaller installed smoke on v6e-4.
+                  The PR-local logbook is no longer part of the landing diff. Before opening the PR, confirm the fork pins match the final heads and keep the two fresh result paths in the PR description.
                 </p>
                 <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-caveat-post-cleanup-smoke" title="Open quoted support and source">
-                    <span>Caveat quote</span>
-                    <q>Treat the listed TPU canaries as historical pre-cleanup evidence.</q>
+                  <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+                    <span>Serve result</span>
+                    <q>final-codex-20260620-fresh real-checkpoint vLLM smoke</q>
+                  </a>
+                  <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
+                    <span>Compare result</span>
+                    <q>final-codex-20260620-fresh Levanter/JAX vs vLLM compare</q>
                   </a>
                 </div>
               </div>
@@ -1396,7 +1524,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                 </a>
                 <a class="evidence" href="support.html#q-caveat-pytest" title="Open quoted support and source">
                   <span>Caveat quote</span>
-                  <q>Pytest did not run in the bare tpu-inference checkout.</q>
+                  <q>Focused Marin, tpu-inference, and vLLM tests passed.</q>
                 </a>
               </div>
             </details>
@@ -1409,47 +1537,47 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               <div>
                 <dt class="text-xs uppercase tracking-wide text-slate-500">Hardware</dt>
                 <dd class="mt-1 text-sm text-slate-200">TPU v6e-4, europe-west4</dd>
-                <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
+                <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
                   <span>Validation quote</span>
                   <q>TPU v6e-4 in europe-west4.</q>
                 </a>
               </div>
               <div>
                 <dt class="text-xs uppercase tracking-wide text-slate-500">Fork stack</dt>
-                <dd class="mt-1 text-sm text-slate-200">Marin bb49eaf89, tpu-inference 1d69fb9d, vLLM 850f1b88</dd>
+                <dd class="mt-1 text-sm text-slate-200">Marin 6755f227, tpu-inference 10d880c4, vLLM 7557e69d</dd>
                 <a class="evidence" href="support.html#links" title="Open quoted support and source">
                   <span>Branch heads</span>
-                  <q>Marin bb49eaf89..., tpu-inference 1d69fb9d..., vLLM 850f1b88...</q>
+                  <q>Marin 6755f227..., tpu-inference 10d880c4..., vLLM 7557e69d...</q>
                 </a>
               </div>
               <div>
-                <dt class="text-xs uppercase tracking-wide text-slate-500">Historical small diagnostic</dt>
-                <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.0006318, route mismatch 0 before cleanup</dd>
-                <a class="evidence" href="support.html#q-validation-small" title="Open quoted support and source">
+                <dt class="text-xs uppercase tracking-wide text-slate-500">Real checkpoint serve</dt>
+                <dd class="mt-1 text-sm text-slate-200">passed on v6e-4; completion matched calibrated expected output</dd>
+                <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
                   <span>Validation quote</span>
-                  <q>Installed path returned works:full_canary_logprobs_and_routing.</q>
+                  <q>The installed Marin/vLLM serving path passed.</q>
                 </a>
               </div>
               <div>
-                <dt class="text-xs uppercase tracking-wide text-slate-500">Historical full canary</dt>
-                <dd class="mt-1 text-sm text-slate-200">max logprob delta 0.001596, suspicious mismatch 0 before cleanup</dd>
-                <a class="evidence" href="support.html#q-validation-full" title="Open quoted support and source">
+                <dt class="text-xs uppercase tracking-wide text-slate-500">Levanter/JAX compare</dt>
+                <dd class="mt-1 text-sm text-slate-200">text, token IDs, and prompt token count matched</dd>
+                <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
                   <span>Validation quote</span>
-                  <q>Max logprob delta 0.001596. Routing top1 match 1.0.</q>
+                  <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
                 </a>
               </div>
             </dl>
             <p class="mt-5 text-sm text-slate-300">
-              Treat this as strong historical smoke evidence, not proof that the cleaned branch has been rerun end to end. The current gap is a fresh TPU v6e-4 run of the smaller installed smoke.
+              Treat this as current final-stack smoke evidence, not a broad production qualification. It does not cover performance, multi-rank serving, a prompt suite, or vLLM TPU logprob comparison.
             </p>
             <div class="evidence-row">
-              <a class="evidence" href="support.html#q-caveat-rebase" title="Open quoted support and source">
+              <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
                 <span>Caveat quote</span>
-                <q>Expect a final rebase before PR publication.</q>
+                <q>logprobs=null</q>
               </a>
               <a class="evidence" href="support.html#q-caveat-serving-evidence" title="Open quoted support and source">
                 <span>Caveat quote</span>
-                <q>The cleaned branch needs that smoke rerun.</q>
+                <q>routed_experts=null</q>
               </a>
             </div>
           </div>
@@ -1460,22 +1588,22 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
         <h2 class="text-xl font-semibold text-white">Before This Becomes A PR</h2>
         <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
           <li>Preserve the removed validation notes outside the PR, then reference them from the PR description or a gist if useful.</li>
-          <li>Rebase the Marin branch onto current <code class="code text-slate-100">origin/main</code>.</li>
-          <li>Confirm the pinned vLLM and tpu-inference branches are exactly the intended long-lived fork heads.</li>
-          <li>Rerun the smaller installed vLLM smoke on TPU v6e-4 after the cleanup and after any rebase conflict.</li>
+          <li>Confirm the pinned vLLM and tpu-inference branches are exactly the final fork heads listed here.</li>
+          <li>Include the two fresh result paths in the PR description so reviewers can audit the TPU evidence.</li>
+          <li>Rerun TPU smoke if any serving, export, or fork pin code path moves before opening the PR.</li>
         </ul>
         <div class="evidence-row">
-          <a class="evidence" href="support.html#q-caveat-post-cleanup-smoke" title="Open quoted support and source">
-            <span>Caveat quote</span>
-            <q>Treat the listed TPU canaries as historical pre-cleanup evidence.</q>
+          <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
+            <span>Serve result</span>
+            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-vllm-smoke/final-codex-20260620-fresh/result.json</q>
           </a>
-          <a class="evidence" href="support.html#q-caveat-rebase" title="Open quoted support and source">
-            <span>Caveat quote</span>
-            <q>Expect a final rebase before PR publication.</q>
+          <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
+            <span>Compare result</span>
+            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-levanter-vllm-compare/final-codex-20260620-fresh/result.json</q>
           </a>
           <a class="evidence" href="support.html#links" title="Open quoted support and source">
             <span>Branch heads quote</span>
-            <q>tpu-inference 1d69fb9d..., vLLM 850f1b88...</q>
+            <q>tpu-inference 10d880c4..., vLLM 7557e69d...</q>
           </a>
           <a class="evidence" href="support.html#q-caveat-rerun" title="Open quoted support and source">
             <span>Caveat quote</span>
