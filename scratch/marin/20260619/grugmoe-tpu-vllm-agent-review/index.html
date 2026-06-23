@@ -290,10 +290,11 @@
           <h3 class="font-semibold text-amber-100">Latest Local Head</h3>
           <p class="mt-2 text-sm leading-6 text-slate-300">
             The local Marin branch now ends at <code class="code text-slate-100">018cef030</code>. The four commits
-            after the TPU-validated <code class="code text-slate-100">6755f227</code> head are cleanup-only review
+            after the original TPU-validated <code class="code text-slate-100">6755f227</code> head are cleanup-only review
             hygiene: import placement/comments, shared helper extraction, a named staging return, validation-surface
-            cleanup, and preload env string cleanup. Focused tests and changed-files pre-commit passed at the local head; the TPU smoke and
-            Levanter/JAX compare evidence below still come from <code class="code text-slate-100">6755f227</code>.
+            cleanup, and preload env string cleanup. Focused tests, changed-files pre-commit, and the latest TPU
+            smoke/compare pass use the current cleanup stack. The Iris result JSON confirms the pinned vLLM and
+            tpu-inference SHAs, but cannot report a Marin git SHA because the bundle is not a git checkout.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
@@ -306,7 +307,7 @@
             </a>
             <a class="evidence" href="support.html#q-caveat-cleanup-head" title="Open quoted support and source">
               <span>TPU caveat</span>
-              <q>Hardware smoke evidence was collected at 6755f2272.</q>
+              <q>The Iris bundle is not a git checkout.</q>
             </a>
           </div>
         </div>
@@ -886,10 +887,10 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <h3 class="text-xl font-semibold text-white">Fresh Top-Level TPU Evidence</h3>
             <p class="mt-3 text-sm leading-7 text-slate-300">
               The TPU-validated Marin branch served the real GrugMoE checkpoint through installed Marin/vLLM on TPU
-              v6e-4 in <code class="code text-slate-100">europe-west4</code>. The recorded runtime SHAs match
-              Marin <code class="code text-slate-100">6755f227</code>, tpu-inference <code class="code text-slate-100">10d880c4</code>,
-              and vLLM <code class="code text-slate-100">7557e69d</code>. The current local Marin review head adds
-              cleanup-only commits on top.
+              v6e-4 in <code class="code text-slate-100">europe-west4</code>. The latest <code class="code text-slate-100">click-codex-20260623T023407Z</code>
+              result confirms tpu-inference <code class="code text-slate-100">10d880c4</code> and vLLM
+              <code class="code text-slate-100">7557e69d</code>; Marin itself is reported as editable from
+              <code class="code text-slate-100">/app/lib/marin</code> because the Iris bundle is not a git checkout.
             </p>
             <div class="evidence-row">
               <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
@@ -898,7 +899,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               </a>
               <a class="evidence" href="support.html#links" title="Open quoted support and source">
                 <span>Heads</span>
-                <q>TPU evidence below was collected at 6755f2272.</q>
+                <q>latest click-codex hardware evidence uses the current cleanup stack</q>
               </a>
               <a class="evidence" href="support.html#q-latest-local-head" title="Open quoted support and source">
                 <span>Local head</span>
@@ -1331,7 +1332,8 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
           <h3 class="font-semibold text-amber-100">Current-head caveat</h3>
           <p class="mt-1 text-sm leading-6 text-slate-300">
             Review the four latest Marin cleanup commits first if they are still present in the PR. They should read
-            as mechanical hygiene only; the expensive TPU evidence was collected one Marin commit group earlier.
+            as mechanical hygiene only; the latest expensive TPU evidence was collected after these cleanup changes,
+            but the Iris result JSON cannot report a Marin git SHA because the bundle is not a git checkout.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
@@ -1340,7 +1342,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             </a>
             <a class="evidence" href="support.html#q-caveat-cleanup-head" title="Open quoted support and source">
               <span>Caveat</span>
-              <q>not a fresh TPU rerun</q>
+              <q>the Iris bundle is not a git checkout</q>
             </a>
           </div>
         </div>
@@ -1603,20 +1605,20 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
       <section class="mt-12 rounded border border-amber-700/60 bg-amber-950/20 p-5">
         <h2 class="text-xl font-semibold text-white">Before This Becomes A PR</h2>
         <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
-          <li>Preserve the removed validation notes outside the PR, then reference them from the PR description or a gist if useful.</li>
+          <li>Reference the external validation gist in the PR description: <a class="text-sky-300 hover:text-sky-200" href="https://gist.github.com/yonromai/f3805b5f1c0234af53b66465f61fcdb0">GrugMoE TPU/vLLM validation notes</a>.</li>
           <li>Confirm the pinned vLLM and tpu-inference branches are exactly the final fork heads listed here.</li>
-          <li>If the four local Marin cleanup commits are included, say explicitly in the PR description that the hardware smoke was run at <code class="code">6755f227</code> and the newer commits are local hygiene checked by focused tests.</li>
+          <li>Say explicitly in the PR description that the latest hardware smoke/compare pass used the current cleanup stack, but the Iris result JSON cannot report the Marin git SHA.</li>
           <li>Include the two fresh result paths in the PR description so reviewers can audit the TPU evidence.</li>
           <li>Rerun TPU smoke if any serving, export, or fork pin code path moves before opening the PR.</li>
         </ul>
         <div class="evidence-row">
           <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
             <span>Serve result</span>
-            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-vllm-smoke/final-codex-20260620-fresh/result.json</q>
+            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-vllm-smoke/click-codex-20260623T023407Z/result.json</q>
           </a>
           <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
             <span>Compare result</span>
-            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-levanter-vllm-compare/final-codex-20260620-fresh/result.json</q>
+            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-levanter-vllm-compare/click-codex-20260623T023407Z/result.json</q>
           </a>
           <a class="evidence" href="support.html#links" title="Open quoted support and source">
             <span>Branch heads quote</span>
