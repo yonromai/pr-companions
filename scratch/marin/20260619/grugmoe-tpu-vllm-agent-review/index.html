@@ -153,7 +153,7 @@
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-200">Marin</h2>
           <p class="mt-3 text-sm leading-6 text-slate-300">
-            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and keeps focused parity plus installed vLLM smoke coverage. The current local review head is <code class="code text-slate-100">018cef030</code>, with cleanup-only commits after the TPU run.
+            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and keeps one focused opt-in real-checkpoint e2e under <code class="code text-slate-100">tests/vllm</code>. The current review head is <code class="code text-slate-100">c3ed9f7009</code>.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
@@ -161,19 +161,19 @@
               <code>"grugmoe_attention_mode": "production"</code>
             </a>
             <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
-              <span>TPU smoke</span>
+              <span>TPU e2e</span>
               <q>The installed Marin/vLLM serving path passed.</q>
             </a>
             <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
-              <span>Compare</span>
-              <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
+              <span>Reference</span>
+              <q>The independent Levanter/JAX backend returned the same hardcoded expected continuation as the vLLM backend.</q>
             </a>
             <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
-              <span>Latest cleanup</span>
-              <q>Added StagedArtifact named result.</q>
+              <span>Current shape</span>
+              <q>tests/vllm/test_grugmoe_real_checkpoint_e2e.py</q>
             </a>
           </div>
-          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/main...codex/grugmoe-real-checkpoint-smoke-stack-20260620">Open compare</a>
+          <a class="mt-4 inline-block text-sm font-medium text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/main...codex/grugmoe-real-checkpoint-smoke-stack-rebased-20260625">Open compare</a>
         </article>
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-violet-200">vLLM</h2>
@@ -201,13 +201,13 @@
           <p class="mt-3 text-sm leading-7 text-slate-300">
             This companion is now optimized for a Marin-first review. Treat the vLLM and tpu-inference diffs as
             important dependency context, but start by proving the Marin diff is isolated, intentional, and easy to
-            audit. That is where the fork pins, artifact export defaults, installed serving smoke, and real-checkpoint
-            comparison entrypoints live.
+            audit. That is where the fork pins, artifact export defaults, generic export compatibility, and opt-in
+            real-checkpoint e2e live.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-marin-fork-pins" title="Open quoted support and source">
               <span>Fork pins</span>
-              <code>vllm = {... rev = "7557e69d..." }; tpu-inference = {... rev = "10d880c4..." }</code>
+              <code>vllm = {... rev = "7557e69d..." }; tpu-inference = {... rev = "217fc45b..." }</code>
             </a>
             <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
               <span>Export default</span>
@@ -275,7 +275,7 @@
                 <td class="py-3 pr-4">
                   <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
                     <span>src</span>
-                    <q>token_ids=null, logprobs=null, and routed_experts=null</q>
+                    <q>does not expose vLLM token IDs, logprobs, or routed experts</q>
                   </a>
                   <a class="evidence" href="support.html#q-caveat-final-smoke-scope" title="Open quoted support and source">
                     <span>src</span>
@@ -287,27 +287,26 @@
           </table>
         </div>
         <div class="mt-5 rounded border border-amber-700/60 bg-amber-950/20 p-4">
-          <h3 class="font-semibold text-amber-100">Latest Local Head</h3>
+          <h3 class="font-semibold text-amber-100">Current Review Head</h3>
           <p class="mt-2 text-sm leading-6 text-slate-300">
-            The local Marin branch now ends at <code class="code text-slate-100">018cef030</code>. The four commits
-            after the original TPU-validated <code class="code text-slate-100">6755f227</code> head are cleanup-only review
-            hygiene: import placement/comments, shared helper extraction, a named staging return, validation-surface
-            cleanup, and preload env string cleanup. Focused tests, changed-files pre-commit, and the latest TPU
-            smoke/compare pass use the current cleanup stack. The Iris result JSON confirms the pinned vLLM and
-            tpu-inference SHAs, but cannot report a Marin git SHA because the bundle is not a git checkout.
+            The Marin branch now ends at <code class="code text-slate-100">c3ed9f7009</code>. The final cleanup
+            consolidated the previous real-checkpoint scripts into a single pytest e2e surface under
+            <code class="code text-slate-100">tests/vllm</code>, moved subprocess-heavy backend logic into a private
+            test helper, and removed the old in-tree low-level diagnostics. The fresh TPU e2e summary records the
+            Marin, vLLM, and tpu-inference SHAs used for validation.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
-              <span>Cleanup quote</span>
-              <q>Moved safe local imports to module scope.</q>
+              <span>Stack quote</span>
+              <q>Move GrugMoE e2e into vLLM tests</q>
             </a>
             <a class="evidence" href="support.html#q-validation-cleanup" title="Open quoted support and source">
               <span>Local checks</span>
-              <q>20 passed</q>
+              <q>1 passed, 2 deselected</q>
             </a>
             <a class="evidence" href="support.html#q-caveat-cleanup-head" title="Open quoted support and source">
-              <span>TPU caveat</span>
-              <q>The Iris bundle is not a git checkout.</q>
+              <span>TPU evidence</span>
+              <q>fresh e2e summary records that same Marin SHA</q>
             </a>
           </div>
         </div>
@@ -887,41 +886,46 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <h3 class="text-xl font-semibold text-white">Fresh Top-Level TPU Evidence</h3>
             <p class="mt-3 text-sm leading-7 text-slate-300">
               The TPU-validated Marin branch served the real GrugMoE checkpoint through installed Marin/vLLM on TPU
-              v6e-4 in <code class="code text-slate-100">europe-west4</code>. The latest <code class="code text-slate-100">click-codex-20260623T023407Z</code>
-              result confirms tpu-inference <code class="code text-slate-100">10d880c4</code> and vLLM
-              <code class="code text-slate-100">7557e69d</code>; Marin itself is reported as editable from
-              <code class="code text-slate-100">/app/lib/marin</code> because the Iris bundle is not a git checkout.
+              v6e-4 in <code class="code text-slate-100">europe-west4</code>. The latest e2e job
+              <code class="code text-slate-100">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3</code> records Marin
+              <code class="code text-slate-100">c3ed9f7009</code>, tpu-inference
+              <code class="code text-slate-100">217fc45b</code>, and vLLM <code class="code text-slate-100">7557e69d</code>.
             </p>
             <div class="evidence-row">
               <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
                 <span>Result</span>
                 <q>The installed Marin/vLLM serving path passed.</q>
               </a>
+              <a class="evidence" href="support.html#q-validation-e2e-summary" title="Open quoted support and source">
+                <span>Summary</span>
+                <q>2 passed, 1 deselected</q>
+              </a>
               <a class="evidence" href="support.html#links" title="Open quoted support and source">
                 <span>Heads</span>
-                <q>latest click-codex hardware evidence uses the current cleanup stack</q>
+                <q>Fresh hardware e2e evidence was collected at this Marin SHA.</q>
               </a>
               <a class="evidence" href="support.html#q-latest-local-head" title="Open quoted support and source">
                 <span>Local head</span>
-                <q>The current local Marin branch is ahead of its remote by four commits.</q>
+                <q>The current Marin review branch is pushed at c3ed9f7009888dffb6d68affb11eb294a26a9639.</q>
               </a>
             </div>
           </article>
 
           <article class="rounded border border-sky-700/50 bg-sky-950/20 p-5">
-            <h3 class="text-xl font-semibold text-white">Fresh Levanter/JAX Comparison</h3>
+            <h3 class="text-xl font-semibold text-white">Fresh Levanter/JAX Reference Phase</h3>
             <p class="mt-3 text-sm leading-7 text-slate-300">
-              A separate TPU run compared the same checkpoint against the Levanter/JAX implementation and matched
-              generated text, generated token IDs, and prompt token count for the tested prompt.
+              The same e2e run also executed a fresh Levanter/JAX backend in its own Python process. That phase
+              independently returned the same expected continuation and recorded the prompt token count plus generated
+              token IDs.
             </p>
             <div class="evidence-row">
               <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
-                <span>Compare</span>
-                <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
+                <span>Reference</span>
+                <q>The independent Levanter/JAX backend returned the same hardcoded expected continuation as the vLLM backend.</q>
               </a>
               <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
                 <span>Limit</span>
-                <q>vLLM TPU logprobs were not available in the serve result.</q>
+                <q>does not expose vLLM token IDs, logprobs, or routed experts</q>
               </a>
             </div>
           </article>
@@ -1018,9 +1022,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   <td class="py-3 pr-4">The reference generation path explicitly does not use production KV-cache decode.</td>
                 </tr>
                 <tr>
-                  <td class="py-3 pr-4 text-slate-100">Real-checkpoint installed vLLM smoke</td>
+                  <td class="py-3 pr-4 text-slate-100">Real-checkpoint e2e: vLLM phase</td>
                   <td class="py-3 pr-4">The mirrored 0.747B-total GrugMoE checkpoint can be served by Marin's installed <code class="code">marin-core[vllm]</code> path using vLLM on TPU.</td>
-                  <td class="py-3 pr-4">The smoke exports the checkpoint artifact, starts Marin's <code class="code">VllmEnvironment</code>, sends a real string prompt through vLLM, and checks the calibrated deterministic completion.
+                  <td class="py-3 pr-4">The pytest e2e exports the checkpoint artifact, starts Marin's <code class="code">VllmEnvironment</code>, sends a real string prompt through vLLM, and checks the calibrated deterministic completion.
                     <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
                       <span>result</span>
                       <q>The installed Marin/vLLM serving path passed.</q>
@@ -1030,19 +1034,19 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   <td class="py-3 pr-4">It is one prompt, one short decode, one-rank serving, and not a broad prompt or performance suite.</td>
                 </tr>
                 <tr>
-                  <td class="py-3 pr-4 text-slate-100">Real-checkpoint Levanter/JAX compare</td>
-                  <td class="py-3 pr-4">The trained checkpoint's vLLM output agrees with the assumed-correct Levanter/JAX implementation for the tested prompt.</td>
-                  <td class="py-3 pr-4">The compare job reads the fresh vLLM result and checks generated text, generated token IDs, and prompt token count against Levanter/JAX.
+                  <td class="py-3 pr-4 text-slate-100">Real-checkpoint e2e: Levanter/JAX phase</td>
+                  <td class="py-3 pr-4">The trained checkpoint also returns the expected continuation through the assumed-correct Levanter/JAX implementation.</td>
+                  <td class="py-3 pr-4">The Levanter backend runs independently from the vLLM backend, checks the same expected text, and records tokenization details.
                     <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
                       <span>result</span>
-                      <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
+                      <q>The independent Levanter/JAX backend returned the same hardcoded expected continuation as the vLLM backend.</q>
                     </a>
                   </td>
-                  <td class="py-3 pr-4">This is stronger than generated text alone because it verifies the same continuation token IDs.</td>
-                  <td class="py-3 pr-4">vLLM TPU logprobs were not available, so this does not validate logprob closeness for the real checkpoint.
+                  <td class="py-3 pr-4">This catches a separate failure mode: the trusted Levanter/JAX path must still decode the expected continuation from the same checkpoint.</td>
+                  <td class="py-3 pr-4">The endpoint used by the vLLM phase does not expose vLLM token IDs or logprobs, so this is not a token-level vLLM-vs-Levanter parity check.
                     <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
                       <span>limit</span>
-                      <q>logprobs=null</q>
+                      <q>does not expose vLLM token IDs, logprobs, or routed experts</q>
                     </a>
                   </td>
                 </tr>
@@ -1172,17 +1176,17 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   </tr>
                   <tr>
                     <td class="py-3 pr-4 text-slate-100">Installed serving behavior</td>
-                    <td class="py-3 pr-4">The smoke starts Marin's existing <code class="code">VllmEnvironment</code> and calls vLLM's generation endpoint.</td>
-                    <td class="py-3 pr-4">The fresh real-checkpoint run validates a deterministic completion on TPU v6e-4; lower-level smokes cover route/logprob plumbing.
+                    <td class="py-3 pr-4">The e2e starts Marin's existing <code class="code">VllmEnvironment</code> and calls vLLM's string completion endpoint.</td>
+                    <td class="py-3 pr-4">The fresh real-checkpoint run validates a deterministic completion on TPU v6e-4; low-level route/logprob diagnostics live in the external gist.
                       <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
                         <span>result</span>
                         <q>The installed Marin/vLLM serving path passed.</q>
                       </a>
                     </td>
-                    <td class="py-3 pr-4">No broad prompt suite, multiple concurrent requests, batch scheduling, streaming, throughput, latency, or final-result routed-expert/logprob coverage.
+                    <td class="py-3 pr-4">No broad prompt suite, multiple concurrent requests, batch scheduling, streaming, throughput, latency, or vLLM token/logprob/routed-expert coverage.
                       <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
                         <span>limit</span>
-                        <q>routed_experts=null</q>
+                        <q>does not expose vLLM token IDs, logprobs, or routed experts</q>
                       </a>
                     </td>
                   </tr>
@@ -1331,18 +1335,18 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
         <div class="mb-5 rounded border border-amber-700/60 bg-amber-950/20 p-4">
           <h3 class="font-semibold text-amber-100">Current-head caveat</h3>
           <p class="mt-1 text-sm leading-6 text-slate-300">
-            Review the four latest Marin cleanup commits first if they are still present in the PR. They should read
-            as mechanical hygiene only; the latest expensive TPU evidence was collected after these cleanup changes,
-            but the Iris result JSON cannot report a Marin git SHA because the bundle is not a git checkout.
+            The current Marin stack is no longer the old multi-script smoke/parity layout. Review the final
+            consolidation directly: a small pytest e2e surface, a private backend helper for subprocess-heavy work,
+            and external low-level diagnostics in the gist.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
-              <span>Cleanup</span>
-              <q>Clean up GrugMoE smoke lint findings</q>
+              <span>Stack</span>
+              <q>Move GrugMoE e2e into vLLM tests</q>
             </a>
             <a class="evidence" href="support.html#q-caveat-cleanup-head" title="Open quoted support and source">
-              <span>Caveat</span>
-              <q>the Iris bundle is not a git checkout</q>
+              <span>Evidence</span>
+              <q>fresh e2e summary records that same Marin SHA</q>
             </a>
           </div>
         </div>
@@ -1354,26 +1358,26 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                 <h3 class="font-semibold text-white">Start with Marin dependency pins and install surface.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
                   Confirm that Marin intentionally points <code class="code text-slate-100">marin-core[vllm]</code> at the Marin-owned
-                  vLLM and tpu-inference forks, and that the pinned SHAs match the fork heads. Also confirm that the
-                  latest Marin cleanup commits do not change dependency selection or serving semantics.
+                  vLLM and tpu-inference forks, and that the pinned SHAs match the fork heads. This is the broadest
+                  Marin-facing change, so verify it before reading model or test code.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/pyproject.toml#L161-L164">Marin fork pins</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/pyproject.toml#L161-L164">Marin fork pins</a>
                   <span class="text-slate-500">/</span>
                   <a class="text-sky-300 hover:text-sky-200" href="support.html#links">final heads</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-marin-fork-pins" title="Open quoted support and source">
                     <span>Pin quote</span>
-                    <code>vllm = {... rev = "7557e69d..." }; tpu-inference = {... rev = "10d880c4..." }</code>
+                    <code>vllm = {... rev = "7557e69d..." }; tpu-inference = {... rev = "217fc45b..." }</code>
                   </a>
                   <a class="evidence" href="support.html#q-vllm-marin-pin" title="Open quoted support and source">
                     <span>Ownership quote</span>
                     <q>Marin pins the tpu-inference fork in its workspace.</q>
                   </a>
                   <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
-                    <span>Cleanup quote</span>
-                    <q>Deduped MARIN_VLLM_PRELOAD_MODULES usage in vllm_server tests/helper.</q>
+                    <span>Stack quote</span>
+                    <q>Update GrugMoE tpu-inference pin</q>
                   </a>
                 </div>
               </div>
@@ -1389,9 +1393,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   attention mode that installed vLLM serving will consume.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L210-L246">HF config export</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L210-L246">HF config export</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L769-L860">artifact schema</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L769-L860">artifact schema</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
@@ -1410,15 +1414,13 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <div class="flex gap-3">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-sky-500 text-sm font-bold text-slate-950">3</span>
               <div>
-                <h3 class="font-semibold text-white">Review Marin's real-checkpoint smoke and Levanter/JAX compare.</h3>
+                <h3 class="font-semibold text-white">Review the public pytest e2e surface.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
-                  These entrypoints are the highest-level Marin evidence: one runs the trained checkpoint through
-                  installed Marin/vLLM on TPU, and the other compares that result with the Levanter/JAX path.
+                  This is the reviewer-facing test file. Check the markers, static locality preconditions,
+                  xdist/TPU locking guards, and the two independent assertions: vLLM output and Levanter/JAX output.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/real_checkpoint_vllm_smoke.py">real-checkpoint vLLM smoke</a>
-                  <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/real_checkpoint_levanter_vllm_compare.py">Levanter/JAX compare</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/tests/vllm/test_grugmoe_real_checkpoint_e2e.py">pytest e2e surface</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
@@ -1426,8 +1428,8 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                     <q>The installed Marin/vLLM serving path passed.</q>
                   </a>
                   <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
-                    <span>Compare result</span>
-                    <q>Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count.</q>
+                    <span>Reference result</span>
+                    <q>The independent Levanter/JAX backend returned the same hardcoded expected continuation as the vLLM backend.</q>
                   </a>
                 </div>
               </div>
@@ -1437,25 +1439,25 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <div class="flex gap-3">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-sky-500 text-sm font-bold text-slate-950">4</span>
               <div>
-                <h3 class="font-semibold text-white">Then review Marin's focused parity harness.</h3>
+                <h3 class="font-semibold text-white">Then review the private backend helper.</h3>
                 <p class="mt-1 text-sm leading-6 text-slate-300">
-                  Use this harness to understand the lower-level correctness claims: same Levanter weights copied into
-                  dense and production tpu-inference models, with hidden states, logits, selected logprobs, routed
-                  experts, and artifact roundtrip checked.
+                  This is where the heavy work lives: checkpoint export, artifact staging, Marin
+                  <code class="code">VllmEnvironment</code>, string completion, Levanter/JAX decode, and result JSON
+                  writing. Keep the question narrow: is this test-only complexity isolated and clear?
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/vllm_tpu_parity.py#L1031-L1101">dense-vs-production smoke</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/tests/vllm/grugmoe_real_checkpoint_backend.py">backend helper</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/vllm_tpu_parity.py#L1256-L1434">artifact roundtrip</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://gist.github.com/yonromai/f3805b5f1c0234af53b66465f61fcdb0">diagnostic gist</a>
                 </p>
                 <div class="evidence-row">
-                  <a class="evidence" href="support.html#q-parity-smoke" title="Open quoted support and source">
-                    <span>Parity quote</span>
-                    <code>_copy_transformer(dense_model, lev_model); _copy_transformer(production_model, lev_model)</code>
+                  <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
+                    <span>Backend quote</span>
+                    <q>tests/vllm/grugmoe_real_checkpoint_backend.py</q>
                   </a>
-                  <a class="evidence" href="support.html#q-test-artifact-roundtrip" title="Open quoted support and source">
-                    <span>Roundtrip quote</span>
-                    <code>if report.missing or report.unexpected: raise AssertionError(...)</code>
+                  <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
+                    <span>Scope quote</span>
+                    <q>Lower-level token/logprob/routing diagnostics are preserved in the external validation gist</q>
                   </a>
                 </div>
               </div>
@@ -1471,9 +1473,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   guard enough to verify the behavior Marin now depends on.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/grugmoe.py#L53-L67">tpu-inference mode parser</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/grugmoe.py#L53-L67">tpu-inference mode parser</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/grugmoe.py#L714-L801">attention implementation</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/grugmoe.py#L714-L801">attention implementation</a>
                   <span class="text-slate-500">/</span>
                   <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/7557e69ddb2e28b287d0729b4aee4d7de8de18f9/vllm/v1/core/sched/scheduler.py#L1334-L1343">vLLM route guard</a>
                 </p>
@@ -1569,7 +1571,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
             <article class="rounded border border-sky-800/70 bg-sky-950/20 p-4">
               <h3 class="font-semibold text-white">2. Correctness evidence</h3>
               <p class="mt-2 text-sm leading-6 text-slate-300">
-                Treat the validation map as the source of truth for what each smoke or parity test does and does not prove.
+                Treat the validation map as the source of truth for what the e2e and reference phase do and do not prove.
               </p>
               <div class="evidence-row">
                 <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
@@ -1578,7 +1580,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                 </a>
                 <a class="evidence" href="support.html#q-validation-real-limit" title="Open quoted support and source">
                   <span>limit</span>
-                  <q>logprobs=null</q>
+                  <q>does not expose vLLM token IDs, logprobs, or routed experts</q>
                 </a>
               </div>
             </article>
@@ -1603,26 +1605,29 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
       </section>
 
       <section class="mt-12 rounded border border-amber-700/60 bg-amber-950/20 p-5">
-        <h2 class="text-xl font-semibold text-white">Before This Becomes A PR</h2>
+        <h2 class="text-xl font-semibold text-white">Before Opening The PR</h2>
         <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
-          <li>Reference the external validation gist in the PR description: <a class="text-sky-300 hover:text-sky-200" href="https://gist.github.com/yonromai/f3805b5f1c0234af53b66465f61fcdb0">GrugMoE TPU/vLLM validation notes</a>.</li>
-          <li>Confirm the pinned vLLM and tpu-inference branches are exactly the final fork heads listed here.</li>
-          <li>Say explicitly in the PR description that the latest hardware smoke/compare pass used the current cleanup stack, but the Iris result JSON cannot report the Marin git SHA.</li>
-          <li>Include the two fresh result paths in the PR description so reviewers can audit the TPU evidence.</li>
+          <li>Use the concise PR body draft with the external validation gist and fork compare links.</li>
+          <li>Confirm the pinned vLLM and tpu-inference commits are exactly the final fork heads listed here.</li>
+          <li>Include the fresh e2e result root and summary JSON path in the PR description so reviewers can audit the TPU evidence.</li>
           <li>Rerun TPU smoke if any serving, export, or fork pin code path moves before opening the PR.</li>
         </ul>
         <div class="evidence-row">
           <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
-            <span>Serve result</span>
-            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-vllm-smoke/click-codex-20260623T023407Z/result.json</q>
+            <span>vLLM result</span>
+            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/vllm-result.json</q>
           </a>
           <a class="evidence" href="support.html#q-validation-real-compare" title="Open quoted support and source">
-            <span>Compare result</span>
-            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-levanter-vllm-compare/click-codex-20260623T023407Z/result.json</q>
+            <span>Levanter result</span>
+            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/levanter-result.json</q>
+          </a>
+          <a class="evidence" href="support.html#q-validation-e2e-summary" title="Open quoted support and source">
+            <span>Summary result</span>
+            <q>gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/result.json</q>
           </a>
           <a class="evidence" href="support.html#links" title="Open quoted support and source">
             <span>Branch heads quote</span>
-            <q>tpu-inference 10d880c4..., vLLM 7557e69d...</q>
+            <q>tpu-inference 217fc45b..., vLLM 7557e69d...</q>
           </a>
           <a class="evidence" href="support.html#q-caveat-rerun" title="Open quoted support and source">
             <span>Caveat quote</span>

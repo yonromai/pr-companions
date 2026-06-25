@@ -39,17 +39,17 @@
             <tbody class="divide-y divide-slate-800 text-slate-300">
               <tr>
                 <td class="py-3 pr-4 text-slate-100">Marin</td>
-                <td class="py-3 pr-4"><code class="code">codex/grugmoe-real-checkpoint-smoke-stack-20260620</code></td>
+                <td class="py-3 pr-4"><code class="code">codex/grugmoe-real-checkpoint-smoke-stack-rebased-20260625</code></td>
                 <td class="py-3 pr-4">
-                  <div><code class="code">018cef03007877b4cac0eb52e2181bd2d9594e1d</code></div>
-                  <div class="mt-1 text-xs text-slate-400">Latest click-codex hardware evidence uses the current cleanup stack; the Iris bundle cannot report a Marin git SHA because it is not a git checkout.</div>
+                  <div><code class="code">c3ed9f7009888dffb6d68affb11eb294a26a9639</code></div>
+                  <div class="mt-1 text-xs text-slate-400">Fresh hardware e2e evidence was collected at this Marin SHA.</div>
                 </td>
-                <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/main...codex/grugmoe-real-checkpoint-smoke-stack-20260620">compare</a></td>
+                <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/main...codex/grugmoe-real-checkpoint-smoke-stack-rebased-20260625">compare</a></td>
               </tr>
               <tr>
                 <td class="py-3 pr-4 text-slate-100">tpu-inference</td>
                 <td class="py-3 pr-4"><code class="code">codex/grugmoe-forkstack-tpu-20260618</code></td>
-                <td class="py-3 pr-4"><code class="code">10d880c4641b13c88ecf45771625bd3b30551311</code></td>
+                <td class="py-3 pr-4"><code class="code">217fc45b078b1030bfcb5b704ed1169b448a5808</code></td>
                 <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/main...codex/grugmoe-forkstack-tpu-20260618">compare</a></td>
               </tr>
               <tr>
@@ -64,16 +64,11 @@
         <div class="mt-4 rounded border border-amber-700/60 bg-amber-950/20 p-4 text-sm leading-6 text-slate-300">
           <p id="q-latest-local-head" class="font-semibold text-amber-100">Latest Marin review head note</p>
           <p class="mt-2">
-            The current local Marin branch is ahead of its remote by four commits:
-            <code class="code">2279ae0ff Address GrugMoE smoke review findings</code> and
-            <code class="code">11b93ca6a Clean up GrugMoE smoke lint findings</code>,
-            <code class="code">7d2699968 Clarify GrugMoE validation surface</code>, and
-            <code class="code">018cef030 Shrink GrugMoE validation cleanup</code>. These are hygiene commits:
-            schema constants, helper reuse, import placement/comments, named staging return, validation-surface cleanup,
-            code shrinkage, and preload-env-string cleanup.
-            The latest click-codex TPU smoke/compare evidence was collected after these cleanup commits. The result
-            JSON confirms the pinned vLLM and tpu-inference SHAs, but reports Marin only as editable from
-            <code class="code">/app/lib/marin</code> because the Iris bundle is not a git checkout.
+            The current Marin review branch is pushed at
+            <code class="code">c3ed9f7009888dffb6d68affb11eb294a26a9639</code>. The final cleanup consolidated
+            the previous real-checkpoint scripts into one pytest e2e surface under <code class="code">tests/vllm</code>,
+            moved backend subprocess logic into <code class="code">tests/vllm/grugmoe_real_checkpoint_backend.py</code>,
+            and removed the in-tree low-level diagnostic harnesses in favor of the validation gist.
           </p>
         </div>
       </section>
@@ -82,38 +77,35 @@
         <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
           <h2 class="text-xl font-semibold text-white">Primary Source Links</h2>
           <ul class="mt-4 space-y-2 text-sm leading-6 text-slate-300">
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L1-L6">GrugMoE architecture docstring</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/README.md#L8-L38">GrugMoE architecture README explanation</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L260-L307">Levanter/Marin Grug attention semantics</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L323-L347">GatedNorm implementation</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L463-L550">QB-routed MoE implementation</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/train.py#L253-L263">Training-time QB beta application</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L1-L6">GrugMoE architecture docstring</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/README.md#L8-L38">GrugMoE architecture README explanation</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L260-L307">Levanter/Marin Grug attention semantics</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L323-L347">GatedNorm implementation</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L463-L550">QB-routed MoE implementation</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/train.py#L253-L263">Training-time QB beta application</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://openathena.ai/blog/quantile-balancing/">Open Athena Quantile Balancing overview</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/issues/3406">Marin issue tracing QB to Jianlin Su's article</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://kexue.fm/archives/11619">Jianlin Su original Quantile Balancing article</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L557-L594">Grug block structure with shared expert</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L661-L686">Short/long sliding-window layer pattern</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L769-L860">Canonical GrugMoE artifact tensor schema</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/layers/jax/moe/moe.py#L63-L115">Generic JAX MoE router</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/qwen3_moe.py#L61-L132">Qwen3-MoE block</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/gemma4.py#L112-L178">Gemma4 router and MoE block</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/deepseek_v3.py#L1046-L1119">DeepSeek-V3 router</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/deepseek_v3.py#L815-L835">DeepSeek shared routed/shared MoE path</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/layers/jax/moe/gpt_oss_moe.py#L32-L70">GPT-OSS router</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/grugmoe.py#L53-L67">GrugMoE attention mode parsing</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/models/jax/grugmoe.py#L714-L801">Dense and production attention paths</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/runner/tpu_runner.py#L186-L195">Routed expert output object construction</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/10d880c4641b13c88ecf45771625bd3b30551311/tpu_inference/layers/vllm/__init__.py#L42-L45">In-tree GrugMoE registration rationale</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L557-L594">Grug block structure with shared expert</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L661-L686">Short/long sliding-window layer pattern</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L769-L860">Canonical GrugMoE artifact tensor schema</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/layers/jax/moe/moe.py#L63-L115">Generic JAX MoE router</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/qwen3_moe.py#L61-L132">Qwen3-MoE block</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/gemma4.py#L112-L178">Gemma4 router and MoE block</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/deepseek_v3.py#L1046-L1119">DeepSeek-V3 router</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/deepseek_v3.py#L815-L835">DeepSeek shared routed/shared MoE path</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/layers/jax/moe/gpt_oss_moe.py#L32-L70">GPT-OSS router</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/grugmoe.py#L53-L67">GrugMoE attention mode parsing</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/grugmoe.py#L714-L801">Dense and production attention paths</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/runner/tpu_runner.py#L186-L195">Routed expert output object construction</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/layers/vllm/__init__.py#L42-L45">In-tree GrugMoE registration rationale</a></li>
             <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/7557e69ddb2e28b287d0729b4aee4d7de8de18f9/vllm/v1/core/sched/scheduler.py#L1334-L1343">vLLM routed-experts scheduler guard</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/vllm_tpu_parity.py#L1031-L1101">Dense-vs-production parity smoke</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/vllm_tpu_parity.py#L1256-L1434">Artifact roundtrip and reference generation</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/installed_vllm_smoke.py#L204-L349">Small installed vLLM smoke</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/real_checkpoint_vllm_smoke.py">Real-checkpoint vLLM smoke</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/real_checkpoint_levanter_vllm_compare.py">Real-checkpoint Levanter/JAX comparison</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/experiments/grug/moe/model.py#L210-L246">HF config export default</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/6755f2272bbfa81496e7af096377c7bfb42a1afd/pyproject.toml#L161-L164">Marin fork pins for vLLM and tpu-inference</a></li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/018cef03007877b4cac0eb52e2181bd2d9594e1d/experiments/grug/moe/artifact_metadata.py">Latest helper extraction</a>: <code class="code">experiments/grug/moe/artifact_metadata.py</code> at local Marin head <code class="code">018cef030</code>.</li>
-            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/018cef03007877b4cac0eb52e2181bd2d9594e1d/lib/marin/src/marin/inference/vllm_server.py">Latest preload env helper</a>: <code class="code">lib/marin/src/marin/inference/vllm_server.py</code> at local Marin head <code class="code">018cef030</code>.</li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/tests/vllm/test_grugmoe_real_checkpoint_e2e.py">Real-checkpoint pytest e2e surface</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/tests/vllm/grugmoe_real_checkpoint_backend.py">Real-checkpoint backend subprocess helper</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/lib/levanter/tests/test_export_to_hf.py#L89-L130">Non-Grug HF export regression test</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://gist.github.com/yonromai/f3805b5f1c0234af53b66465f61fcdb0">External low-level validation gist</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L210-L246">HF config export default</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/pyproject.toml#L161-L164">Marin fork pins for vLLM and tpu-inference</a></li>
           </ul>
         </article>
 
@@ -145,19 +137,24 @@
             </thead>
             <tbody class="divide-y divide-slate-800 text-slate-300">
               <tr id="q-validation-real-vllm">
-                <td class="py-3 pr-4"><code class="code">click-codex-20260623T023407Z real-checkpoint vLLM smoke</code></td>
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3 vLLM phase</code></td>
                 <td class="py-3 pr-4 text-emerald-300">succeeded</td>
-                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Result path: <code class="code">gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-vllm-smoke/click-codex-20260623T023407Z/result.json</code>. Runtime package metadata confirms vLLM <code class="code">7557e69ddb2e28b287d0729b4aee4d7de8de18f9</code> and tpu-inference <code class="code">10d880c4641b13c88ecf45771625bd3b30551311</code>. The installed Marin/vLLM serving path passed and returned <code class="code">" The Ultimate. The Ultimate. The Ultimate"</code>.</td>
+                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Result path: <code class="code">gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/vllm-result.json</code>. Runtime evidence records Marin <code class="code">c3ed9f7009888dffb6d68affb11eb294a26a9639</code>, vLLM <code class="code">7557e69ddb2e28b287d0729b4aee4d7de8de18f9</code>, and tpu-inference <code class="code">217fc45b078b1030bfcb5b704ed1169b448a5808</code>. The installed Marin/vLLM serving path passed and returned <code class="code">" The Ultimate. The Ultimate. The Ultimate"</code>.</td>
               </tr>
               <tr id="q-validation-real-compare">
-                <td class="py-3 pr-4"><code class="code">click-codex-20260623T023407Z Levanter/JAX vs vLLM compare</code></td>
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3 Levanter/JAX phase</code></td>
                 <td class="py-3 pr-4 text-emerald-300">succeeded</td>
-                <td class="py-3 pr-4">Result path: <code class="code">gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-levanter-vllm-compare/click-codex-20260623T023407Z/result.json</code>. Levanter/JAX and vLLM agreed on generated text, generated token IDs, and prompt token count for the tested prompt. vLLM TPU logprobs were not available in the serve result.</td>
+                <td class="py-3 pr-4">Result path: <code class="code">gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/levanter-result.json</code>. The independent Levanter/JAX backend returned the same hardcoded expected continuation as the vLLM backend. It also recorded prompt token count <code class="code">29</code> and generated token IDs <code class="code">[578, 29950, 13, 578, 29950, 13, 578, 29950]</code>.</td>
+              </tr>
+              <tr id="q-validation-e2e-summary">
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3 pytest summary</code></td>
+                <td class="py-3 pr-4 text-emerald-300">2 passed, 1 deselected</td>
+                <td class="py-3 pr-4">Summary path: <code class="code">gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/result.json</code>. The hardware pytest run completed in <code class="code">215.03s</code> and recorded <code class="code">passed: true</code>.</td>
               </tr>
               <tr id="q-validation-real-limit">
                 <td class="py-3 pr-4"><code class="code">final real-checkpoint serve caveat</code></td>
                 <td class="py-3 pr-4 text-amber-300">narrow evidence</td>
-                <td class="py-3 pr-4">The final vLLM response records <code class="code">token_ids=null</code>, <code class="code">logprobs=null</code>, and <code class="code">routed_experts=null</code>. The compare derives token IDs from tokenizer output, and routed-expert plumbing is validated by lower-level tests, not by this final serve result.</td>
+                <td class="py-3 pr-4">The final vLLM response is a normal string-completion smoke. It does not expose vLLM token IDs, logprobs, or routed experts through this endpoint. Lower-level token/logprob/routing diagnostics are preserved in the external validation gist for troubleshooting, not in this Marin PR.</td>
               </tr>
               <tr id="q-validation-small">
                 <td class="py-3 pr-4"><code class="code">/romain/grugmoe-production-attn-small-diagnostic-20260619-2053</code></td>
@@ -172,7 +169,7 @@
               <tr id="q-validation-cleanup">
                 <td class="py-3 pr-4"><code class="code">post-TPU Marin cleanup commits</code></td>
                 <td class="py-3 pr-4 text-emerald-300">local checks passed</td>
-                <td class="py-3 pr-4">Focused Marin tests passed with <code class="code">20 passed</code>, <code class="code">./infra/pre-commit.py --changed-files --skip pyrefly</code> passed, and <code class="code">git diff --check</code> passed at <code class="code">018cef030</code>. The quick-serve reuse assessment kept no code spike.</td>
+                <td class="py-3 pr-4">Focused checks passed at <code class="code">c3ed9f7009</code>: default e2e selection <code class="code">1 passed, 2 deselected</code>, Levanter HF export tests <code class="code">2 passed</code>, <code class="code">./infra/pre-commit.py --changed-files --skip pyrefly</code>, and <code class="code">git diff --check</code>.</td>
               </tr>
             </tbody>
           </table>
@@ -358,23 +355,20 @@ if artifact_schema_version != _ARTIFACT_SCHEMA_VERSION:
 # direct tpu-inference pin so marin-core[vllm] resolves Marin's selected fork.</code></pre>
           </div>
           <div id="q-latest-cleanup" class="rounded border border-amber-700/70 bg-amber-950/20 p-4">
-            <p class="text-sm font-semibold text-amber-100">Latest local cleanup commits are mechanical review hygiene.</p>
-            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>018cef030 Shrink GrugMoE validation cleanup
-7d2699968 Clarify GrugMoE validation surface
-2279ae0ff Address GrugMoE smoke review findings
-11b93ca6a Clean up GrugMoE smoke lint findings
+            <p class="text-sm font-semibold text-amber-100">Latest Marin commits consolidate the validation surface.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>c3ed9f7009 Move GrugMoE e2e into vLLM tests
+a2b4aee04b Tighten GrugMoE e2e independence
+1e4fe8357b Simplify GrugMoE real checkpoint validation
+2f405ff454 Update GrugMoE tpu-inference pin
 
-Moved safe local imports to module scope.
-Kept remaining PLC0415 imports local with comments.
-Added StagedArtifact named result.
-Deduped directory_size_bytes into artifact_metadata.py.
-Removed duplicated validation branches and kept the tighter correctness surface.
-Deduped MARIN_VLLM_PRELOAD_MODULES usage in vllm_server tests/helper.</code></pre>
+tests/vllm/test_grugmoe_real_checkpoint_e2e.py
+tests/vllm/grugmoe_real_checkpoint_backend.py
+Deleted the old real_checkpoint_* scripts, installed_vllm_smoke.py, vllm_tpu_parity.py, and Marin vllm_registry.py.</code></pre>
           </div>
           <div id="q-marin-fork-pins" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">Marin directly pins the fork-stack dependencies used by its vLLM extra.</p>
             <pre class="mt-3 text-xs leading-5 text-slate-300"><code>vllm = { git = "https://github.com/marin-community/vllm.git", rev = "7557e69ddb2e28b287d0729b4aee4d7de8de18f9" }
-tpu-inference = { git = "https://github.com/marin-community/tpu-inference.git", rev = "10d880c4641b13c88ecf45771625bd3b30551311" }</code></pre>
+tpu-inference = { git = "https://github.com/marin-community/tpu-inference.git", rev = "217fc45b078b1030bfcb5b704ed1169b448a5808" }</code></pre>
           </div>
           <div id="q-vllm-route-disabled-test" class="rounded border border-slate-700 bg-slate-950 p-4">
             <p class="text-sm font-semibold text-slate-200">The vLLM unit test ensures unsolicited routes are ignored when disabled.</p>
@@ -548,10 +542,10 @@ np.testing.assert_array_equal(... production_expert_ids ..., ... dense_expert_id
       <section class="mt-8 rounded border border-amber-700/60 bg-amber-950/20 p-5">
         <h2 class="text-2xl font-semibold text-white">Known Caveats To Carry Into Review</h2>
         <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
-          <li id="q-caveat-final-smoke-scope">The real-checkpoint smoke passed on the TPU-validated heads listed in the validation table, but it is still one prompt, one short decode, one-rank serving, and not a broad prompt suite.</li>
-          <li id="q-caveat-cleanup-head">The current local Marin head is <code class="code">018cef030</code>. Latest click-codex hardware evidence used the current cleanup stack, but the Iris result JSON cannot report a Marin git SHA because the bundle is not a git checkout.</li>
+          <li id="q-caveat-final-smoke-scope">The real-checkpoint e2e passed on the TPU-validated heads listed in the validation table, but it is still one prompt, one short decode, one-rank serving, and not a broad prompt or performance suite.</li>
+          <li id="q-caveat-cleanup-head">The current Marin head is <code class="code">c3ed9f7009</code>, and the fresh e2e summary records that same Marin SHA alongside the pinned vLLM and tpu-inference SHAs.</li>
           <li id="q-caveat-rebase">If any PR branch is rebased after these heads, rerun at least the focused checks and refresh this page before relying on the recorded result paths.</li>
-          <li id="q-caveat-serving-evidence">The final real-checkpoint vLLM result is the current serving evidence. Its response has <code class="code">routed_experts=null</code>, so routed-expert plumbing is validated by lower-level tests, not by that final serve response.</li>
+          <li id="q-caveat-serving-evidence">The final real-checkpoint vLLM result is the current serving evidence. It exercises the string <code class="code">/v1/completions</code> path, not raw-token routed-expert or logprob reporting.</li>
           <li id="q-caveat-pytest">Focused Marin, tpu-inference, and vLLM tests passed in the final verification pass. Full Marin pre-commit still hit known unrelated Pyrefly failures outside the GrugMoE change.</li>
           <li id="q-caveat-loading">Weight loading remains bespoke and easy to audit for this model, but it is less general than the reusable tpu-inference loader path.</li>
           <li id="q-caveat-rerun">Rerun TPU smoke if GrugMoE serving code paths move.</li>
