@@ -153,7 +153,7 @@
         <article class="rounded border border-slate-800 bg-slate-950/70 p-5">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-200">Marin</h2>
           <p class="mt-3 text-sm leading-6 text-slate-300">
-            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and keeps one focused opt-in real-checkpoint e2e under <code class="code text-slate-100">tests/vllm</code>. The current review head is <code class="code text-slate-100">c3ed9f7009</code>.
+            Pins the fork-stack SHAs, exports GrugMoE artifacts with production attention by default, and keeps one focused opt-in real-checkpoint e2e under <code class="code text-slate-100">tests/vllm</code>. The current review head is <code class="code text-slate-100">a9c0adcce8</code>.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
@@ -289,16 +289,16 @@
         <div class="mt-5 rounded border border-amber-700/60 bg-amber-950/20 p-4">
           <h3 class="font-semibold text-amber-100">Current Review Head</h3>
           <p class="mt-2 text-sm leading-6 text-slate-300">
-            The Marin branch now ends at <code class="code text-slate-100">c3ed9f7009</code>. The final cleanup
-            consolidated the previous real-checkpoint scripts into a single pytest e2e surface under
-            <code class="code text-slate-100">tests/vllm</code>, moved subprocess-heavy backend logic into a private
-            test helper, and removed the old in-tree low-level diagnostics. The fresh TPU e2e summary records the
-            Marin, vLLM, and tpu-inference SHAs used for validation.
+            The Marin branch now ends at <code class="code text-slate-100">a9c0adcce8</code>. This is a
+            history-cleaned four-commit stack whose tree is identical to the TPU-validated
+            <code class="code text-slate-100">c3ed9f7009</code> head. The final cleanup consolidated the previous
+            real-checkpoint scripts into a single pytest e2e surface under <code class="code text-slate-100">tests/vllm</code>,
+            moved subprocess-heavy backend logic into a private test helper, and removed the old in-tree low-level diagnostics.
           </p>
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
               <span>Stack quote</span>
-              <q>Move GrugMoE e2e into vLLM tests</q>
+              <q>Add GrugMoE real-checkpoint TPU e2e</q>
             </a>
             <a class="evidence" href="support.html#q-validation-cleanup" title="Open quoted support and source">
               <span>Local checks</span>
@@ -306,7 +306,7 @@
             </a>
             <a class="evidence" href="support.html#q-caveat-cleanup-head" title="Open quoted support and source">
               <span>TPU evidence</span>
-              <q>fresh e2e summary records that same Marin SHA</q>
+              <q>tree-identical to that validated tree</q>
             </a>
           </div>
         </div>
@@ -885,11 +885,12 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
           <article class="rounded border border-emerald-700/50 bg-emerald-950/20 p-5">
             <h3 class="text-xl font-semibold text-white">Fresh Top-Level TPU Evidence</h3>
             <p class="mt-3 text-sm leading-7 text-slate-300">
-              The TPU-validated Marin branch served the real GrugMoE checkpoint through installed Marin/vLLM on TPU
+              The TPU-validated Marin tree served the real GrugMoE checkpoint through installed Marin/vLLM on TPU
               v6e-4 in <code class="code text-slate-100">europe-west4</code>. The latest e2e job
-              <code class="code text-slate-100">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3</code> records Marin
-              <code class="code text-slate-100">c3ed9f7009</code>, tpu-inference
+              <code class="code text-slate-100">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3</code> records pre-cleanup
+              Marin <code class="code text-slate-100">c3ed9f7009</code>, tpu-inference
               <code class="code text-slate-100">217fc45b</code>, and vLLM <code class="code text-slate-100">7557e69d</code>.
+              Current head <code class="code text-slate-100">a9c0adcce8</code> is tree-identical to that validated Marin tree.
             </p>
             <div class="evidence-row">
               <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
@@ -902,11 +903,11 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
               </a>
               <a class="evidence" href="support.html#links" title="Open quoted support and source">
                 <span>Heads</span>
-                <q>Fresh hardware e2e evidence was collected at this Marin SHA.</q>
+                <q>History-cleaned head; tree-identical to the TPU-validated c3ed9f7009 head.</q>
               </a>
               <a class="evidence" href="support.html#q-latest-local-head" title="Open quoted support and source">
                 <span>Local head</span>
-                <q>The current Marin review branch is pushed at c3ed9f7009888dffb6d68affb11eb294a26a9639.</q>
+                <q>The current Marin review branch is pushed at a9c0adcce8de23897ab3bcd1d2b8512763f59273.</q>
               </a>
             </div>
           </article>
@@ -1342,11 +1343,11 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
           <div class="evidence-row">
             <a class="evidence" href="support.html#q-latest-cleanup" title="Open quoted support and source">
               <span>Stack</span>
-              <q>Move GrugMoE e2e into vLLM tests</q>
+              <q>Add GrugMoE real-checkpoint TPU e2e</q>
             </a>
             <a class="evidence" href="support.html#q-caveat-cleanup-head" title="Open quoted support and source">
               <span>Evidence</span>
-              <q>fresh e2e summary records that same Marin SHA</q>
+              <q>tree-identical to that validated tree</q>
             </a>
           </div>
         </div>
@@ -1362,7 +1363,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   Marin-facing change, so verify it before reading model or test code.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/pyproject.toml#L161-L164">Marin fork pins</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/pyproject.toml#L161-L164">Marin fork pins</a>
                   <span class="text-slate-500">/</span>
                   <a class="text-sky-300 hover:text-sky-200" href="support.html#links">final heads</a>
                 </p>
@@ -1393,9 +1394,9 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   attention mode that installed vLLM serving will consume.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L210-L246">HF config export</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L210-L246">HF config export</a>
                   <span class="text-slate-500">/</span>
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/experiments/grug/moe/model.py#L769-L860">artifact schema</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L769-L860">artifact schema</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-hf-config-default" title="Open quoted support and source">
@@ -1420,7 +1421,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   xdist/TPU locking guards, and the two independent assertions: vLLM output and Levanter/JAX output.
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/tests/vllm/test_grugmoe_real_checkpoint_e2e.py">pytest e2e surface</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/tests/vllm/test_grugmoe_real_checkpoint_e2e.py">pytest e2e surface</a>
                 </p>
                 <div class="evidence-row">
                   <a class="evidence" href="support.html#q-validation-real-vllm" title="Open quoted support and source">
@@ -1446,7 +1447,7 @@ shared_output = jnp.array([0.05, 0.02, -0.04, 0.01], dtype=jnp.float32)  # Toy s
                   writing. Keep the question narrow: is this test-only complexity isolated and clear?
                 </p>
                 <p class="mt-2 text-sm">
-                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/c3ed9f7009888dffb6d68affb11eb294a26a9639/tests/vllm/grugmoe_real_checkpoint_backend.py">backend helper</a>
+                  <a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/tests/vllm/grugmoe_real_checkpoint_backend.py">backend helper</a>
                   <span class="text-slate-500">/</span>
                   <a class="text-sky-300 hover:text-sky-200" href="https://gist.github.com/yonromai/f3805b5f1c0234af53b66465f61fcdb0">diagnostic gist</a>
                 </p>
