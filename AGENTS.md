@@ -57,3 +57,10 @@ Once a PR (e.g. 1234) is open against a repo (e.g. marin), the companion website
 * [https://yonromai.github.io/pr-companions/marin/pulls/1234/support.html](https://yonromai.github.io/pr-companions/marin/pulls/1234/support.html)
 
 Let's note that these pages are 100% authored by coding agents, and therefore can be pushed liberally.
+
+After the Pages cutover, keep GitHub Actions disabled for this personal
+repository. After a reviewed companion change is merged, publish from the exact
+`main` revision with the local command in [README.md](README.md). On the first
+publication, switch Pages to the `gh-pages` branch as that guide describes.
+Verify the live page before disabling Actions. A local build alone is not a
+publication.

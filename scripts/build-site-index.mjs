@@ -524,7 +524,11 @@ async function writeGeneratedPages(companions) {
   await fs.writeFile(
     path.join(outDir, "manifest.json"),
     `${JSON.stringify({
-      generatedAt: new Date().toISOString(),
+      generatedAt: new Date(
+        process.env.SOURCE_DATE_EPOCH
+          ? Number(process.env.SOURCE_DATE_EPOCH) * 1000
+          : Date.now(),
+      ).toISOString(),
       count: companions.length,
       companions,
     }, null, 2)}\n`,
