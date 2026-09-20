@@ -53,6 +53,13 @@ Open `_site/index.html` in a browser to inspect the generated listing. The
 
 ## GitHub Pages
 
-The `.github/workflows/pages.yml` workflow deploys the generated `_site/`
-artifact on every push to `main`, and can also be run manually from the Actions
-tab.
+GitHub Actions is disabled. After a reviewed change reaches `main`, run
+`scripts/publish-local.sh` from a clean checkout of that exact revision. The
+script checks `origin/main`, builds the site locally, commits the `_site/` output
+to `gh-pages`, and pushes it. Pages serves the root of `gh-pages` with its
+`.nojekyll` file. Keep the published commit and source commit in the task's
+validation evidence. Check the live index and changed companion URL before
+calling the publication complete. A missing site or unavailable GitHub Pages
+resource is a deployment failure, even if the local build passed.
+
+The former `.github/workflows/pages.yml` stays in Git for history and rollback.
