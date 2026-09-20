@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-09-20T03:11:16.000Z",
+  "count": 1,
+  "companions": [
+    {
+      "kind": "scratch",
+      "repo": "marin",
+      "date": "20260619",
+      "prNumber": null,
+      "slug": "grugmoe-tpu-vllm-agent-review",
+      "rootPath": "scratch/marin/20260619/grugmoe-tpu-vllm-agent-review",
+      "indexPath": "scratch/marin/20260619/grugmoe-tpu-vllm-agent-review/index.html",
+      "supportPath": "scratch/marin/20260619/grugmoe-tpu-vllm-agent-review/support.html",
+      "title": "GrugMoE TPU/vLLM Agent Work Review Companion",
+      "url": "scratch/marin/20260619/grugmoe-tpu-vllm-agent-review/",
+      "displayDate": "2026-06-19"
+    }
+  ]
+}

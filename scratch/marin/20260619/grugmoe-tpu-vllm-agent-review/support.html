@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Support References - GrugMoE TPU/vLLM Agent Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root { color-scheme: dark; }
+      body { background: #090b10; }
+      pre { overflow-x: auto; }
+      .code { font-variant-ligatures: none; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#090b10] text-slate-100 antialiased">
+    <header class="border-b border-slate-800 bg-[#0d1117]">
+      <div class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+        <a class="text-sm text-sky-300 hover:text-sky-200" href="index.html">Back to review companion</a>
+        <h1 class="mt-4 text-3xl font-semibold tracking-normal text-white sm:text-4xl">Support References</h1>
+        <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+          Audit trail for the review companion: exact branch heads, source links, local validation claims, TPU job facts, and short source quotes.
+        </p>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+      <section id="links" class="rounded border border-slate-800 bg-[#0d1117] p-5">
+        <h2 class="text-2xl font-semibold text-white">Branch Heads And Compares</h2>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full min-w-[780px] border-collapse text-left text-sm">
+            <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+              <tr>
+                <th class="py-3 pr-4">Repo</th>
+                <th class="py-3 pr-4">Branch</th>
+                <th class="py-3 pr-4">Head</th>
+                <th class="py-3 pr-4">Compare</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300">
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">Marin</td>
+                <td class="py-3 pr-4"><code class="code">codex/grugmoe-real-checkpoint-smoke-stack-rebased-20260625</code></td>
+                <td class="py-3 pr-4">
+                  <div><code class="code">a9c0adcce8de23897ab3bcd1d2b8512763f59273</code></div>
+                  <div class="mt-1 text-xs text-slate-400">History-cleaned head; tree-identical to the TPU-validated c3ed9f7009 head.</div>
+                </td>
+                <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/compare/main...codex/grugmoe-real-checkpoint-smoke-stack-rebased-20260625">compare</a></td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">tpu-inference</td>
+                <td class="py-3 pr-4"><code class="code">codex/grugmoe-forkstack-tpu-20260618</code></td>
+                <td class="py-3 pr-4"><code class="code">217fc45b078b1030bfcb5b704ed1169b448a5808</code></td>
+                <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/compare/main...codex/grugmoe-forkstack-tpu-20260618">compare</a></td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-slate-100">vLLM</td>
+                <td class="py-3 pr-4"><code class="code">codex/grugmoe-forkstack-vllm-20260618</code></td>
+                <td class="py-3 pr-4"><code class="code">7557e69ddb2e28b287d0729b4aee4d7de8de18f9</code></td>
+                <td class="py-3 pr-4"><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/compare/main...codex/grugmoe-forkstack-vllm-20260618">compare</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4 rounded border border-amber-700/60 bg-amber-950/20 p-4 text-sm leading-6 text-slate-300">
+          <p id="q-latest-local-head" class="font-semibold text-amber-100">Latest Marin review head note</p>
+          <p class="mt-2">
+            The current Marin review branch is pushed at
+            <code class="code">a9c0adcce8de23897ab3bcd1d2b8512763f59273</code>. This is the history-cleaned
+            four-commit stack. Its tree is identical to the TPU-validated pre-cleanup head
+            <code class="code">c3ed9f7009888dffb6d68affb11eb294a26a9639</code>, so the hardware evidence still
+            applies while reviewers get the cleaner commit history.
+          </p>
+        </div>
+      </section>
+
+      <section class="mt-8 grid gap-5 lg:grid-cols-2">
+        <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+          <h2 class="text-xl font-semibold text-white">Primary Source Links</h2>
+          <ul class="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L1-L6">GrugMoE architecture docstring</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/README.md#L8-L38">GrugMoE architecture README explanation</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L260-L307">Levanter/Marin Grug attention semantics</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L323-L347">GatedNorm implementation</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L463-L550">QB-routed MoE implementation</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/train.py#L253-L263">Training-time QB beta application</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://openathena.ai/blog/quantile-balancing/">Open Athena Quantile Balancing overview</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/issues/3406">Marin issue tracing QB to Jianlin Su's article</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://kexue.fm/archives/11619">Jianlin Su original Quantile Balancing article</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L557-L594">Grug block structure with shared expert</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L661-L686">Short/long sliding-window layer pattern</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L769-L860">Canonical GrugMoE artifact tensor schema</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/layers/jax/moe/moe.py#L63-L115">Generic JAX MoE router</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/qwen3_moe.py#L61-L132">Qwen3-MoE block</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/gemma4.py#L112-L178">Gemma4 router and MoE block</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/deepseek_v3.py#L1046-L1119">DeepSeek-V3 router</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/deepseek_v3.py#L815-L835">DeepSeek shared routed/shared MoE path</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/layers/jax/moe/gpt_oss_moe.py#L32-L70">GPT-OSS router</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/grugmoe.py#L53-L67">GrugMoE attention mode parsing</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/models/jax/grugmoe.py#L714-L801">Dense and production attention paths</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/runner/tpu_runner.py#L186-L195">Routed expert output object construction</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/tpu-inference/blob/217fc45b078b1030bfcb5b704ed1169b448a5808/tpu_inference/layers/vllm/__init__.py#L42-L45">In-tree GrugMoE registration rationale</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/vllm/blob/7557e69ddb2e28b287d0729b4aee4d7de8de18f9/vllm/v1/core/sched/scheduler.py#L1334-L1343">vLLM routed-experts scheduler guard</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/tests/vllm/test_grugmoe_real_checkpoint_e2e.py">Real-checkpoint pytest e2e surface</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/tests/vllm/grugmoe_real_checkpoint_backend.py">Real-checkpoint backend subprocess helper</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/lib/levanter/tests/test_export_to_hf.py#L89-L130">Non-Grug HF export regression test</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://gist.github.com/yonromai/f3805b5f1c0234af53b66465f61fcdb0">External low-level validation gist</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/experiments/grug/moe/model.py#L210-L246">HF config export default</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/marin-community/marin/blob/a9c0adcce8de23897ab3bcd1d2b8512763f59273/pyproject.toml#L161-L164">Marin fork pins for vLLM and tpu-inference</a></li>
+          </ul>
+        </article>
+
+        <article class="rounded border border-slate-800 bg-[#0d1117] p-5">
+          <h2 class="text-xl font-semibold text-white">tpu-inference Doc Anchors</h2>
+          <ul class="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/vllm-project/tpu-inference/blob/main/docs/developer_guides/jax_model_development.md">JAX model development guide</a></li>
+            <li><a class="text-sky-300 hover:text-sky-200" href="https://github.com/vllm-project/tpu-inference/blob/main/docs/getting_started/out-of-tree.md">Out-of-tree model/plugin guide</a></li>
+          </ul>
+          <div class="mt-4 rounded border border-slate-700 bg-slate-950 p-4 text-sm leading-6 text-slate-300">
+            <p class="text-slate-400">Relevant direct quotes:</p>
+            <blockquote class="mt-2 border-l-2 border-sky-400 pl-3">"context is managed outside of the model"</blockquote>
+            <blockquote class="mt-2 border-l-2 border-sky-400 pl-3">"new models are recommended to reuse weight loading mechanisms/utilities"</blockquote>
+            <blockquote class="mt-2 border-l-2 border-sky-400 pl-3">"You can load an external model using a plugin"</blockquote>
+          </div>
+        </article>
+      </section>
+
+      <section class="mt-8 rounded border border-slate-800 bg-[#0d1117] p-5">
+        <h2 class="text-2xl font-semibold text-white">Validation Evidence</h2>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full min-w-[860px] border-collapse text-left text-sm">
+            <thead class="border-b border-slate-700 text-xs uppercase tracking-wide text-slate-400">
+              <tr>
+                <th class="py-3 pr-4">Job</th>
+                <th class="py-3 pr-4">Result</th>
+                <th class="py-3 pr-4">Key evidence</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300">
+              <tr id="q-validation-real-vllm">
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3 vLLM phase</code></td>
+                <td class="py-3 pr-4 text-emerald-300">succeeded</td>
+                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Result path: <code class="code">gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/vllm-result.json</code>. Runtime evidence records Marin <code class="code">c3ed9f7009888dffb6d68affb11eb294a26a9639</code>, vLLM <code class="code">7557e69ddb2e28b287d0729b4aee4d7de8de18f9</code>, and tpu-inference <code class="code">217fc45b078b1030bfcb5b704ed1169b448a5808</code>. Current head <code class="code">a9c0adcce8de23897ab3bcd1d2b8512763f59273</code> is tree-identical to that TPU-validated Marin head. The installed Marin/vLLM serving path passed and returned <code class="code">" The Ultimate. The Ultimate. The Ultimate"</code>.</td>
+              </tr>
+              <tr id="q-validation-real-compare">
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3 Levanter/JAX phase</code></td>
+                <td class="py-3 pr-4 text-emerald-300">succeeded</td>
+                <td class="py-3 pr-4">Result path: <code class="code">gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/levanter-result.json</code>. The independent Levanter/JAX backend returned the same hardcoded expected continuation as the vLLM backend. It also recorded prompt token count <code class="code">29</code> and generated token IDs <code class="code">[578, 29950, 13, 578, 29950, 13, 578, 29950]</code>.</td>
+              </tr>
+              <tr id="q-validation-e2e-summary">
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-real-checkpoint-e2e-c3ed9f-r3 pytest summary</code></td>
+                <td class="py-3 pr-4 text-emerald-300">2 passed, 1 deselected</td>
+                <td class="py-3 pr-4">Summary path: <code class="code">gs://marin-eu-west4/tmp/ttl=14d/grugmoe-real-checkpoint-e2e/20260625T222315Z-0112016f/result.json</code>. The hardware pytest run completed in <code class="code">215.03s</code> and recorded <code class="code">passed: true</code>.</td>
+              </tr>
+              <tr id="q-validation-real-limit">
+                <td class="py-3 pr-4"><code class="code">final real-checkpoint serve caveat</code></td>
+                <td class="py-3 pr-4 text-amber-300">narrow evidence</td>
+                <td class="py-3 pr-4">The final vLLM response is a normal string-completion smoke. It does not expose vLLM token IDs, logprobs, or routed experts through this endpoint. Lower-level token/logprob/routing diagnostics are preserved in the external validation gist for troubleshooting, not in this Marin PR.</td>
+              </tr>
+              <tr id="q-validation-small">
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-production-attn-small-diagnostic-20260619-2053</code></td>
+                <td class="py-3 pr-4 text-emerald-300">succeeded</td>
+                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Dense-vs-production hidden max delta 4.768e-07, logits max delta 2.384e-07, logprob max delta 0.0. Installed path returned <code class="code">works:full_canary_logprobs_and_routing</code>.</td>
+              </tr>
+              <tr id="q-validation-full">
+                <td class="py-3 pr-4"><code class="code">/romain/grugmoe-production-attn-full-canary-20260619-2058</code></td>
+                <td class="py-3 pr-4 text-emerald-300">succeeded</td>
+                <td class="py-3 pr-4">TPU v6e-4 in europe-west4. Generated IDs [57524, 45040, 67859]. Max logprob delta 0.001596. Routing top1 match 1.0, suspicious mismatch count 0. Installed path returned <code class="code">works:full_canary_logprobs_and_routing</code>.</td>
+              </tr>
+              <tr id="q-validation-cleanup">
+                <td class="py-3 pr-4"><code class="code">post-TPU Marin cleanup commits</code></td>
+                <td class="py-3 pr-4 text-emerald-300">local checks passed</td>
+                <td class="py-3 pr-4">Focused checks passed after history cleanup at <code class="code">a9c0adcce8</code>: default e2e selection <code class="code">1 passed, 2 deselected</code>, Levanter HF export tests <code class="code">2 passed</code>, <code class="code">./infra/pre-commit.py --changed-files --skip pyrefly</code>, and <code class="code">git diff --check</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="mt-8 rounded border border-slate-800 bg-[#0d1117] p-5">
+        <h2 class="text-2xl font-semibold text-white">Validation Source Quotes</h2>
+        <p class="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
+          These quotes back the companion's detailed test map. Public GitHub links still point at the committed
+          branch heads listed above. The schema, PP, and vLLM pin entries are now part of the latest pushed heads.
+        </p>
+        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+          <div id="q-test-harness-docstring" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The Marin parity harness states its test surfaces.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>The component check compares tpu-inference's native JAX GrugMoE MLP against
+Levanter's `moe_mlp` with the same selected experts and sigmoid combine
+weights. The full check ... compares final hidden states, logits from
+`compute_logits`, and routed expert IDs against a dense reference.</code></pre>
+          </div>
+          <div id="q-test-shapes" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The small diagnostic shape is intentionally small but MoE-realistic.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>hidden_dim=512
+num_experts=4
+num_experts_per_token=2
+num_layers=2
+num_heads=4
+num_kv_heads=1</code></pre>
+          </div>
+          <div id="q-test-production-structure" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Non-small realistic configs must preserve production-relevant structure.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>realistic config must keep 64 experts
+realistic config must keep top-4 routing
+realistic config must keep the shared expert
+realistic config must keep GQA
+realistic config must exercise short and long windows</code></pre>
+          </div>
+          <div id="q-test-registration" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The tpu-inference loader test checks registration and config parsing.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>assert isinstance(hf_config, GrugMoeHfConfig)
+assert hf_config.architectures == ["GrugMoeForCausalLM"]
+assert GrugMoeConfig.from_hf_config(...).attention_mode == GrugMoeAttentionMode.DENSE
+assert _CONFIG_REGISTRY["grug_moe"] is GrugMoeHfConfig
+assert arch == "GrugMoeForCausalLM"</code></pre>
+          </div>
+          <div id="q-test-component" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The component test compares native GrugMoE MLP to Levanter MoE.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>selected, combine_weights = _route_jax(...)
+expected = moe_mlp(...)
+actual, actual_selected = native_mlp(...)
+np.testing.assert_array_equal(actual_selected, selected)
+np.testing.assert_allclose(actual, expected, rtol=1e-5, atol=1e-5)</code></pre>
+          </div>
+          <div id="q-test-full-forward" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The tiny full-forward check compares native outputs to Levanter.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>expected_hidden, expected_expert_ids = jax.jit(_jax_full_forward)(lev_model, token_ids)
+expected_logits = _jax_logits(lev_model, expected_hidden)[0]
+np.testing.assert_allclose(actual_hidden, expected_hidden[0], rtol=5e-4, atol=5e-4)
+np.testing.assert_allclose(actual_logits, expected_logits, rtol=5e-4, atol=5e-4)
+np.testing.assert_array_equal(actual_expert_ids, expected_expert_ids)</code></pre>
+          </div>
+          <div id="q-test-production-attention" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Dense-vs-production attention compares multiple correctness signals.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_copy_transformer(dense_model, lev_model, mesh=tpu_mesh)
+_copy_transformer(production_model, lev_model, mesh=tpu_mesh)
+label="production-attention hidden"
+label="production-attention logits"
+label="production-attention selected next-token logprobs"
+np.testing.assert_array_equal(production_expert_ids, dense_expert_ids)</code></pre>
+          </div>
+          <div id="q-test-artifact-roundtrip" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Artifact roundtrip checks tensor schema, strict load report, and loaded behavior.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if exported_names != expected_names: raise AssertionError(...)
+if report.consumed != expected_names: raise AssertionError(...)
+if report.missing or report.unexpected: raise AssertionError(...)
+np.testing.assert_allclose(loaded_hidden, manual_hidden, rtol=5e-4, atol=5e-4)
+np.testing.assert_array_equal(loaded_expert_ids, manual_expert_ids)</code></pre>
+          </div>
+          <div id="q-test-realistic-roundtrip" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The realistic roundtrip validates non-zero training-state export/load and generation.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>realistic-roundtrip: dtype_policy=params=float32,compute=bfloat16,output=bfloat16
+manual-copy native reference matches Levanter hidden states, logits, and routed experts
+loaded native artifact full-forward greedy generation matched Levanter reference
+sharded training-state export loaded in native tpu-inference and matched Levanter/manual-copy</code></pre>
+          </div>
+          <div id="q-test-reference-json" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The reference JSON records continuation logprobs and routed experts.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"continuation_ids": continuation_ids
+"levanter_continuation_logprobs": continuation_logprobs_np
+"levanter_routed_experts": np.transpose(expert_ids_np, (1, 0, 2))
+"levanter_router_margin": np.transpose(router_margins_np, (1, 0))</code></pre>
+          </div>
+          <div id="q-installed-vllm-serve" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke uses Marin's existing vLLM helper.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>from marin.inference.vllm_server import VllmEnvironment
+with VllmEnvironment(... extra_args=extra_args) as env:
+    generate_url = _server_base_url(env.server_url) + "/inference/v1/generate"</code></pre>
+          </div>
+          <div id="q-installed-vllm-request" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke sends raw token IDs and deterministic sampling params.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"token_ids": prompt_ids
+"sampling_params": {
+    "max_tokens": generation_tokens,
+    "temperature": 0.0,
+    **({"logprobs": 1} if check_reference_logprobs else {}),
+}</code></pre>
+          </div>
+          <div id="q-installed-vllm-assertions" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke checks generated IDs, selected logprobs, and routed experts when requested.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if expected_ids is not None and generated_ids != expected_ids: raise AssertionError(...)
+deltas = np.abs(actual_logprobs - expected_logprobs)
+if logprob_summary["max_abs_delta"] > max_logprob_delta: raise AssertionError(...)
+routed_shape = _assert_routed_experts(choice, artifact_config)</code></pre>
+          </div>
+          <div id="q-installed-routed-experts" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke validates routed-expert shape and ID range.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if routed_experts.shape[1] != expected_layers: raise AssertionError(...)
+if routed_experts.shape[2] != expected_topk: raise AssertionError(...)
+if not np.all((routed_experts >= 0) & (routed_experts < num_experts)): raise AssertionError(...)</code></pre>
+          </div>
+          <div id="q-installed-process-split" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke isolates export and serve phases in subprocesses.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_run_phase_subprocess("export", ...)
+artifact_dir = _artifact_dir(output_dir)
+reference_path = _reference_path(output_dir)
+_run_phase_subprocess("serve", ...)</code></pre>
+          </div>
+          <div id="q-performance-boundary" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke is configured for correctness smoke, not performance measurement.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"--enforce-eager"
+"--max-num-seqs", "1"
+"--skip-tokenizer-init"
+"--tokens-only"</code></pre>
+          </div>
+          <div id="q-layer-window-rule" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The parity harness mirrors the model's short/long window rule.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>def _layer_sliding_window(cfg: GrugModelConfig, layer_index: int) -> int:
+    short_window = cfg.sliding_window // 2
+    return cfg.sliding_window if layer_index % 4 == 3 else short_window</code></pre>
+          </div>
+          <div id="q-installed-smoke-context" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The installed smoke uses a short context sized for the prompt plus generated tokens.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_PROMPT_IDS = [1, 42, 128, 2048, 17, 3072, 5, 63]
+max_model_len = max(16, len(prompt_ids) + generation_tokens)
+extra_args.extend(["--max-model-len", str(max_model_len)])</code></pre>
+          </div>
+          <div id="q-committed-schema-version" class="rounded border border-sky-700/70 bg-sky-950/30 p-4">
+            <p class="text-sm font-semibold text-sky-100">Latest branch evidence: Marin emits and tpu-inference requires the schema version.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>GRUG_MOE_ARTIFACT_SCHEMA_VERSION_KEY = "grugmoe_artifact_schema_version"
+GRUG_MOE_ARTIFACT_SCHEMA_VERSION = 1
+GRUG_MOE_ARTIFACT_SCHEMA_VERSION_KEY: GRUG_MOE_ARTIFACT_SCHEMA_VERSION
+
+_ARTIFACT_SCHEMA_VERSION_CONFIG_KEY = "grugmoe_artifact_schema_version"
+artifact_schema_version = config.get(_ARTIFACT_SCHEMA_VERSION_CONFIG_KEY)
+if artifact_schema_version != _ARTIFACT_SCHEMA_VERSION:
+    raise ValueError(...)</code></pre>
+          </div>
+          <div id="q-installed-schema-check" class="rounded border border-sky-700/70 bg-sky-950/30 p-4">
+            <p class="text-sm font-semibold text-sky-100">The installed smoke rejects mismatched artifact schema versions before serving.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if config.get(_ARTIFACT_SCHEMA_VERSION_KEY) != _ARTIFACT_SCHEMA_VERSION:
+    raise AssertionError(
+        f"invalid artifact {_ARTIFACT_SCHEMA_VERSION_KEY}=..."
+    )</code></pre>
+          </div>
+          <div id="q-committed-pp-test" class="rounded border border-sky-700/70 bg-sky-950/30 p-4">
+            <p class="text-sm font-semibold text-sky-100">Latest branch evidence: PP embed-norm regression test.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>def test_grugmoe_skips_embed_norm_for_received_pp_hidden_states():
+    model = _minimal_model(is_first_rank=False)
+    ...
+    assert jnp.array_equal(hidden_states, inputs_embeds)
+    assert model.embed_norm.calls == 0</code></pre>
+          </div>
+          <div id="q-pp-loader-limit" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Artifact loading is still limited to a full model on one pipeline rank.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if not (self.model.is_first_rank and self.model.is_last_rank):
+    raise NotImplementedError(
+        "GrugMoE inference artifact loading currently supports a full "
+        "model on a single pipeline rank.")</code></pre>
+          </div>
+          <div id="q-vllm-marin-pin" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">vLLM documents that Marin owns the tpu-inference fork dependency.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code># Marin pins the tpu-inference fork in its workspace. Keep this file free of a
+# direct tpu-inference pin so marin-core[vllm] resolves Marin's selected fork.</code></pre>
+          </div>
+          <div id="q-latest-cleanup" class="rounded border border-amber-700/70 bg-amber-950/20 p-4">
+            <p class="text-sm font-semibold text-amber-100">Latest Marin commits consolidate the validation surface.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>6b2c4a38f2 Pin GrugMoE TPU vLLM fork stack
+18e071a41d Add GrugMoE artifact export support
+d5e0ce091d Support custom Levanter HF export paths
+a9c0adcce8 Add GrugMoE real-checkpoint TPU e2e
+
+tests/vllm/test_grugmoe_real_checkpoint_e2e.py
+tests/vllm/grugmoe_real_checkpoint_backend.py
+Deleted the old real_checkpoint_* scripts, installed_vllm_smoke.py, vllm_tpu_parity.py, and Marin vllm_registry.py.</code></pre>
+          </div>
+          <div id="q-marin-fork-pins" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Marin directly pins the fork-stack dependencies used by its vLLM extra.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>vllm = { git = "https://github.com/marin-community/vllm.git", rev = "7557e69ddb2e28b287d0729b4aee4d7de8de18f9" }
+tpu-inference = { git = "https://github.com/marin-community/tpu-inference.git", rev = "217fc45b078b1030bfcb5b704ed1169b448a5808" }</code></pre>
+          </div>
+          <div id="q-vllm-route-disabled-test" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The vLLM unit test ensures unsolicited routes are ignored when disabled.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>scheduler.enable_return_routed_experts = False
+model_runner_output = ModelRunnerOutput(... routed_experts=RoutedExpertsLists(...))
+engine_core_outputs = scheduler.update_from_output(...)
+assert not hasattr(scheduler, "routed_experts_mgr")
+assert engine_core_outputs[0].outputs[0].routed_experts is None</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8 rounded border border-slate-800 bg-[#0d1117] p-5">
+        <h2 class="text-2xl font-semibold text-white">Short Source Quotes</h2>
+        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+          <div id="q-architecture" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The Marin model declares the architecture.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>Architecture: QB-routed MoE with GatedNorm, XSA, sigmoid combine weights.
+No load-balancing loss; router z-loss only. All layers are MoE.</code></pre>
+          </div>
+          <div id="q-qb-provenance" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">QB is Quantile Balancing, sourced to an article-style update.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>Open Athena: Quantile Balancing (QB), a load balancing method for Mixture of Experts.
+Marin #3406: article-style MoE quantile load-balancing update from kexue.fm/archives/11619.</code></pre>
+          </div>
+          <div id="q-topk-boundary" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The router selects top-(K+1), then keeps top-K.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_topk_logits, selected_experts = jax.lax.top_k(..., K + 1)
+selected_experts = selected_experts[:, :-1]</code></pre>
+          </div>
+          <div id="q-qb-bias" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">QB betas become next-step router bias.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>new_bias = -qb_betas[moe_idx]
+new_bias = new_bias - jnp.mean(new_bias)</code></pre>
+          </div>
+          <div id="q-combine-sigmoid" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Combine weights use sigmoid, not selected-expert softmax.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>combine_weights = jax.nn.sigmoid(unbiased_topk).astype(x.dtype)</code></pre>
+          </div>
+          <div id="q-rmsnorm" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">RMSNorm rescales by root-mean-square magnitude and learned weight.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>variance = jnp.mean(jnp.square(x), axis=-1, keepdims=True)
+normed = x * jax.lax.rsqrt(variance + self.eps)
+return (normed * weight).astype(dtype)</code></pre>
+          </div>
+          <div id="q-gatednorm" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">GatedNorm multiplies by a learned sigmoid gate.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>gate_hidden = jax.nn.silu(x @ w_down)
+gate = jax.nn.sigmoid(gate_hidden @ w_up)
+return x * gate.astype(x.dtype)</code></pre>
+          </div>
+          <div id="q-long-window" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Every fourth layer gets the long attention window.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>layer_mask = long_mask if i % 4 == 3 else short_mask</code></pre>
+          </div>
+          <div id="q-attention-setup" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Attention normalizes Q/K, applies RoPE, and scales Q.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>q = rms_norm(q)
+k = rms_norm(k)
+q, k = apply_rotary_embedding(...)
+q = q * self.cfg.qk_mult</code></pre>
+          </div>
+          <div id="q-xsa" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Exclusive self-attention removes the own-value direction.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>dot = jnp.sum(attn_out * aligned_v, axis=-1, keepdims=True)
+attn_out = attn_out - (dot / (v_norm_sq + 1e-6)) * aligned_v</code></pre>
+          </div>
+          <div id="q-attn-head-gate" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Attention applies a learned headwise gate after XSA.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code># Headwise gating: sigmoid(x @ attn_gate) produces one scalar per head.
+gate = 2 * jax.nn.sigmoid(jnp.einsum("bsd,dn->bsn", x, self.attn_gate))[..., None]
+attn_out = gate * attn_out</code></pre>
+          </div>
+          <div id="q-shared-expert" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The shared expert runs beside routed experts when present.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if self.shared is not None:
+    mlp_out = mlp_out + self.shared(..., activation=ActivationFunctionEnum.silu)</code></pre>
+          </div>
+          <div id="q-artifact-schema" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The artifact schema includes Grug-specific tensors.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"model.embed_gated_norm.down_proj.weight"
+f"{prefix}.mlp.router.bias"
+f"{prefix}.shared_expert.gate_proj.weight"</code></pre>
+          </div>
+          <div id="q-generic-router" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The generic JAX MoE router is conventional top-k.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>weights_TX, selected_experts_TX = jax.lax.top_k(
+    router_logits_TE, self.num_experts_per_tok)
+normalized_weights_TX = router_act(...)</code></pre>
+          </div>
+          <div id="q-qwen3-moe" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Qwen3-MoE uses JaxMoE and does not implement shared experts here.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>self.experts = JaxMoE(...)
+raise NotImplementedError(
+    "Shared expert is not implemented yet...")</code></pre>
+          </div>
+          <div id="q-gemma4-moe" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Gemma4 has a MoE path in this fork, with different routing semantics.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>class Gemma4Router(JaxModule):
+    """Router for Gemma4 MoE that preprocesses input before projection."""
+class Gemma4MoE(JaxMoE):
+    """Mixture of Experts for Gemma4 using FusedMoE.
+    Gemma4 routing: softmax over ALL experts -> top-k -> renormalize."""</code></pre>
+          </div>
+          <div id="q-deepseek-router" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">DeepSeek has a custom correction-bias router.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>scores_TE = scores_TE + self.e_score_correction_bias
+topk_indices_TX = self.get_topk_indices(probs_TE)
+# The actual weights do not include the bias terms.</code></pre>
+          </div>
+          <div id="q-deepseek-shared" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">DeepSeek has routed plus shared expert plumbing.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>class SharedFusedMoe(JaxMoE):
+    """Handles the routed and shared experts + the relevant forward pass."""
+if self.shared_experts is not None:
+    final_hidden_states += shared_output</code></pre>
+          </div>
+          <div id="q-gptoss-router" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">GPT-OSS has a model-specific biased router with softmax mixing.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>router_logits_TE += self.bias_E.value
+weights_TX, selected_experts_TX = jax.lax.top_k(...)
+normalized_weights_TX = jax.nn.softmax(..., axis=-1)</code></pre>
+          </div>
+          <div id="q-registration-rationale" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The fork explains why GrugMoE is registered in-tree.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code># GrugMoE needs runner-owned JAX KV-cache and routed-expert plumbing,
+# so the Marin fork carries it in-tree.</code></pre>
+          </div>
+          <div id="q-runner-output" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">tpu-inference can return routed expert IDs to vLLM.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>return RoutedExpertsLists(
+    routing_data=np.transpose(expert_indices_cpu, (1, 0, 2)),
+    slot_mapping=slot_mapping,
+)</code></pre>
+          </div>
+          <div id="q-parity-smoke" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">The parity smoke compares dense and production models copied from one Levanter model.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>_copy_transformer(dense_model, lev_model, mesh=tpu_mesh)
+_copy_transformer(production_model, lev_model, mesh=tpu_mesh)
+np.testing.assert_array_equal(... production_expert_ids ..., ... dense_expert_ids ...)</code></pre>
+          </div>
+          <div id="q-hf-config-default" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Marin exports production attention in the HF config.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>"grugmoe_attention_mode": "production"</code></pre>
+          </div>
+          <div id="q-prod-default" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Production mode is default if unset.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if value is None:
+    return GrugMoeAttentionMode.PRODUCTION</code></pre>
+          </div>
+          <div id="q-dense-mode" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Dense mode is explicit.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if self.cfg.attention_mode == GrugMoeAttentionMode.DENSE:
+    return kv_cache, self._dense_reference_attention(...)</code></pre>
+          </div>
+          <div id="q-shared-attention" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">Production path uses shared attention.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>new_kv_cache, attn_out = shared_attention(
+    kv_cache, q, k, v, attention_metadata, self.mesh, ...)</code></pre>
+          </div>
+          <div id="q-vllm-route-guard" class="rounded border border-slate-700 bg-slate-950 p-4">
+            <p class="text-sm font-semibold text-slate-200">vLLM only stores routes when enabled.</p>
+            <pre class="mt-3 text-xs leading-5 text-slate-300"><code>if (
+    self.enable_return_routed_experts
+    and model_runner_output.routed_experts is not None
+):</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8 rounded border border-amber-700/60 bg-amber-950/20 p-5">
+        <h2 class="text-2xl font-semibold text-white">Known Caveats To Carry Into Review</h2>
+        <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-300">
+          <li id="q-caveat-final-smoke-scope">The real-checkpoint e2e passed on the TPU-validated heads listed in the validation table, but it is still one prompt, one short decode, one-rank serving, and not a broad prompt or performance suite.</li>
+          <li id="q-caveat-cleanup-head">The current Marin head is <code class="code">a9c0adcce8</code>. The fresh e2e summary records the pre-history-cleanup Marin SHA <code class="code">c3ed9f7009</code>; the current head is tree-identical to that validated tree.</li>
+          <li id="q-caveat-rebase">If any PR branch is rebased after these heads, rerun at least the focused checks and refresh this page before relying on the recorded result paths.</li>
+          <li id="q-caveat-serving-evidence">The final real-checkpoint vLLM result is the current serving evidence. It exercises the string <code class="code">/v1/completions</code> path, not raw-token routed-expert or logprob reporting.</li>
+          <li id="q-caveat-pytest">Focused Marin, tpu-inference, and vLLM tests passed in the final verification pass. Full Marin pre-commit still hit known unrelated Pyrefly failures outside the GrugMoE change.</li>
+          <li id="q-caveat-loading">Weight loading remains bespoke and easy to audit for this model, but it is less general than the reusable tpu-inference loader path.</li>
+          <li id="q-caveat-rerun">Rerun TPU smoke if GrugMoE serving code paths move.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
